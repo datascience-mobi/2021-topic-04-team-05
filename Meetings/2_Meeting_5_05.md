@@ -5,7 +5,7 @@
 ---
 
 ## Last week's progress
-- Project Proposal presentation draft
+- 
 
 ## Questions
 - Beim pre-processing: sollen wir auch high-pass filters verwenden, die die edges enhancen? Weil wir letztendlich das auch als Ziel haben, aber würden diese andere Filter eine andere “Methode” sein, die die Bilder verfälscht?
