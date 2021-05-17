@@ -12,7 +12,7 @@
 - Ground truth mit Grauwerten? → Anpassen mit Threshold damit nur weiß & schwarz?
 - was soll output unserer SVM sein? schwarz/weiß oder ränder
 - Welchen Mehrwert haben synthetic images an DIESEM Schritt? (eigentlich ja benutzt um Dataset zu vergrößern); wie können wir am geschicktesten unseren Dice score damit überprüfen (ggf. Paper raussuchen)?
-
+- Domain transfer/randomization -> sollen wir ein Programm wie Blender oder Unity verwenden oder eher einfach Lichtverhälltnisse durch Gradienten etc verändern?
 
 
 ## Plans for next week
