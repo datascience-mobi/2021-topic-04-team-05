@@ -1,5 +1,6 @@
 # Dice Score
 
+
 # Synthetic images
 ## Mixing object over real world scenes
 --> probably not as useful for our case as cells are usually in front of dark background, but still an option to evaluate --> will the Dice Score get better with that method?
