@@ -1,27 +1,28 @@
-#%%
-#packages: opencv, numpy, gt
-import cv2 as cv2
-import numpy as np
-import gt as gt
+#imports packages
+%pylab #add numpy and matplotlib
+%matplotlib inline
 
-##first we need to threshold the ground truth images
-#making the gt images black & white only
-T1 = 0
-T2 = 1
-gt2 = gt.clip(T1,T2)
-figure(figsize=(15,8))
-imshow(gt2, 'gray')
-colorbar()
-
-
-##designing the dice coefficent
+##designing the dice coefficent pt.1
 #loading the images (true = ground truth image; pred = predicted segmentation by SVM)
-img1_true = cv2.imread('path to image') #reads image into numpy array (2D matrix)
-img1_pred = cv2.imread('path to image')
+img1_true = cv2.imread('C:\Users\glori\Documents\ALLES\Uni\Bioinfoprojekt SVM/gt_test.png') #reads image into numpy array (2D matrix)
+img1_pred = cv2.imread('C:\Users\glori\Documents\ALLES\Uni\Bioinfoprojekt SVM/pred_test.png')
+
+#convert image into type bool
+img1t = img1_true.astype(bool)
+img1p = img1_pred.astype(bool)
+
+##designing the dice coefficent pt.2
+img2_true = imread('path to image') #import image
+img2_pred = imread('path to image') #import image
+
+#convert image into type bool
+img2t = np.asarray(img1_true).astype(np.bool) #converts image to array and then to bool
+img2p = np.asarray(img1_pred).astype(np.bool) #converts image to array and then to bool
+
 
 #defining the variables 'intersection' and 'union'
-intersection = np.sum(img1_pred == img1_true) #counts pixels/sums intensity values in which pred = true
-union = np.sum(img1_pred) + np.sum(img1_true)
+intersection = np.logical_and(img1t, img1p) #Compute the truth value of x1 AND x2 element-wise
+union = img1t.sum() + img1p.sum()
 
 #calculating the dice
 if intersection + union == 0:
@@ -31,4 +32,4 @@ else:
     print(dice)
 
 ##reusable code - TO BE DONE
-def dice_coefficent (groundtruth, SVMprediction)
+#def dice_coefficent (groundtruth, SVMprediction)
