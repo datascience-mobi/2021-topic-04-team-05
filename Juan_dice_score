@@ -1,0 +1,30 @@
+#import numpy library and load image from specified file
+import numpy as np
+import cv2 as cv
+
+cell_nuclei_image = cv.imread(file, 0)
+
+#thresholding with the first thresholding type cv2 binary, if the value is fewer than 125, the value is assigned to 0, and if greater, the value will be assigned to 1
+th_normal = cv.threshold(cell_nuclei_image, 125, 255, cv.thres_binary)
+
+#if you want to invert it
+th_inverted = cv.threshold(cell_nuclei_image, 125, 255, cv.thres_binary_inv)
+
+#show image
+cv.imshow("Cell Nuclei Example Thresholded", th_normal)
+
+
+#segmentated, thresholded image 
+th_segmented_image
+
+#ground truth
+gt
+
+#Dice score 
+
+def dice_coeff(gt, th_segmented_image)
+intersection = np.sum(gt*th_segmented_image)
+if(np.sum(gt==0) and np.sum(th_segmented_image==0)
+return 1
+return (2*intersection) / (np.sum(gt) + np.sum(th_segmented_image))
+
