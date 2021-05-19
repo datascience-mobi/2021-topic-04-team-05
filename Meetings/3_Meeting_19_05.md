@@ -14,7 +14,7 @@
 - Welchen Mehrwert haben synthetic images an DIESEM Schritt? (eigentlich ja benutzt um Dataset zu vergrößern); wie können wir am geschicktesten unseren Dice score damit überprüfen (ggf. Paper raussuchen)?
 - Domain transfer/randomization -> sollen wir ein Programm wie Blender oder Unity verwenden oder eher einfach Lichtverhälltnisse durch Gradienten etc verändern?
 - Git-Probleme Ria
-
+- inwiefern muss unser Code neu sein?...wurde ja alle schon tausend mal gemacht
 
 ## Plans for next week
 - switch topics
