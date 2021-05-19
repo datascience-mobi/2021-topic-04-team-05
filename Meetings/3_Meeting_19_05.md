@@ -13,9 +13,9 @@
   A: jeder Zellkern hat eigenen Grauwert -> so können Nuclei voneinander unterschieden werden
 - was soll output unserer SVM sein? schwarz/weiß oder ränder
 - Welchen Mehrwert haben synthetic images an DIESEM Schritt? (eigentlich ja benutzt um Dataset zu vergrößern); wie können wir am geschicktesten unseren Dice score damit überprüfen (ggf. Paper raussuchen)?
-  -> für dice score reicht einen numpy array zu erzeugen
+  A: für dice score reicht einen numpy array zu erzeugen
 - Domain transfer/randomization -> sollen wir ein Programm wie Blender oder Unity verwenden oder eher einfach Lichtverhälltnisse durch Gradienten etc verändern?
-  -> nicht die Programme, sondern eher mit Gradienten etc. arbeiten, also mit eigenem Code
+  A: nicht die Programme, sondern eher mit Gradienten etc. arbeiten, also mit eigenem Code
 - Git-Probleme Ria
 - inwiefern muss unser Code neu sein?...wurde ja alle schon tausend mal gemacht
 
