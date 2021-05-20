@@ -1,0 +1,63 @@
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>Test\nTest 2\nTest 3\nMichelle isst gerade
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/README.md b/README.md
+--- a/README.md	(revision cef3e547a92b6747feb21ed024b3f8cd0675d287)
++++ b/README.md	(date 1621270700747)
+@@ -1,4 +1,2 @@
+ Test
+-Test 2
+-Test 3
+ Michelle isst gerade
+\ No newline at end of file
+Index: synthetic_images_Laura.ipynb
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n \"cells\": [\n  {\n   \"cell_type\": \"code\",\n   \"execution_count\": 1,\n   \"metadata\": {\n    \"collapsed\": true\n   },\n   \"outputs\": [\n    {\n     \"name\": \"stdout\",\n     \"output_type\": \"stream\",\n     \"text\": [\n      \"Hello\\n\"\n     ]\n    }\n   ],\n   \"source\": [\n    \"\\n\"\n   ]\n  }\n ],\n \"metadata\": {\n  \"kernelspec\": {\n   \"name\": \"igem-data2.ipynb\",\n   \"language\": \"python\",\n   \"display_name\": \"Python (iGEM-data2.ipynb)\"\n  },\n  \"language_info\": {\n   \"codemirror_mode\": {\n    \"name\": \"ipython\",\n    \"version\": 2\n   },\n   \"file_extension\": \".py\",\n   \"mimetype\": \"text/x-python\",\n   \"name\": \"python\",\n   \"nbconvert_exporter\": \"python\",\n   \"pygments_lexer\": \"ipython2\",\n   \"version\": \"2.7.6\"\n  }\n },\n \"nbformat\": 4,\n \"nbformat_minor\": 0\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/synthetic_images_Laura.ipynb b/synthetic_images_Laura.ipynb
+--- a/synthetic_images_Laura.ipynb	(revision cef3e547a92b6747feb21ed024b3f8cd0675d287)
++++ b/synthetic_images_Laura.ipynb	(date 1621270760643)
+@@ -16,8 +16,33 @@
+     }
+    ],
+    "source": [
++    "import os\n",
++    "import random\n",
++    "import numpy as np\n",
++    "import errno\n",
++    "import csv\n",
++    "from PIL import Image"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "outputs": [],
++   "source": [
++    "foreground_path = Image.open(\"C:/Users\")\n",
++    "#foreground_path.show()\n",
++    "\n",
++    "background_path= Image.open(\"C:/Users/miche/Documents/Universität/Semester 4/Bioinfo Projekt/Synthetic image/1094.jpg\")\n",
++    "#background_path.show()\n",
++    "\n",
+     "\n"
+-   ]
++   ],
++   "metadata": {
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
+   }
+  ],
+  "metadata": {
+diff --git a/environment.yml b/environment.yml
+new file mode 100644

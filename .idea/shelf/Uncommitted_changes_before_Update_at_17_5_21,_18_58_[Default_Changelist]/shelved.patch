@@ -1,0 +1,18 @@
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>Test\nTest 2\nTest 3\nMichelle isst gerade
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/README.md b/README.md
+--- a/README.md	(revision 0506eadcb670b8038455206bb7486c6e4a3f7b58)
++++ b/README.md	(date 1620917492071)
+@@ -1,4 +1,2 @@
+ Test
+-Test 2
+-Test 3
+ Michelle isst gerade
+\ No newline at end of file
+diff --git a/environment.yml b/environment.yml
+new file mode 100644
