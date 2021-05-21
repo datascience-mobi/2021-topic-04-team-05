@@ -1,7 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4468301b-6037-4af7-8e33-195ff8ab7c15" name="Default Changelist" comment="Synthetic Images version 2 (Laura)" />
+    <list default="true" id="4468301b-6037-4af7-8e33-195ff8ab7c15" name="Default Changelist" comment="files that have been moved">
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Background/2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Background/3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Background/4.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Background/5.jpeg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Foreground/2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Foreground/3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Foreground/4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Foreground/5.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/annotations.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/image_0000.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/image_0001.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/image_0002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/image_0003.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/image_0004.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/mask_0000.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/mask_0001.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/mask_0002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/mask_0003.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Generated/mask_0004.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Background.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Background/1.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/cells.png" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/Pictures/Foreground/1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/synthetic_image_Laura.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Working on/Synthetic image/Code/synthetic_image_Laura.ipynb" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,6 +64,30 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.notebooks.jupyter.connections.configuration.JupyterServerConfigurable" />
   </component>
+  <component name="RunManager">
+    <configuration name="Synthetic Images" type="PythonConfigurationType" factoryName="Python">
+      <module name="2021-topic-04-team-05" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/.conda/envs/2021-topic-04-team-05/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Content/Working on/Synthetic image/Code" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -61,6 +109,7 @@
       <workItem from="1621270685337" duration="5170000" />
       <workItem from="1621280571118" duration="633000" />
       <workItem from="1621529761253" duration="198000" />
+      <workItem from="1621529968088" duration="6964000" />
     </task>
     <task id="LOCAL-00001" summary="Ein Test">
       <created>1619100407749</created>
@@ -97,7 +146,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621280318321</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="files that have been moved">
+      <created>1621530053437</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1621530053437</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -120,6 +176,7 @@
     <MESSAGE value="Ein Test" />
     <MESSAGE value="Synthetic Images (Lauras version)" />
     <MESSAGE value="Synthetic Images version 2 (Laura)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Synthetic Images version 2 (Laura)" />
+    <MESSAGE value="files that have been moved" />
+    <option name="LAST_COMMIT_MESSAGE" value="files that have been moved" />
   </component>
 </project>
