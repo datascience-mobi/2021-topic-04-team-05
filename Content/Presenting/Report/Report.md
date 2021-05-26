@@ -49,7 +49,7 @@ The dice is element of [0,1]. 0 indicates that the ground truth and the segmenta
 other hand shows a 100% overlap of ground truth and segmented image.
 
 ## 6.2 Implementing the dice coefficient
-* ich weiß nicht warum das nicht als code angezeigt wird* 
+*ich weiß nicht warum das nicht als code angezeigt wird* 
 
 '''
 ###import images (prediction & ground truth) as arrays
