@@ -31,6 +31,7 @@ zu zeigen & am ende dice berechnen --> veranschaulichen*
 
 
 # 6. Dice coefficient
+## 6.1 Calculating the dice coefficient
 
 The Dice coefficient is a score to evaluate and compare the accuracy of a segmentation (method).
 Needed for its calculation are the segmented image as well as a corresponding binary reference point also called 
@@ -47,7 +48,28 @@ This information is then used to calculate the dice coefficient using formula (1
 The dice is element of [0,1]. 0 indicates that the ground truth and the segmentation result do not overlap. 1 on the 
 other hand shows a 100% overlap of ground truth and segmented image.
 
-# Synthetic images
+## 6.2 Implementing the dice coefficient
+* ich weiß nicht warum das nicht als code angezeigt wird* 
+
+'''
+###import images (prediction & ground truth) as arrays
+
+###compute dice score
+def dice_coefficient(imgt, imgp):  # t = ground truth, p = SVM prediction
+    assert imgt.dtype == np.bool #the images with type array are converted to type bool
+    assert imgp.dtype == np.bool #the images with type array are converted to type bool
+    intersection = np.logical_and(imgt, imgp) #compute the truth value of x1 AND x2 element-wise = sums all pixels where both gt and pred have the value 'true'
+    union = imgt.sum() + imgp.sum() #compute the truth value of x1 OR x2 element-wise = sums all pixels where either gt or pred (or both) have the value 'true'
+    if intersection + union == 0:
+        return ('dice cannot be calculated - no intersection') #because it is mathematically not allowed to divide by 0, which would happen if gt and pred don't intersect
+    else:
+        dice = (2 * intersection) / (union + intersection) #using the dice formula to calculate the dice IF gt and pred intersect
+        return dice #print out dice
+
+'''
+
+
+## 6.3 Synthetic images
 ## Mixing object over real world scenes
 --> probably not as useful for our case as cells are usually in front of dark background, but still an option to evaluate --> will the Dice Score get better with that method?
 
