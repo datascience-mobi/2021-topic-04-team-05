@@ -32,14 +32,20 @@ zu zeigen & am ende dice berechnen --> veranschaulichen*
 
 # 6. Dice coefficient
 
-The Dice coefficient is a score to evalutate and compare the accuracy of a segmentation (method).
+The Dice coefficient is a score to evaluate and compare the accuracy of a segmentation (method).
 Needed for its calculation are the segmented image as well as a corresponding binary reference point also called 
 ground truth.
 As ground truth image researchers mostly use the segmentation result of humans. We will use the ground truth images 
-provided with our data sets, which we suspect to be aquired by this method.
-Using the ground truth image it is possible to assign the labels true positive (TP), false positive (FP) and false 
-negative (FN) to each pixel of the segmented image. 
+provided with our data sets, which we suspect to be acquired by this method.
+Using the ground truth image, it is possible to assign the labels true positive (TP), false positive (FP) and false 
+negative (FN) to each pixel of the segmented image.
+This information is then used to calculate the dice coefficient using formula (1):
 
+(1) dice = ${\frac{2TP}{2TP + FP + FN}}$ 
+*ich habe keine ahnung wie ich das als formel implementieren kann*
+
+The dice is element of [0,1]. 0 indicates that the ground truth and the segmentation result do not overlap. 1 on the 
+other hand shows a 100% overlap of ground truth and segmented image.
 
 # Synthetic images
 ## Mixing object over real world scenes
