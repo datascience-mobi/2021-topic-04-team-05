@@ -27,7 +27,8 @@
 
 # 6. Dice coefficient
 
-The Dice coefficient is 
+The Dice coefficient is a score to evalutate and compare the accuracy of a segmentation (method).
+Needed for its caculation are a segmented image as well as 
 
 # Synthetic images
 ## Mixing object over real world scenes
