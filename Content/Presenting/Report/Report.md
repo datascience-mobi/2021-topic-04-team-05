@@ -49,9 +49,8 @@ The dice is element of [0,1]. 0 indicates that the ground truth and the segmenta
 other hand shows a 100% overlap of ground truth and segmented image.
 
 ## 6.2 Implementing the dice coefficient
-*ich weiß nicht warum das nicht als code angezeigt wird* 
 
-'''
+```python
 ###import images (prediction & ground truth) as arrays
 
 ###compute dice score
@@ -66,7 +65,7 @@ def dice_coefficient(imgt, imgp):  # t = ground truth, p = SVM prediction
         dice = (2 * intersection) / (union + intersection) #using the dice formula to calculate the dice IF gt and pred intersect
         return dice #print out dice
 
-'''
+```
 
 
 ## 6.3 Synthetic images
