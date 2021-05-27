@@ -75,7 +75,7 @@ The concept behind creating synthetic images is to use algorithms and images whi
 Although our first objective was to just use these new images to test our code for the dice 
 score, we realized while researching for this topic that synthetic images have an immense 
 potential, most of all for the training of machine learning algorithms. The bigger the training 
-dataset is, the better the performance of the program. Our data set consists of XXXXX 
+dataset is, the better the performance of the program. Our data set consists of 28 
 images of cell nuclei, and because we have to slit it up between the training and the 
 test data set, we won't be able to use all images to train our SVM. Because of this,
 we decided to implement 
@@ -99,14 +99,15 @@ still an option to evaluate --> will the Dice Score get better with that method?
   (and it hasn't been modified either...), so maybe it would be better to just use our own code 
   when we write it.* 
 
-## domain transfer/randomization
+## Domain randomization
 The idea here is that there is a model from the object class you want to train your model for, 
 and in that model, every parameter from the object and its environment that is not necessary for 
 its recognition by the machine has been randomized.
 This means for example size, lighting or color, and there are very powerful tools to do this,  like 
 Unity or Blender.
---> probably more useful, as we have changes in size, dividing or leaving cells etc, but also a 
-bit of an overkill, as it is usually used to train robots to work from a simulation onto reality.
+--> probably more useful, as we have changes in size, dividing or leaving cells etc. However, 
+it is usually used to train robots to work from a simulation to reality, so it might be a bit 
+too much.
 
 # Support Vector Machine
 
