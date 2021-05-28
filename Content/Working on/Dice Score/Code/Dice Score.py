@@ -4,6 +4,25 @@ import cv2
 from matplotlib.image import imread
 from scipy import misc, ndimage
 
+img = imread('SyntheticImage1.png')
+print(type(img))
+
+imguint8 = img.astype(np.uint8)
+intersection = np.logical_and(imguint8, imguint8)
+dice = (2 * intersection.sum())/(imguint8.sum() + imguint8.sum())
+print(dice)
+
+img1 = imread('SyntheticImage2.png')
+
+img1uint8 = img1.astype(np.uint8)
+intersection = np.logical_and(img1uint8, imguint8)
+dice = (2 * intersection.sum())/(img1uint8.sum() + imguint8.sum())
+print(dice)
+
+
+
+#______________________________________________________________________________________________-
+
 #Load and show an image with Pillow
 from PIL import Image
 
@@ -16,15 +35,7 @@ print(img.mode)
 print(img.size)
 
 #show the image
-#img.show()
-
-img = imread('SyntheticImage1.png')
-
-imguint8 = img.astype(np.uint8)
-intersection = np.logical_and(imguint8, imguint8)
-dice = (2 * intersection.sum())/(imguint8.sum() + imguint8.sum())
-print(dice)
-
+img.show()
 
 intersection = np.logical_and(img1, img1)
 union = img1.sum() + img1.sum() #np.sum(img1() + img1())
