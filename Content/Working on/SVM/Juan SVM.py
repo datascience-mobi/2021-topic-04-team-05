@@ -11,6 +11,9 @@ import pandas as pd
 from sklearn.utils import resample
 #Support Vector Machine for Classification
 from sklearn.svm import SVC
+from sklearn import svm
+from sklearn import datasets
+from sklearn.datasets import load_iris
 #Cross Validation
 from sklearn.model_selection import GridSearchCV
 #Creates and draw confusion matrix
@@ -19,52 +22,69 @@ from sklearn.metrics import plot_confusion_matrix
 #To perform PCA to plot the data
 from sklearn.decomposition import PCA
 
-from sklearn.datasets import load_iris
+#Import the data to play with
+#Iris is tool used in manipulating multidimensional earth science data
 
-#Import the data
+bc = datasets.load_breast_cancer()
+df = pd.DataFrame(data=bc.data)
+df["label"] = bc.target
+##Scatter plot shown in fig 1
+plt.scatter(df[0][df["label"] == 0], df[1][df["label"] == 0],
+color='red', marker='o', label='malignant')
+plt.scatter(df[0][df["label"] == 1], df[1][df["label"] == 1],
+color='green', marker='*', label='benign')
+plt.xlabel('Malignant')
+plt.ylabel('Benign')
+plt.legend(loc='upper left')
+plt.show()
 
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
 
-data = load_iris()
-features = np.array(data.data)
+X = X[y != 0, :2]
+y = y[y != 0]
 
+n_sample = len(X)
 
-def plot_data(X, y, kernel_fn="linear", C=1.0, degree=3, gamma='auto'):
-    # 2 Grafiken nebeneinander zeigen
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(11, 3))
+np.random.seed(0)
+order = np.random.permutation(n_sample)
+X = X[order]
+y = y[order].astype(float)
 
-    for i in range(2):
-        ax = [ax1, ax2][i]
+X_train = X[:int(.9 * n_sample)]
+y_train = y[:int(.9 * n_sample)]
+X_test = X[int(.9 * n_sample):]
+y_test = y[int(.9 * n_sample):]
 
-        # 2 Mermale für die Anpassung verwenden
-        svm = SVC(kernel=kernel_fn, C=C, degree=degree, gamma=gamma)
-        svm.fit(X[:, 2 * i:2 * i + 2], y)
+# fit the model
+for kernel in ('linear', 'rbf', 'poly'):
+    clf = svm.SVC(kernel=kernel, gamma=10)
+    clf.fit(X_train, y_train)
 
-        # Minimale und Maximale Werte aus X nehmen und ein
-        # Matrix bilden mit alle Koordinaten mit Abstand 0.05
-        x_min, x_max = X[:, 0 + (2 * i)].min() - 1, X[:, 0 + (2 * i)].max() + 1
-        y_min, y_max = X[:, 1 + (2 * i)].min() - 1, X[:, 1 + (2 * i)].max() + 1
-        xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.05),
-                             np.arange(y_min, y_max, 0.01))
+    plt.figure()
+    plt.clf()
+    plt.scatter(X[:, 0], X[:, 1], c=y, zorder=10, cmap=plt.cm.Paired,
+                edgecolor='k', s=20)
 
-        # Vorhersagen nehmen für alle Koordinaten
-        Z = svm.predict(np.c_[xx.ravel(), yy.ravel()])
+    # Circle out the test data
+    plt.scatter(X_test[:, 0], X_test[:, 1], s=80, facecolors='none',
+                zorder=10, edgecolor='k')
 
-        # Hintergrund färben für jede Punkt aus xx,yy
-        Z = Z.reshape(xx.shape)
-        ax.contourf(xx, yy, Z, cmap=plt.cm.summer)
+    plt.axis('tight')
+    x_min = X[:, 0].min()
+    x_max = X[:, 0].max()
+    y_min = X[:, 1].min()
+    y_max = X[:, 1].max()
 
-        # Daten auch als Punkte plotten
-        ax.scatter(X[:, 0 + (2 * i)],
-                   X[:, 1 + (2 * i)],
-                   c=y, cmap=plt.cm.summer,
-                   edgecolors='black')
-        ax.get_xaxis().set_ticks([])
-        ax.get_yaxis().set_ticks([])
+    XX, YY = np.mgrid[x_min:x_max:200j, y_min:y_max:200j]
+    Z = clf.decision_function(np.c_[XX.ravel(), YY.ravel()])
 
-    ax1.set(ylabel='Sepalum Plot',
-            title="Kernel Function: %s \n C: %.2f \n gamma: %s " %
-                  (kernel_fn, C, str(gamma)))
-    ax2.set(ylabel='Petalum Plot')
+    # Put the result into a color plot
+    Z = Z.reshape(XX.shape)
+    plt.pcolormesh(XX, YY, Z > 0, cmap=plt.cm.Paired)
+    plt.contour(XX, YY, Z, colors=['k', 'k', 'k'],
+                linestyles=['--', '-', '--'], levels=[-.5, 0, .5])
 
-    plt.show()
-
+    plt.title(kernel)
+plt.show()
