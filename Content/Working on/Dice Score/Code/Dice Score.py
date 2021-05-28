@@ -1,12 +1,26 @@
-import cv2
-import matplotlib as matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+from scipy import misc, ndimage
 
-#reading in images
-img1 = cv2.imread('Synthetic Image 1.png')
-img1a = cv2.imread('Synthetic Image 1a.png')
-img2 = cv2.imread('Synthetic Image 2.png')
+#Load and show an image with Pillow
+from PIL import Image
+
+#Load the image
+img = Image.open('SyntheticImage1.png')
+
+#Get basic details about the image
+print(img.format)
+print(img.mode)
+print(img.size)
+
+#show the image
+img.show()
+
+imguint8 = img.astype(np.uint8)
+intersection = np.logical_and(imguint8, imguint8)
+dice = (2 * intersection.sum())/(imguint8.sum() + imguint8.sum())
+print(dice)
 
 
 intersection = np.logical_and(img1, img1)
