@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+from matplotlib.image import imread
 from scipy import misc, ndimage
 
 #Load and show an image with Pillow
@@ -15,7 +16,9 @@ print(img.mode)
 print(img.size)
 
 #show the image
-img.show()
+#img.show()
+
+img = imread('SyntheticImage1.png')
 
 imguint8 = img.astype(np.uint8)
 intersection = np.logical_and(imguint8, imguint8)
