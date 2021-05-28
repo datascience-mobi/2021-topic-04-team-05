@@ -36,7 +36,7 @@ zu zeigen & am ende dice berechnen --> veranschaulichen*
 The Dice coefficient is a score to evaluate and compare the accuracy of a segmentation (method).
 Needed for its calculation are the segmented image as well as a corresponding binary reference point also called 
 ground truth.
-As ground truth image researchers mostly use the segmentation result of humans. We will use the ground truth images 
+Image researchers mostly use as ground truth the segmentation result of humans. We will use the ground truth images 
 provided with our data sets, which we suspect to be acquired by this method.
 Using the ground truth image, it is possible to assign the labels true positive (TP), false positive (FP) and false 
 negative (FN) to each pixel of the segmented image.
@@ -55,6 +55,7 @@ other hand shows a 100% overlap of ground truth and segmented image.
 ###import images (prediction & ground truth) as arrays
 
 ###compute dice score
+```python
 def dice_coefficient(imgt, imgp):  # t = ground truth, p = SVM prediction
     assert imgt.dtype == np.bool #the images with type array are converted to type bool
     assert imgp.dtype == np.bool #the images with type array are converted to type bool
@@ -65,18 +66,47 @@ def dice_coefficient(imgt, imgp):  # t = ground truth, p = SVM prediction
     else:
         dice = (2 * intersection) / (union + intersection) #using the dice formula to calculate the dice IF gt and pred intersect
         return dice #print out dice
-
-'''
+```
 
 
 ## 6.3 Synthetic images
-## Mixing object over real world scenes
---> probably not as useful for our case as cells are usually in front of dark background, but still an option to evaluate --> will the Dice Score get better with that method?
+## How does it work, and what is our goal?
+The concept behind creating synthetic images is to use algorithms and images which are already available to generate new ones. 
+Although our first objective was to just use these new images to test our code for the dice 
+score, we realized while researching for this topic that synthetic images have an immense 
+potential, most of all for the training of machine learning algorithms. The bigger the training 
+dataset is, the better the performance of the program. Our data set consists of 28 
+images of cell nuclei, and because we have to split it up between the training and the 
+test data set, we won't be able to use all images to train our SVM. Because of this,
+we decided to implement 
+our synthetically produced images not only for the testing of the dice score, but to enlarge our 
+training data pool for our Support Vector Machine, and check afterwards if its efficiency is 
+better with our dice score. 
+There are many methods that can be used in order to generate synthetic images. Because of the 
+scope of our project and the kind of images that we want to produce, we focused on image 
+composition and domain transfer.
 
-## domain transfer/randomization
-as size, lighting etc. of objects change, this can be simulated with domain transfer (Unity or Blender)
---> probably more useful, as we have changes in size, dividing or leaving cells etc
+## Image composition
+Image composition consists of taking various foreground images, which have been segmented out of 
+their backgrounds or have a .png format to begin with, and paste them onto different backgrounds.
+The foreground images can be modified by using different light conditions, contrasts, zooms or 
+rotations in order to achieve more variety in the results.
+--> probably not as useful for our case as cells are usually in front of dark background, but 
+still an option to evaluate --> will the Dice Score get better with that method?
 
+
+*Here we could insert the code from my Jupyter notebook -> issue: it hasn't been written by us 
+  (and it hasn't been modified either...), so maybe it would be better to just use our own code 
+  when we write it.* 
+
+## Domain randomization
+The idea is that there is a model from the object class you want to train your model for, 
+and in that model, every parameter from the object and its environment that is not necessary for 
+its recognition by the machine has been randomized.
+This means for example the size, lighting or color. There are very powerful tools to do this, amongst are programs like Unity or Blender.
+--> probably more useful, as we have changes in size, dividing or leaving cells etc. However, 
+it is usually used to train robots to work from a simulation to reality, so it might be a bit 
+too much.
 
 # Support Vector Machine
 
