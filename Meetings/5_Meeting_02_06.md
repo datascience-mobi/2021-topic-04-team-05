@@ -9,9 +9,25 @@
 - Synthetic images implementation begonnen
 
 ## Questions
-- wie wurden gt images erstellt?
-- Git: gut so?; was ist _init_.py (wozu)
-- wie importiere ich den Code von dicescore.py in unseren report?
+1. wie wurden gt images erstellt?
+As a ground truth image, researchers mostly use the segmentation result of humans. We will use the ground truth images provided with our data sets, which we suspect to be acquired by this method. 
+2. Git: gut so?; was ist _init_.py (wozu)
+#init.py (leer) converts dicescore.py to module
+#modules can be imported
+
+3. wie importiere ich den Code von dicescore.py in unserern report?
+````
+import sys
+sys.path.append(C:\Users\glori\PycharmProjects\2021-topic-04-team-05\Finalmodules)
+from Finalmodules import dicescore.py
+````
+#brauchen wir die ``?
+#wie kann der code importiert werden?
+%cd Finalmodules
+%load dicescore.py
+
+4. 3d bilder? (bzw dritte dimension bei dice score)
+
 
 
 ## Plans for next week
