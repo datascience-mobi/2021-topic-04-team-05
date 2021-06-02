@@ -5,8 +5,8 @@
 
 ## Last week's progress
 - Report zu Dice Score und erster Teil zu Synthetic images
-- Dice Score fertig + unit test -> erfolgreich
-- Synthetic images implementation begonnen
+- Dice Score fertig + unit test -> erfolgreich (einziges Problem: Shape der Synthetic images)
+- SVM implementation begonnen
 
 ## Questions
 1. wie wurden gt images erstellt?
@@ -26,11 +26,9 @@ from Finalmodules import dicescore.py
 %cd Finalmodules
 %load dicescore.py
 
-4. 3d bilder? (bzw dritte dimension bei dice score)
-
 
 
 ## Plans for next week
-- Synthetic images Code fortsetzen 
-- Report zu Synthetic images fortsetzen
-- SVM code anfangen und SVM weiter recherchieren
+- SVM fortsetzen 
+- Report zu SVM
+- Problem von Synthetic images lösen
