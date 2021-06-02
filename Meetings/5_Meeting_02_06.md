@@ -33,3 +33,4 @@ from Finalmodules import dicescore.py
 ## Plans for next week
 - Synthetic images Code fortsetzen 
 - Report zu Synthetic images fortsetzen
+- SVM code anfangen und SVM weiter recherchieren
