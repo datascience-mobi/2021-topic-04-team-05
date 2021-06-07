@@ -12,5 +12,3 @@ class TestDiceScore(unittest.TestCase):
         result = dicescore.dice_score(img1, img1)
         self.assertEqual(result, 1.0) #checks if a (result) == b (1) (dice score should be 1 for image with itself)
 
-if __name__ == '__main__': #to use run instead of having to use the terminal
-    unittest.main()
