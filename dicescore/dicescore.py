@@ -1,17 +1,17 @@
-import matplotlib.pyplot as plt
+#DICE SCORE
+#python library for working with arrays
 import numpy as np
-import cv2
+#support for opening, manipulating, and saving images
+import PIL
+
+#reading the images and converting to arrays
 from matplotlib.image import imread
-from scipy import misc, ndimage
 
-def dice_score (pred,gt):
-    preduint8 = pred.astype(np.uint8) #convert prediction image to different array type: uint8 = 8 bit unsigned integer (range of values: 0 to 255)
-    gtuint8 = gt.astype(np.uint8) #convert ground truth to array type uint8
-    intersection = np.logical_and(preduint8, gtuint8) #calculate the intersection of both images, the  truth value of x1 AND x2 element-wise
-    dice = (2 * intersection.sum()) / (preduint8.sum() + gtuint8.sum()) #calculate dice (2*intersection/union)
-    print(dice)
+img1 = np.asarray(imread('man_seg21_totest.png'))
+#img1 = np.asarray(PIL.Image.open('man_seg21_totest.png'))
 
-img1 = imread ('SyntheticImage1.png') #import image
-img2 = imread ('SyntheticImage2.png') #import image
+def dice_score (pred, gt):
+    dice = np.sum(pred[gt == pred]) * 2.0 / (np.sum(gt) + np.sum(pred))
+    print (dice)
 
-dice_score (img1, img2)
+dice_score (img1, img1)
