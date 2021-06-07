@@ -7,7 +7,7 @@ import PIL
 #reading the images and converting to arrays
 from matplotlib.image import imread
 
-img1 = np.asarray(imread('man_seg21_totest.png'))
+img1 = np.asarray(imread('man_seg21testing.png'))
 #img1 = np.asarray(PIL.Image.open('man_seg21_totest.png'))
 
 def dice_score (pred, gt):
