@@ -8,7 +8,7 @@
 - Quellen Dice score & Synthetic images für den Report
 
 ## Questions
-- sollen wir die SVM from scratch erstellen?
+- Unit test Ergebnis
 
 
 
