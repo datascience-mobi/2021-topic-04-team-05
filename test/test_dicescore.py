@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from matplotlib.image import imread
 
-from functions.dicescore_code import dicescore
+from functions import dicescore
 
 
 class TestDiceScore(unittest.TestCase):
