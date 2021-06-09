@@ -1,17 +1,18 @@
 # Meeting Notes
-**02.06.2021**
+**09.06.2021**
 
 ---
 
 ## Last week's progress
-- SVM implementation
-- Quellen Dice score & Synthetic images für den Report
+- preparing data for SVM
+- read about 2 methods: PCA and block-method
+- edited Dice score & Synthetic images in report
 
 ## Questions
-- Unit test Ergebnis
+- Unit test 
 
 
 
 ## Plans for next week
-- SVM fertig stellen
-- Report zu SVM
+- finishing PCA and block-method
+- Report about SVM
