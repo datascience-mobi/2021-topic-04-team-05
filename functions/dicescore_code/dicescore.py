@@ -12,7 +12,7 @@ def dice_score(pred, gt):
     print(dice)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': #führt Code nur aus, wenn dicescore.py direkt gerunnt wird & nicht wenn es in anderes pythonfile importiert wird
     img1 = np.asarray(imread('man_seg21testing.png'))
     # img1 = np.asarray(PIL.Image.open('man_seg21_totest.png'))
     dice_score(img1, img1)
