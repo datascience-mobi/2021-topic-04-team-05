@@ -2,8 +2,7 @@ import unittest
 import numpy as np
 from matplotlib.image import imread
 
-from dicescore import dice_score
-from dicescore_code import dicescore
+from functions.dicescore_code import dicescore
 
 img1 = np.asarray(imread('29test.png'))
 
