@@ -11,4 +11,4 @@ class TestDiceScore(unittest.TestCase):
 
     def test_dice_score(self):
         result = dicescore.dice_score(self.img, self.img)
-        self.assertEqual(result, 1.0)  # checks if a (result) == b (1) (dice score should be 1 for image with itself)
+        self.assertEqual(1.0, result)  # checks if a (1.0) == b (result) (dice score should be 1 for image with itself)
