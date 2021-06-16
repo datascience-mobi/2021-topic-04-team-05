@@ -3,8 +3,6 @@ import cv2
 import pandas as pd
 from numpy import asarray
 from sklearn.decomposition import PCA as RandomizedPCA
-import sklearn
-import skimage
 from skimage import io
 
 
