@@ -4,7 +4,7 @@
 ---
 
 ## Last week's progress
-- preparing data for SVM: finishing PCA, started tiles method
+- preparing data for SVM: finishing PCA
 - research on SVM work flow
 - report on SVM (general info & math)
 
@@ -14,6 +14,7 @@
   wir die segmentierte Zellen  nicht nur weiß, sondern auch mit verschiedenen Farben? Weil sonst 
   bringt uns auch nicht weiter, dass sie für das Dice Score erhalten bleiben
 - Bisheriges Code vorstellen -> Verbesserungsvorschläge?
+- mathematischer Hintergrund von PCA in report?
 
 ## Plans for next week
 - start SVM
