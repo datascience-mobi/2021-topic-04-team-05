@@ -8,10 +8,8 @@
 - research on SVM work flow
 - finished report about SVM
 
-
 ## Questions
 - normalisieren der Intensitätswerte für SVM sinnvoll?
-
 
 ## Plans for next week
 - SVM code
