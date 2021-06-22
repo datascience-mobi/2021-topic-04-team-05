@@ -11,10 +11,6 @@ import math
 from matplotlib.image import imread
 
 im=cv2.imread('/Users/laurasanchis/PycharmProjects/svm/Data/N2DH-GOWT1/gt/man_seg21.tif')
-#M = im.shape[0]//2
-#N = im.shape[1]//2
-#tiles = [im[x:x+M,y:y+N] for x in range(0,im.shape[0],M) for y in range(0,im.shape[1],N)]
-
 
 def tiles(image, number):
     list = []
