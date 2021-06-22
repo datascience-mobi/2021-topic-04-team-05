@@ -1,12 +1,3 @@
-import cv2
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import os
-import image_slicer
-import math
-from matplotlib.image import imread
-
 def tiles(image, number):
     list = [] #creates an empty list, which will be filled during the iterations with the tiles
     M = image.shape[0]//number #M=total number of lines, divided through the number = # of tiles

@@ -11,8 +11,8 @@ def dice_score(pred, gt):
     dice = np.sum(pred[gt == pred]) * 2.0 / (np.sum(gt) + np.sum(pred))
     print(dice)
 
-
-if __name__ == '__main__': #führt Code nur aus, wenn dicescore.py direkt gerunnt wird & nicht wenn es in anderes pythonfile importiert wird
+#führt Code nur aus, wenn dicescore.py direkt gerunnt wird & nicht wenn es in anderes pythonfile importiert wird
+if __name__ == '__main__':
     img1 = np.asarray(imread('man_seg21testing.png'))
-    # img1 = np.asarray(PIL.Image.open('man_seg21_totest.png'))
+    #img1 = np.asarray(PIL.Image.open('man_seg21_totest.png'))
     dice_score(img1, img1)

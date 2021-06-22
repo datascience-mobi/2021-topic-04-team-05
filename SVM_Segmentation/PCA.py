@@ -45,7 +45,7 @@ pca_listgt_trial = convert_pca(listgt)
     #print(test)
     #print(test.shape)
 
-# test if all images are included and went through pca and show first and last
+#test if all images are included and went through pca and show first and last
     #print(pca_listimg_trial)
     #cv2.imshow('img1', listimg[0])
     #cv2.imshow('img6', listimg[5])
