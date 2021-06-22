@@ -10,6 +10,7 @@
 
 ## Questions
 - normalisieren der Intensitätswerte für SVM sinnvoll?
+- 
 
 ## Plans for next week
 - SVM code
