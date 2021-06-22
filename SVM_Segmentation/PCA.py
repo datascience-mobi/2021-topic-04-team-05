@@ -1,9 +1,10 @@
 import os
 import cv2
 import pandas as pd
-from numpy import asarray
+from numpy import asarray, ndarray
 from sklearn.decomposition import PCA as RandomizedPCA
 from skimage import io
+import imagecodecs
 
 
 #Reading images from folder as NumpyNDArray
@@ -13,18 +14,23 @@ def load_images_from_folder(folder):
         img = io.imread(os.path.join(folder, filename))
         if img is not None:
             array = asarray(img)
-            image_list.append(array)
+            flattened = ndarray.flatten(array)
+            reshape = flattened.reshape(1, -1)
+            image_list.append(reshape)
     #image_list_dataframe = pd.DataFrame(image_list)
     return image_list
 
-listimg = load_images_from_folder("../../Data/N2DH-GOWT1/img")
-listgt = load_images_from_folder("../../Data/N2DH-GOWT1/gt/tif")
+listimg = load_images_from_folder("../Data/N2DH-GOWT1/img")
+listgt = load_images_from_folder("../Data/N2DH-GOWT1/gt/tif")
+
+print(listimg[1])
+print(listimg[1].shape)
 
 #apply pca to images
 def convert_pca(image_list):
     pca_list = []
-    for image in listimg:
-        pca = RandomizedPCA(300).fit(image.data)
+    for image in image_list:
+        pca = RandomizedPCA(1).fit(image.data)
         components = pca.transform(image.data)
         projected = pca.inverse_transform(components)
         if projected is not None:
