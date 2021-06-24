@@ -54,6 +54,23 @@ def stochastic_gradient_descent(features, labels):
         for index, x in enumerate(x):
             upward_slope = lagrange(weights, x, y[index]) #ascend = average distance
             weights = weights - (learning_rate * upward_slope) #move opposite to the gradient by a certain rate (s. Diagramm J(w) zu w; learning_rate = Schrittgröße in Prozent --> Schrittgröße wird kleiner mit sinkender Steigung)
-
+        if epoch == pow(2, power) or epoch == maximum_epochs - 1: #2 hoch iwas oder 4999
+            loss = loss_function(weights, features, labels) #calculate cost, wird immer kleiner
+            print("{}. epoch: current loss is {}.".format(epoch, loss))
+            # stoppage criterion
+            deviance = abs(unbounded_upper_value - loss)
+            if stoppage_criterion * unbounded_upper_value > deviance: #wenn bedingung erfüllt wird loop gestoppt; prev_cost - cost wird immer kleiner & wird irgendwann kleiner als 0.01% des prev_cost (0.01% des prev_cost ist die von uns definierte threshold) -> stoppt also wenn keine Änderung der cost mehr passiert
+                return weights #output of very last iteration
+            unbounded_upper_value = loss #prev_cost ist erst infinite & wird dann immer kleiner, da cost kleiner wird
+            power += 1 #iteration
+    return weights #für for loop (wird dafür gebraucht)
+#input: array -> zeilen sind pixel-counts & spalten versch. bilder (d.h. flattened bilder in spalten)
+#normalize data - before svm
+import numpy
+from numpy import asarray
+from PIL import Image
+pixels = asarray(Image.open('t21.tif'))
+pixels = pixels.astype('float32')
+pixels /= pixels.max()
 
 
