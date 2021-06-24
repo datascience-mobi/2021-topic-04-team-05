@@ -5,21 +5,26 @@ import numpy as np
 import errno
 import csv
 from PIL import Image
+from SVM_Segmentation import readimages
 
 def compimage(path_of_mask, path_of_background):
 
-#foreground
-    if os.path.exists(path_of_mask):
-        if os.path.splitext(path_of_mask)[1].lower() == '.png':
-            mask = Image.open(path_of_mask)
-            #getting the information wether a pixel is transparent or not
-            mask_alpha = np.array(mask.getchannel(3))
-        else:
-            print('Only png files can be used as mask.')
-    else:
-        print('Wrong foreground image-path: {}'.format(path_of_mask))
-    if np.all(mask) != 0:
-        print('If mask has no transparent portion it is not an appropriate mask.: {}'.format(mask))
+def foreground(path_of_folder_with_mask):
+    """
+
+    :param path_of_folder_with_mask:
+    :return:
+    """
+    mask_image_dataframe = readimages.read_image(path_of_imagefolder=path_of_folder_with_mask)
+
+    for row in mask_image_dataframe:
+        if not os.path.splitext(row)[1].lower() == '.png':
+            raise (f'Only png files can be used as mask.')
+        # getting the information whether a pixel is transparent or not
+        mask_alpha = np.array(image.getchannel(3))
+        if not np.any(mask_alpha) == 0:
+            raise (f'If mask has no transparent portion it is not an appropriate mask.: {mask_alpha}')
+            return foregroundimg
 
 #background
     if os.path.exists(path_of_background):

@@ -2,7 +2,7 @@ import os
 import cv2
 import pandas as pd
 from numpy import asarray, ndarray
-from sklearn.decomposition import PCA as RandomizedPCA
+import sklearn.decomposition as skdecomp
 from skimage import io
 import imagecodecs
 
@@ -30,7 +30,7 @@ print(listimg[1].shape)
 def convert_pca(image_list):
     pca_list = []
     for image in image_list:
-        pca = RandomizedPCA(1).fit(image.data)
+        pca = skdecomp.pca(1).fit(image.data)
         components = pca.transform(image.data)
         projected = pca.inverse_transform(components)
         if projected is not None:
