@@ -20,3 +20,26 @@ def loss_function (x,w,y):
     # calculate loss
     loss = 1 / 2 * np.dot(w, w) + hinge_loss  # np.dot (W,W) ist gleich Betrag von w^2
     return loss
+
+#functions we need for the gradient/for lagrange
+def distance_of_point_to_hyperplane(w, x, y):
+    return 1 - y * (np.dot(x, w))
+
+def distance_of_point_to_sv(index, w, x, y):
+    return w - (C * y[index] * x[index])
+
+#lagrange
+def lagrange (x: np.array,w,y): #ggf. x_sample, y_sample
+    separation = distance_of_point_to_hyperplane(w, x, y)  #calculates distance of x to hyperplane
+    gradient = 0
+    for index, q in enumerate(separation):  # enumerate adds counter to the iterable to keep track of the number of items in the iterator; für jedes element in distance; ind = index & d ist zugehöriger distance wert
+        if q < 0: #if d = negativ --> right classification
+            qi = w
+        else:
+            qi = distance_of_point_to_sv(index, w, x, y) #für falsch klassifizierte: distanz zwischen punkt (xi,yi) und support vector (distanz von hyperplane zu SV ist W)
+        gradient += qi
+    gradient = gradient/len(y) #average of distances as len(y) is number of all trials
+    return gradient
+
+
+
