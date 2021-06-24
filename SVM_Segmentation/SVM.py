@@ -41,5 +41,19 @@ def lagrange (x: np.array,w,y): #ggf. x_sample, y_sample
     gradient = gradient/len(y) #average of distances as len(y) is number of all trials
     return gradient
 
+#minimize gradient using Stochastic Gradient Descent (SGD)
+def stochastic_gradient_descent(features, labels):
+    maximum_epochs = 5000 #an epoch indicates the number of passes of the entire training dataset the machine learning algorithm has completed
+    weights = np.zeros(features.shape[1])  #creating array filled with zeros of the number of columns of our features (d.h. so viele wie features) dataset
+    power = 0 #hoch
+    unbounded_upper_value = float("inf") #acts as unbounded upper value for comparison for finding lowest values of something
+    stoppage_criterion = 0.01  #in percent
+    # stochastic gradient descent
+    for epoch in range(1, maximum_epochs):
+        x, y = random.shuffle(features, labels) #shuffle to prevent repeating update cycles; Stichproben von features & outputs werden rausgezogen (jede Runde neu)
+        for index, x in enumerate(x):
+            upward_slope = lagrange(weights, x, y[index]) #ascend = average distance
+            weights = weights - (learning_rate * upward_slope) #move opposite to the gradient by a certain rate (s. Diagramm J(w) zu w; learning_rate = Schrittgröße in Prozent --> Schrittgröße wird kleiner mit sinkender Steigung)
+
 
 
