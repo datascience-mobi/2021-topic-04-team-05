@@ -91,13 +91,13 @@ def fuse_dataframes(dataframe1, name1, dataframe2, name2, dataframe3, name3):
         #raise TypeError("Input has to be of type 'pandas.core.frame.DataFrame'.")
     fused_dataframe = pd.DataFrame()
     row = 0
-    for i in [0,1,2]:
-        dataframe(f'{i}') = dataframe(f'{i}').rename(index=lambda s: s + str(name(f'{i}')))
-        for row in range(0,len(dataframe1)):
-            for name in [name1, name2, name3]:
-                for dataframe in [dataframe1, dataframe2, dataframe3]:
-                    fused_dataframe = fused_dataframe.append(dataframe.iloc[row, :])
-            row += 1
+    dataframe1 = dataframe1.rename(index=lambda s: s + str(name1))
+    dataframe2 = dataframe2.rename(index=lambda s: s + str(name2))
+    dataframe3 = dataframe3.rename(index=lambda s: s + str(name3))
+    for row in range(0,len(dataframe1)):
+        for dataframe in [dataframe1, dataframe2, dataframe3]:
+            fused_dataframe = fused_dataframe.append(dataframe.iloc[row, :])
+        row += 1
     return fused_dataframe
 
 
@@ -122,9 +122,6 @@ d3 = dataframe3.set_axis(dataframe3_names, axis=0)
 
 
 print(fuse_dataframes(d1, 'd1', d2, 'd2', d3, 'd3'))
-
-
-
 
 #Tests
 
