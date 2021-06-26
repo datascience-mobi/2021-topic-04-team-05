@@ -38,10 +38,12 @@ def read_imagename(path_of_imagefolder):
 
 def image_flatten(image_list):
     """
-    This function reads all images from a folder as arrays and arranges them into a list
-    :param folder: Folder where the images are located.
-    :return: A list of images as arrays
+    This function flattens all arrays of a list.
+    :param image_list: A list of images as arrays.
+    :return: A list of flattened arrays.
     """
+    if type(image_list) != 'list':
+        raise TypeError("Input has to be of type 'list'.")
     imagelist_flattened = []
     for element in image_list:
         if element is not None:
@@ -57,8 +59,34 @@ def dataframe(image_list, name_list):
     :param name_list: A list of names, in the same order as the arrays in the image_list.
     :return:
     """
-    pd.DataFrame(image_list)
+    if len(image_list) != len(name_list):
+        raise ValueError("Lists have to be of the same length.")
+    dataframe_images = pd.DataFrame()
+    i = 0
+    for i in range(0, len(image_list)):
+        array = image_list[i]
+        if array.shape[0] != 1:
+            raise ValueError("Array has to be of the shape (1, x).")
+        element = pd.DataFrame(array)
+        i += 1
+        dataframe_images = dataframe_images.append(element)
+    dataframe_images = dataframe_images.set_axis(name_list, axis=0)
 
+    return dataframe_images
+
+def fuse_dataframes(dataframe1, dataframe2, dataframe3):
+    """
+    Fusing 3 dataframes, with similiar content, by inserting the first row of dataframe2 and after that of dataframe 3,
+    after the first row of dataframe 1. The name of the dataframe is added to the according rownames to distinguish
+    between the different samples.
+
+    :param dataframe1: dataframe 1, with pixels as features and rows as samples.
+    :param dataframe2: dataframe 2, with pixels as features and rows as samples.
+    :param dataframe3: dataframe 3, with pixels as features and rows as samples.
+    :return: dataframe composed of all 3 input-dataframes
+    """
+    if dataframe1.shape != dataframe2.shape != dataframe3.shape:
+        raise ValueError("Dataframes have to be the same shape.")
 
 
 
@@ -67,12 +95,8 @@ def dataframe(image_list, name_list):
 
 imageread = read_image('../Data/N2DH-GOWT1/gt/jpg')
 imagenames = read_imagename('../Data/N2DH-GOWT1/gt/jpg')
-#imageflattened = image_flatten(imageread)
-
-print(imageread[3])
-print(imagenames[3])
-
-#print(imageflattened)
+imageflattened = image_flatten(imageread)
+dataframe(imageflattened, imagenames)
 
 
 
