@@ -52,7 +52,7 @@ def background_selection(image, directory, coordinate_list_background, coordinat
             object = image[y_coordinate:y_coordinate+heigth, x_coordinate:x_coordinate+width].copy()
             plt.imshow(object)
             plt.show()
-            path = str(f'base_dir/{directory_}/') + str(1)
+            path = (f'base_dir/{directory_}/1.tif')
             cv2.imwrite(path, object)
 
-background_selection(image, 'base_dir', [1000, 0, 200, 200], [50, 250, 150, 150], [200, 500, 50, 50])
+background_selection(image, 'base_dir', [0, 0, 200, 200], [50, 250, 150, 150], [200, 500, 50, 50])

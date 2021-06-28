@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split as tts
 from sklearn.metrics import accuracy_score, recall_score, precision_score
 import random
 import cv2
+import readimages as rm
 
 C =
 learning_rate =
