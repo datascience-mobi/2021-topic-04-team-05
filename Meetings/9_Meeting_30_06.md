@@ -12,4 +12,4 @@
 - preprocessing & preparation nur auf training set oder auch auf test set?
 
 ## Plans for next week
-- analysis
+- analysis & report
