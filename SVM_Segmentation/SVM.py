@@ -86,6 +86,7 @@ def init():
     imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')  # Liste mit Namen der Bilder
     imageflattended = rm.image_flatten(imageread)
     X = rm.dataframe(imageflattended, imagenames)
+    X.insert(loc=len(X.columns), column='intercept', value=1)
 
     # read in gt images
     gtread = rm.read_image('../Data/N2DH-GOWT1/gt/jpg')  # Bilder eines Ordners in Liste mit 2D arrays
