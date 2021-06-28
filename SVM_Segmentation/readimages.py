@@ -100,52 +100,53 @@ def fuse_dataframes(dataframe1, name1, dataframe2, name2, dataframe3, name3):
         row += 1
     return fused_dataframe
 
-#Test
-dataframe1 = pd.DataFrame([['A', 'B', 'C', 'D'], ['E', 'F', 'G', 'H'], ['I', 'J', 'K', 'L'], ['M', 'N', 'O', 'P']])
-dataframe2 = pd.DataFrame([['1', '2', '3', '4'], ['5', '6', '7', '8'], ['9', '10', '11', '12'], ['13', '14', '15', '16']])
-dataframe3 = pd.DataFrame([['a', 'b', 'c', 'd'], ['e', 'f', 'g', 'h'], ['i', 'j', 'k', 'l'], ['m', 'n', 'o', 'p']])
+if __name__ == '__main__':
+    #Test
+    dataframe1 = pd.DataFrame([['A', 'B', 'C', 'D'], ['E', 'F', 'G', 'H'], ['I', 'J', 'K', 'L'], ['M', 'N', 'O', 'P']])
+    dataframe2 = pd.DataFrame([['1', '2', '3', '4'], ['5', '6', '7', '8'], ['9', '10', '11', '12'], ['13', '14', '15', '16']])
+    dataframe3 = pd.DataFrame([['a', 'b', 'c', 'd'], ['e', 'f', 'g', 'h'], ['i', 'j', 'k', 'l'], ['m', 'n', 'o', 'p']])
 
-dataframe1_names = ['A', 'B', 'C', 'D']
-dataframe2_names = ['1', '2', '3', '4']
-dataframe3_names = ['a', 'b', 'c', 'd']
+    dataframe1_names = ['A', 'B', 'C', 'D']
+    dataframe2_names = ['1', '2', '3', '4']
+    dataframe3_names = ['a', 'b', 'c', 'd']
 
-d1 = dataframe1.set_axis(dataframe1_names, axis=0)
-d2 = dataframe2.set_axis(dataframe2_names, axis=0)
-d3 = dataframe3.set_axis(dataframe3_names, axis=0)
+    d1 = dataframe1.set_axis(dataframe1_names, axis=0)
+    d2 = dataframe2.set_axis(dataframe2_names, axis=0)
+    d3 = dataframe3.set_axis(dataframe3_names, axis=0)
 
 
-#print(fuse_dataframes(d1, 'd1', d2, 'd2', d3, 'd3'))
+    #print(fuse_dataframes(d1, 'd1', d2, 'd2', d3, 'd3'))
 
-#Tests
+    #Tests
 
-imageread1 = read_image('../Data/N2DH-GOWT1/img')
-#print(imageread1)
-imagenames1 = read_imagename('../Data/N2DH-GOWT1/img')
-#print(imagenames1)
-imageflattened1 = image_flatten(imageread1)
-#print(imageflattened1)
-data1 = dataframe(imageflattened1, imagenames1)
-#print(data1)
+    imageread1 = read_image('../Data/N2DH-GOWT1/img')
+    #print(imageread1)
+    imagenames1 = read_imagename('../Data/N2DH-GOWT1/img')
+    #print(imagenames1)
+    imageflattened1 = image_flatten(imageread1)
+    #print(imageflattened1)
+    data1 = dataframe(imageflattened1, imagenames1)
+    #print(data1)
 
-imageread2 = read_image('../Data/N2DL-HeLa/img')
-#print(imageread2)
-imagenames2 = read_imagename('../Data/N2DL-HeLa/img')
-#print(imagenames2)
-imageflattened2 = image_flatten(imageread2)
-#print(imageflattened2)
-data2 = dataframe(imageflattened2, imagenames2)
-#print(data2)
+    imageread2 = read_image('../Data/N2DL-HeLa/img')
+    #print(imageread2)
+    imagenames2 = read_imagename('../Data/N2DL-HeLa/img')
+    #print(imagenames2)
+    imageflattened2 = image_flatten(imageread2)
+    #print(imageflattened2)
+    data2 = dataframe(imageflattened2, imagenames2)
+    #print(data2)
 
-imageread3 = read_image('../Data/NIH3T3/img')
-#print(imageread3)
-imagenames3 = read_imagename('../Data/NIH3T3/img')
-#print(imagenames3)
-imageflattened3 = image_flatten(imageread3)
-#print(imageflattened3)
-data3 = dataframe(imageflattened3, imagenames3)
-#print(data3)
+    imageread3 = read_image('../Data/NIH3T3/img')
+    #print(imageread3)
+    imagenames3 = read_imagename('../Data/NIH3T3/img')
+    #print(imagenames3)
+    imageflattened3 = image_flatten(imageread3)
+    #print(imageflattened3)
+    data3 = dataframe(imageflattened3, imagenames3)
+    #print(data3)
 
-#fuse_dataframes(data1, d1, data2, d2, data3, d3)
+    #print(fuse_dataframes(data1, 'd1', data1, 'd2', data1, 'd3'))
 
 
 

@@ -3,60 +3,40 @@ import cv2
 import pandas as pd
 from numpy import asarray, ndarray
 import sklearn.decomposition as skdecomp
+from sklearn.preprocessing import StandardScaler
 from skimage import io
 import imagecodecs
+import readimages as rm
 
-
-#Reading images from folder as NumpyNDArray
-def load_images_from_folder(folder):
-    image_list = []
-    for filename in os.listdir(folder):
-        img = io.imread(os.path.join(folder, filename))
-        if img is not None:
-            array = asarray(img)
-            flattened = ndarray.flatten(array)
-            reshape = flattened.reshape(1, -1)
-            image_list.append(reshape)
-    #image_list_dataframe = pd.DataFrame(image_list)
-    return image_list
-
-listimg = load_images_from_folder("../Data/N2DH-GOWT1/img")
-listgt = load_images_from_folder("../Data/N2DH-GOWT1/gt/tif")
-
-print(listimg[1])
-print(listimg[1].shape)
-
-#apply pca to images
-def convert_pca(image_list):
+def convert_pca(image_dataframe, variance):
+    """
+    This function standardizes and scales the 2D-numpy-ndarray, so that it can directly be used for finding its
+    principal components. It then transforms it back to its original shape.
+    :param image_dataframe:
+    :PCs: number of principal components
+    :return:
+    """
     pca_list = []
-    for image in image_list:
-        pca = skdecomp.pca(1).fit(image.data)
-        components = pca.transform(image.data)
+    for image in image_dataframe:
+        image = StandardScaler().fit_transform(image)
+        pca = skdecomp.PCA(variance)
+        pca.fit(image)
+        components = pca.transform(image)
         projected = pca.inverse_transform(components)
         if projected is not None:
             pca_list.append(projected)
     return pca_list
 
-pca_listimg_trial = convert_pca(listimg)
-pca_listgt_trial = convert_pca(listgt)
 
-#pca image has 1024x1024 pixels -> gt can be used originally
-    #test = pca_listimg_trial[1]
-    #print(test)
-    #print(test.shape)
-
-#test if all images are included and went through pca and show first and last
-    #print(pca_listimg_trial)
-    #cv2.imshow('img1', listimg[0])
-    #cv2.imshow('img6', listimg[5])
-    #cv2.imshow('Trial1', pca_listimg_trial[0])
-    #cv2.imshow('Trial6', pca_listimg_trial[5])
+if __name__ == '__main__':
+    #Test
+    #pca1 = convert_pca(imageread1, 0.8)
+    #cv2.imshow('img1', pca[0])
     #cv2.waitKey()
 
-
-#cv2.imshow("Bild", pca_listimg_trial)
-#cv2.waitKey()
-
-def dataframe(pca_listimg):
-    df = pd.DataFrame(pca_listimg)
-    return df
+    imageread1 = rm.read_image('../Data/N2DH-GOWT1/img')
+    imagenames1 = rm.read_imagename('../Data/N2DH-GOWT1/img')
+    pca1 = convert_pca(imageread1, 0.8)
+    flattened = rm.image_flatten(pca1)
+    data1 = rm.dataframe(flattened, imagenames1)
+    #print(data1)
