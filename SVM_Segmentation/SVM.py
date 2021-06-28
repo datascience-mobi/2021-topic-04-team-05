@@ -64,13 +64,47 @@ def stochastic_gradient_descent(features, labels):
             unbounded_upper_value = loss #prev_cost ist erst infinite & wird dann immer kleiner, da cost kleiner wird
             power += 1 #iteration
     return weights #für for loop (wird dafür gebraucht)
-#input: array -> zeilen sind pixel-counts & spalten versch. bilder (d.h. flattened bilder in spalten)
-#normalize data - before svm
-import numpy
-from numpy import asarray
-from PIL import Image
-pixels = asarray(Image.open('t21.tif'))
-pixels = pixels.astype('float32')
-pixels /= pixels.max()
 
+
+def init():
+    # read dataset
+    # X = data.features
+    # y = data.labels
+
+    # read in normal images
+    # rm = readimages.py
+    imageread = rm.read_image('../Data/N2DH-GOWT1/img')  # Bilder eines Ordners in Liste mit 2D arrays
+    normalizedimg = []
+    for i in range(0, len(imageread)):
+        pixelsimg = imageread[i].astype('float32')
+        if pixelsimg.max() > 0:
+            normalimg = pixelsimg / pixelsimg.max()
+            normalizedimg.append(normalimg)
+        else:
+            normalizedimg.append(pixelsimg)
+    imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')  # Liste mit Namen der Bilder
+    imageflattended = rm.image_flatten(imageread)
+    X = rm.dataframe(imageflattended, imagenames)
+
+    # read in gt images
+    gtread = rm.read_image('../Data/N2DH-GOWT1/gt/jpg')  # Bilder eines Ordners in Liste mit 2D arrays
+
+    # thresholding gt images
+    thresholded = []
+    for j in range(0, len(gtread)):
+        threshold = cv2.threshold(gtread[j], 150, 255, cv2.THRESH_BINARY)  # 0-149, intensitätswert wird 0, 150-255 intensitätswert wird 1
+        thresholded.append(threshold[1])
+
+    #normalizing gt images
+    normalizedgt = []
+    for k in range(0, len(thresholded)):
+        pixelsgt = thresholded[k].astype('float32')
+        if pixelsgt.max() > 0:
+            normalgt = pixelsgt / pixelsgt.max()
+            normalizedgt.append(normalgt)
+        else:
+            normalizedgt.append(pixelsgt)
+    gtnames = rm.read_imagename('../Data/N2DH-GOWT1/gt/jpg')  # Liste mit Namen der Bilder
+    thresholded_and_normalized_flattened = rm.image_flatten(normalized)
+    y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)  # ground truths
 
