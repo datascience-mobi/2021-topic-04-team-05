@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from matplotlib.image import imread
 
-from functions import dicescore
+from SVM_Segmentation import dicescore
 
 
 class TestDiceScore(unittest.TestCase):

@@ -1,12 +1,7 @@
-import os
-import cv2
-import pandas as pd
-from numpy import asarray, ndarray
 import sklearn.decomposition as skdecomp
 from sklearn.preprocessing import StandardScaler
-from skimage import io
-import imagecodecs
 import readimages as rm
+from matplotlib import pyplot as plt
 
 def convert_pca(image_dataframe, variance):
     """
@@ -29,14 +24,14 @@ def convert_pca(image_dataframe, variance):
 
 
 if __name__ == '__main__':
-    #Test
-    #pca1 = convert_pca(imageread1, 0.8)
-    #cv2.imshow('img1', pca[0])
-    #cv2.waitKey()
 
     imageread1 = rm.read_image('../Data/N2DH-GOWT1/img')
     imagenames1 = rm.read_imagename('../Data/N2DH-GOWT1/img')
-    pca1 = convert_pca(imageread1, 0.8)
+    pca1 = convert_pca(imageread1, 0.75)
+
+    plt.imshow(pca1[0])
+    plt.show()
+
     flattened = rm.image_flatten(pca1)
     data1 = rm.dataframe(flattened, imagenames1)
     #print(data1)
