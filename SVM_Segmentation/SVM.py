@@ -4,7 +4,7 @@ import statsmodels.api as sm
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split as tts, KFold
 from sklearn.metrics import accuracy_score, recall_score, precision_score
-import random
+from sklearn.utils import shuffle
 import cv2
 import readimages as rm
 
@@ -51,7 +51,9 @@ def stochastic_gradient_descent(features, labels):
     stoppage_criterion = 0.01  #in percent
     # stochastic gradient descent
     for epoch in range(1, maximum_epochs):
-        x, y = random.shuffle(features, labels) #shuffle to prevent repeating update cycles; Stichproben von features & outputs werden rausgezogen (jede Runde neu)
+        x, y = shuffle(features, labels)  # shuffle to prevent repeating update cycles; Stichproben von
+        # features & outputs werden rausgezogen (jede Runde neu)
+        # Stichproben von features & outputs werden rausgezogen (jede Runde neu)
         for index, x in enumerate(x):
             upward_slope = lagrange(weights, x, y[index]) #ascend = average distance
             weights = weights - (learning_rate * upward_slope) #move opposite to the gradient by a certain rate (s. Diagramm J(w) zu w; learning_rate = Schrittgröße in Prozent --> Schrittgröße wird kleiner mit sinkender Steigung)
@@ -144,3 +146,5 @@ def init():
 #C = #regularization strength
 #learning_rate =
 init()
+
+
