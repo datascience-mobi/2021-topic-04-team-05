@@ -2,14 +2,14 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split as tts
+from sklearn.model_selection import train_test_split as tts, KFold
 from sklearn.metrics import accuracy_score, recall_score, precision_score
 import random
 import cv2
 import readimages as rm
 
-C =
-learning_rate =
+C = 10000
+learning_rate = 0.000001
 
 def loss_function (x,w,y):
     #calculate hinge loss
@@ -107,7 +107,7 @@ def init():
         else:
             normalizedgt.append(pixelsgt)
     gtnames = rm.read_imagename('../Data/N2DH-GOWT1/gt/jpg')  # Liste mit Namen der Bilder
-    thresholded_and_normalized_flattened = rm.image_flatten(normalized)
+    thresholded_and_normalized_flattened = rm.image_flatten(normalizedgt)
     y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)  # ground truths
 
     # Cross validation to train the model with different train:test splits
