@@ -3,6 +3,8 @@ from sklearn.preprocessing import StandardScaler
 import readimages as rm
 from matplotlib import pyplot as plt
 
+from sklearn.linear_model import LogisticRegression
+
 def convert_pca(image_dataframe, variance):
     """
     This function standardizes and scales the 2D-numpy-ndarray, so that it can directly be used for finding its
@@ -22,16 +24,20 @@ def convert_pca(image_dataframe, variance):
             pca_list.append(projected)
     return pca_list
 
-
 if __name__ == '__main__':
 
     imageread1 = rm.read_image('../Data/N2DH-GOWT1/img')
     imagenames1 = rm.read_imagename('../Data/N2DH-GOWT1/img')
+
+    gtread = rm.read_image('../Data/N2DH-GOWT1/gt/tif')
+
+    #flattened = rm.image_flatten(imageread1)
+    #data1 = rm.dataframe(flattened, imagenames1)
     pca1 = convert_pca(imageread1, 0.75)
+
+    print(pca1)
 
     plt.imshow(pca1[0])
     plt.show()
 
-    flattened = rm.image_flatten(pca1)
-    data1 = rm.dataframe(flattened, imagenames1)
     #print(data1)
