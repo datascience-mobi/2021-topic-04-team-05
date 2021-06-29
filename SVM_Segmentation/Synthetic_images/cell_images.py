@@ -1,8 +1,9 @@
 import os
 import cv2
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from skimage.io import imread
+from skimage import io, color
 
 
 def new_directory(base_dir_name, background_dir_name, object_dir_name, noise_dir_name, new_images_dir_name):
@@ -13,13 +14,13 @@ def new_directory(base_dir_name, background_dir_name, object_dir_name, noise_dir
     base_dir = str(base_dir_name)
     os.mkdir(base_dir)
     new_images_dir = str(new_images_dir_name)
+    os.mkdir(new_images_dir)
 
     for element in [background_dir_name, object_dir_name, noise_dir_name]:
         #background_dir
         element = os.path.join(base_dir, str(element))
         os.mkdir(element)
 
-new_directory('base_dir', 'background_dir', 'cell_dir', 'noise_dir', 'new_images_dir')
 
 def show_image(path):
     """
@@ -27,12 +28,10 @@ def show_image(path):
     :param path: path of the image
     :return: image in a coordinate system
     """
-    image = imread(path)
-    plt.imshow(image)
+    image = io.imread(path)
+    image_grey = color.rgb2gray(image)
+    plt.imshow(image_grey)
     plt.show()
-
-#show_image('../../Data/N2DH-GOWT1/img/t01.tif')
-image = imread('../../Data/N2DH-GOWT1/img/t01.tif')
 
 def selection(image, directory, new_filename, coordinate_list_background, coordinate_list_object, coordinate_list_noise):
     #Listen mit Koordinaten als Spalten nebeneinander
@@ -56,216 +55,75 @@ def selection(image, directory, new_filename, coordinate_list_background, coordi
             plt.imshow(object)
             plt.show()
 
-selection(image, 'base_dir', 1, [0, 0, 200, 200], [750, 760, 100, 100], [200, 500, 50, 50])
-
-selection(image, 'base_dir', 2, [0, 0, 200, 200], [590, 380, 80, 80], [200, 500, 50, 50])
-
-selection(image, 'base_dir', 3, [0, 0, 200, 200], [330, 200, 60, 80], [200, 500, 50, 50])
-
 def resize_image(image_path, new_filename, heigth, width):
-    background = imread(image_path)
-    resized = cv2.resize(background, (heigth, width))
+    background = io.imread(image_path)
+    background_grey = color.rgb2gray(background)
+    resized = cv2.resize(background_grey, (heigth, width))
     directory = str(image_path).rsplit('/',1)[0]
     path = (f'{directory}/{new_filename}.tif')
     cv2.imwrite(path, resized)
 
-resized_background = resize_image('base_dir/background_dir/1.tif', 'resized_background', 1024, 1024)
-
-
-num_images_wanted = 10
-min_cells_on_image = 1
-max_cells_on_image = 100
-#set max x and y to prevent cells from extending outside the bachground image i.e.
-#if the get place too close to the edge.
-max_x = 1400
-max_y = 1000
-
-for i in range(0, num_images_wanted):
-    # randomly choose the number of cells to put in the image
-    num_cells_on_image = np.random.randint(min_cells_on_image, max_cells_on_image + 1)
-
-    # Name the image.
-    # The number of cells is included in the file name.
-    image_name = 'image_' + str(i) + '_' + str(num_cells_on_image) + '_.png'
-
-    # =========================
-    # 1. Create the background
-    # =========================
-
-    path = 'base_dir/bground_dir/bground_1.png'
-
-    # read the image
-    bground_comb = cv2.imread(path)
-
-    # add random rotation to the background
-    num_k = np.random.randint(0, 3)
-    bground_comb = np.rot90(bground_comb, k=num_k)
-
-    # resize the background to match what we want
-    bground_comb = cv2.resize(bground_comb, (1600, 1200))
-
-    # ===============================
-    # 2. Add cells to the background
-    # ===============================
-
-    for j in range(0, num_cells_on_image):
-
-        path = 'base_dir/bground_dir/bground_1.png'
+def generate_synthetic_images(background_path, object_path, new_image_path, new_filename, number_of_images,minimum_number_of_objects, maximum_number_of_objects, max_y, max_x):
+    for i in range(0, number_of_images):
+        # randomly choose the number of cells to put in the image
+        num_cells_on_image = np.random.randint(minimum_number_of_objects, maximum_number_of_objects)
 
         # read the image
-        bground = cv2.imread(path)
+        background1 = cv2.imread(background_path)
+        background1_grey = color.rgb2gray(background1)
         # add rotation to the background
-        bground = np.rot90(bground, k=num_k)
+        num_k = np.random.randint(0, 3)
+        background_rotated1 = np.rot90(background1_grey, k=num_k)
         # resize the background to match what we want
-        bground = cv2.resize(bground, (1600, 1200))
+        background_resized1 = np.matrix(cv2.resize(background_rotated1, (1024, 1024)))
 
-        # randomly choose a type of cell to add to the image
-        cell_type = np.random.randint(1, 3 + 1)
+        for i in range(0, num_cells_on_image):
+            # read the image
+            background2 = cv2.imread(background_path)
+            background2_grey = color.rgb2gray(background2)
+            # add rotation to the background
+            num_k = np.random.randint(0, 3)
+            background_rotated2 = np.rot90(background2_grey, k=num_k)
+            # resize the background to match what we want
+            background_resized2 = np.matrix(cv2.resize(background_rotated2, (1024, 1024)))
 
-        if cell_type == 1:
-            # cell_1 path
-            cell_1 = cv2.imread('base_dir/cell_dir/cell_1.png')
+            # randomly choose a type of cell to add to the image
+            object_version = np.random.randint(1, 3 + 1)
+
+            readed_image = cv2.imread(f'{object_path}/{object_version}.tif')
+            readed_image_grey = color.rgb2gray(readed_image)
 
             # add a random rotation to the cell
-            cell_1 = np.rot90(cell_1, k=np.random.randint(0, 3))
-
-            # get the shape after rotation
-            shape = cell_1.shape
+            rotated_image = np.rot90(readed_image_grey, k=np.random.randint(0, 3))
 
             # get a random x-coord
             y = np.random.randint(0, max_y)
             # get a random y-coord
             x = np.random.randint(0, max_x)
             # set the width and height
-            h = shape[0]
-            w = shape[1]
+            h = rotated_image.shape[0]
+            w = rotated_image.shape[1]
 
             # add the cell to the background
-            bground[y:y + h, x:x + w] = 0
-            bground[y:y + h, x:x + w] = cell_1
-
-        if cell_type == 2:
-            cell_2 = cv2.imread('base_dir/cell_dir/cell_2.png')
-
-            # add a random rotation to the cell
-            cell_2 = np.rot90(cell_2, k=np.random.randint(0, 3))
-
-            shape = cell_2.shape
-
-            y = np.random.randint(0, max_y)
-            x = np.random.randint(0, max_x)
-            h = shape[0]
-            w = shape[1]
-
-            bground[y:y + h, x:x + w] = 0
-            bground[y:y + h, x:x + w] = cell_2
-
-        if cell_type == 3:
-            # cell_3
-
-            cell_3 = cv2.imread('base_dir/cell_dir/cell_3.png')
-
-            # add a random rotation to the cell
-            cell_3 = np.rot90(cell_3, k=np.random.randint(0, 3))
-
-            shape = cell_3.shape
-
-            y = np.random.randint(0, max_y)
-            x = np.random.randint(0, max_x)
-            h = shape[0]
-            w = shape[1]
-
-            bground[y:y + h, x:x + w] = 0
-            bground[y:y + h, x:x + w] = cell_3
-
-        bground_comb = np.minimum(bground_comb, bground)
-
-        # =============================================
-        # 3. Add noise and artifacts to the background
-        # =============================================
-
-        # We will only add 3 noise items to each image
-        for k in range(0, 3):
-
-            path = 'base_dir/bground_dir/bground_1.png'
-
-            # read the image
-            bground = cv2.imread(path)
-            # add rotation to the background
-            bground = np.rot90(bground, k=num_k)
-            # resize the background to match what we want
-            bground = cv2.resize(bground, (1600, 1200))
-
-            # randomly choose a type of cell to add to the image
-            noise_type = np.random.randint(1, 3 + 1)
-
-            if noise_type == 1:
-                # cell_1 path
-                noise_1 = cv2.imread('base_dir/noise_dir/noise_1.png')
-
-                # add a random rotation to the cell
-                noise_1 = np.rot90(noise_1, k=np.random.randint(0, 3))
-
-                # get the shape after rotation
-                shape = noise_1.shape
-
-                # get a random x-coord
-                y = np.random.randint(0, max_y)
-                # get a random y-coord
-                x = np.random.randint(0, max_x)
-                # set the width and height
-                h = shape[0]
-                w = shape[1]
-
-                # add the cell to the background
-                bground[y:y + h, x:x + w] = 0
-                bground[y:y + h, x:x + w] = noise_1
-
-            if noise_type == 2:
-                noise_2 = cv2.imread('base_dir/noise_dir/noise_2.png')
-
-                # add a random rotation to the cell
-                noise_2 = np.rot90(noise_2, k=np.random.randint(0, 3))
-
-                shape = noise_2.shape
-
-                y = np.random.randint(0, max_y)
-                x = np.random.randint(0, max_x)
-                h = shape[0]
-                w = shape[1]
-
-                bground[y:y + h, x:x + w] = 0
-                bground[y:y + h, x:x + w] = noise_2
-
-            if noise_type == 3:
-                # noise_3
-
-                noise_3 = cv2.imread('base_dir/noise_dir/noise_3.png')
-
-                # add a random rotation to the cell
-                noise_3 = np.rot90(noise_3, k=np.random.randint(0, 3))
-
-                shape = noise_3.shape
-
-                y = np.random.randint(0, max_y)
-                x = np.random.randint(0, max_x)
-                h = shape[0]
-                w = shape[1]
-
-                bground[y:y + h, x:x + w] = 0
-                bground[y:y + h, x:x + w] = noise_3
-
-            bground_comb = np.minimum(bground_comb, bground)
-
-            # ===============================
-            # 3. Save the image
-            # ===============================
-
-            path = 'new_images_dir/' + image_name
-            cv2.imwrite(path, bground_comb)
-
-        print('Num imgaes created: ', num_images_wanted)
+            background_resized1[y:y + h, x:x + w] = 0
+            rotated_image = np.matrix(background_resized1[y:y + h, x:x + w])
 
 
+        background_resized2 = np.minimum(background_resized2, rotated_image)
 
+    path = (f'{new_image_path}_{new_filename}_{i}.tif')
+    cv2.imwrite(path, background_resized2)
 
+if __name__ == '__main__':
+    #new_directory('base_dir', 'background_dir', 'cell_dir', 'noise_dir', 'new_images_dir')
+
+    #show_image('../../Data/N2DH-GOWT1/img/t01.tif')
+    image = io.imread('../../Data/N2DH-GOWT1/img/t01.tif')
+
+    #selection(image, 'base_dir', 1, [0, 0, 200, 200], [750, 760, 100, 100], [200, 500, 50, 50])
+    #selection(image, 'base_dir', 2, [0, 0, 200, 200], [590, 380, 80, 80], [200, 500, 50, 50])
+    #selection(image, 'base_dir', 3, [0, 0, 200, 200], [330, 200, 60, 80], [200, 500, 50, 50])
+
+    #resized_background = resize_image('base_dir/background_dir/1.tif', 'resized_background', 1024, 1024)
+
+    generate_synthetic_images('base_dir/background_dir/1.tif', 'base_dir/cell_dir', 'new_images_dir', 'generated_image', 10, 10, 31, 1400, 1000)

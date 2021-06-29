@@ -7,9 +7,7 @@ from sklearn.metrics import accuracy_score, recall_score, precision_score
 from sklearn.utils import shuffle
 import cv2
 import readimages as rm
-
-C = 10000
-learning_rate = 0.000001
+import PCA
 
 def loss_function (x,w,y):
     #calculate hinge loss
@@ -69,14 +67,15 @@ def stochastic_gradient_descent(features, labels):
     return weights #für for loop (wird dafür gebraucht)
 
 
-def init():
+def init(img_path, gt_path):
     # read dataset
     # X = data.features
     # y = data.labels
 
     # read in normal images
     # rm = readimages.py
-    imageread = rm.read_image('../Data/N2DH-GOWT1/img')  # Bilder eines Ordners in Liste mit 2D arrays
+    imageread = rm.read_image(img_path)  # Bilder eines Ordners in Liste mit 2D arrays
+    image_PCA = PCA.convert_pca(imageread, 0.75)
     normalizedimg = []
     for i in range(0, len(imageread)):
         pixelsimg = imageread[i].astype('float32')
@@ -85,13 +84,14 @@ def init():
             normalizedimg.append(normalimg)
         else:
             normalizedimg.append(pixelsimg)
-    imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')  # Liste mit Namen der Bilder
-    imageflattended = rm.image_flatten(imageread)
+    imagenames = rm.read_imagename(img_path)  # Liste mit Namen der Bilder
+    imageflattended = rm.image_flatten(image_PCA)
+
     X = rm.dataframe(imageflattended, imagenames)
     X.insert(loc=len(X.columns), column='intercept', value=1)
 
     # read in gt images
-    gtread = rm.read_image('../Data/N2DH-GOWT1/gt/jpg')  # Bilder eines Ordners in Liste mit 2D arrays
+    gtread = rm.read_image(gt_path)  # Bilder eines Ordners in Liste mit 2D arrays
 
     # thresholding gt images
     thresholded = []
@@ -108,7 +108,7 @@ def init():
             normalizedgt.append(normalgt)
         else:
             normalizedgt.append(pixelsgt)
-    gtnames = rm.read_imagename('../Data/N2DH-GOWT1/gt/jpg')  # Liste mit Namen der Bilder
+    gtnames = rm.read_imagename(gt_path)  # Liste mit Namen der Bilder
     thresholded_and_normalized_flattened = rm.image_flatten(normalizedgt)
     y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)  # ground truths
 
@@ -143,8 +143,8 @@ def init():
         y_test_prediction = np.append(y_test_prediction, y_pred)
 
 
-#C = #regularization strength
-#learning_rate =
-init()
+C = 10000
+learning_rate = 0.000001
+init('../Data/N2DH-GOWT1/img', '../Data/N2DH-GOWT1/gt/tif')
 
 
