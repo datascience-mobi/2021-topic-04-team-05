@@ -9,7 +9,7 @@ import cv2
 import readimages as rm
 import PCA
 
-def loss_function (x,w,y):
+def loss_function (x,w,y, C: float = 1e5):
     #calculate hinge loss
     N = x.shape[0]  #number of rows in x = number of samples
     separation = distance_of_point_to_hyperplane(w, x, y)  #calculates distance of x to hyperplane
@@ -24,7 +24,7 @@ def loss_function (x,w,y):
 def distance_of_point_to_hyperplane(w, x, y):
     return 1 - y * (np.dot(x, w))
 
-def distance_of_point_to_sv(index, w, x, y):
+def distance_of_point_to_sv(index, w, x, y, C: float = 1e5):
     return w - (C * y[index] * x[index])
 
 #lagrange
@@ -41,7 +41,7 @@ def lagrange (x: np.array,w,y): #ggf. x_sample, y_sample
     return gradient
 
 #minimize gradient using Stochastic Gradient Descent (SGD)
-def stochastic_gradient_descent(features, labels):
+def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
     maximum_epochs = 5000 #an epoch indicates the number of passes of the entire training dataset the machine learning algorithm has completed
     weights = np.zeros(features.shape[1])  #creating array filled with zeros of the number of columns of our features (d.h. so viele wie features) dataset
     power = 0 #hoch
@@ -67,7 +67,7 @@ def stochastic_gradient_descent(features, labels):
     return weights #für for loop (wird dafür gebraucht)
 
 
-def init(img_path, gt_path):
+def main(img_path, gt_path):
     # read dataset
     # X = data.features
     # y = data.labels
@@ -143,8 +143,7 @@ def init(img_path, gt_path):
         y_test_prediction = np.append(y_test_prediction, y_pred)
 
 
-C = 10000
-learning_rate = 0.000001
-init('../Data/N2DH-GOWT1/img', '../Data/N2DH-GOWT1/gt/tif')
+if __name__ == '__main__':
+    main('../Data/N2DH-GOWT1/img', '../Data/N2DH-GOWT1/gt/tif')
 
 
