@@ -106,13 +106,11 @@ def generate_synthetic_images(background_path, object_path, new_image_path, new_
 
             # add the cell to the background
             background_resized1[y:y + h, x:x + w] = 0
-            rotated_image = np.matrix(background_resized1[y:y + h, x:x + w])
+            background_resized1[y:y + h, x:x + w] = rotated_image
 
-
-        background_resized2 = np.minimum(background_resized2, rotated_image)
 
     path = (f'{new_image_path}_{new_filename}_{i}.tif')
-    cv2.imwrite(path, background_resized2)
+    cv2.imwrite(path, background_resized1)
 
 if __name__ == '__main__':
     #new_directory('base_dir', 'background_dir', 'cell_dir', 'noise_dir', 'new_images_dir')
