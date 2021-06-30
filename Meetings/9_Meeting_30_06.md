@@ -10,6 +10,8 @@
 ## Questions
 - unit tests
 - preprocessing & preparation nur auf training set oder auch auf test set?
+- PCA
+- synthetic cell images
 
 ## Plans for next week
 - analysis & report
