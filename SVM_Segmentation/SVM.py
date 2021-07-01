@@ -146,18 +146,20 @@ def main(img_path, gt_path):
     n_splits = 2
     kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
 
+    # define test and training data
     for i in range(n_splits):
-        # next creates an iterator, and prints the items one by one
         result = next(kfold.split(X), None)
         X_train = X.iloc[result[0]]
         # !!X_train = np.array([X.iloc[result[0]]]) statt unten .to_numpy()
         X_test = X.iloc[result[1]]
         y_train = y.iloc[result[0]]
         y_test = y.iloc[result[1]]
+
         # train the model
         W = stochastic_gradient_descent(X_train.to_numpy(), y_train.to_numpy())
         print("The weights vector is: {}".format(W))
 
+    # use model to predict y for the training data
     y_train_prediction = np.array([])
     for i in range(X_train.shape[0]):
         # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
