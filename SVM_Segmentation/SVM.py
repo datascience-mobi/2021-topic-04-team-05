@@ -43,7 +43,7 @@ def lagrange (x: np.array,w,y):
     :param x: An array with the features of the samples.
     :param w: The vector of the feature weights.
     :param y: A dataframe with the labels of the samples.
-    :return: A value representing the gradient of the loss.
+    :return: A vector representing the gradient of the loss. #vector?
     """
     separation = distance_of_point_to_hyperplane(w, x, y)
     gradient = 0
@@ -62,46 +62,48 @@ def lagrange (x: np.array,w,y):
 #minimize gradient using Stochastic Gradient Descent
 def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
     """
-    This function calculates the gradient of loss, which is then to be minimized.
-    :param x: An array with the features of the samples.
-    :param w: The vector of the feature weights.
-    :param y: A dataframe with the labels of the samples.
-    :return: A value representing the loss.
+    This minimizes the gradient of loss, to find the global cost minimum.
+    :param features: An array with the features of the samples.
+    :param labels: A dataframe with the labels of the samples.
+    :param learning_rate: A default value to define the learning rate, meaning the step size while performing the minimization of the gradient, of the SVM. (in percent)
+    :return: The vector of the feature weights.
     """
-    maximum_epochs = 5000 #an epoch indicates the number of passes of the entire training dataset the machine learning algorithm has completed
-    weights = np.zeros(features.shape[1])  #creating array filled with zeros of the number of columns of our features (d.h. so viele wie features) dataset
-    power = 0 #hoch
-    unbounded_upper_value = float("inf") #acts as unbounded upper value for comparison for finding lowest values of something
+    maximum_epochs = 5000
+    weights = np.zeros(features.shape[1])
+    power = 0
+    unbounded_upper_value = float("inf")
     stoppage_criterion = 0.01  #in percent
-    # stochastic gradient descent
     for epoch in range(1, maximum_epochs):
-        x, y = shuffle(features, labels)  # shuffle to prevent repeating update cycles; Stichproben von
-        # features & outputs werden rausgezogen (jede Runde neu)
-        # Stichproben von features & outputs werden rausgezogen (jede Runde neu)
+        # shuffel prevents the same x & y being take for several rounds
+        x, y = shuffle(features, labels)
         for index, x in enumerate(x):
-            upward_slope = lagrange(weights, x, y[index]) #ascend = average distance
-            weights = weights - (learning_rate * upward_slope) #move opposite to the gradient by a certain rate (s. Diagramm J(w) zu w; learning_rate = Schrittgröße in Prozent --> Schrittgröße wird kleiner mit sinkender Steigung)
-        if epoch == pow(2, power) or epoch == maximum_epochs - 1: #2 hoch iwas oder 4999
-            loss = loss_function(weights, features, labels) #calculate cost, wird immer kleiner
+            upward_slope = lagrange(weights, x, y[index])
+            weights = weights - (learning_rate * upward_slope)
+        if epoch == pow(2, power) or epoch == maximum_epochs - 1:
+            loss = loss_function(weights, features, labels)
             print("{}. epoch: current loss is {}.".format(epoch, loss))
-            # stoppage criterion
+            # stoppage criterion to stop at convergence
             deviance = abs(unbounded_upper_value - loss)
-            if stoppage_criterion * unbounded_upper_value > deviance: #wenn bedingung erfüllt wird loop gestoppt; prev_cost - cost wird immer kleiner & wird irgendwann kleiner als 0.01% des prev_cost (0.01% des prev_cost ist die von uns definierte threshold) -> stoppt also wenn keine Änderung der cost mehr passiert
-                return weights #output of very last iteration
-            unbounded_upper_value = loss #prev_cost ist erst infinite & wird dann immer kleiner, da cost kleiner wird
-            power += 1 #iteration
-    return weights #für for loop (wird dafür gebraucht)
+            # if cost no longer changes, stop gradient decend
+            if stoppage_criterion * unbounded_upper_value > deviance:
+                return weights
+            unbounded_upper_value = loss
+            power += 1
+    return weights
 
 
 def main(img_path, gt_path):
-    # read dataset
-    # X = data.features
-    # y = data.labels
+    """
+    This minimizes the gradient of loss, to find the global cost minimum.
+    :param img_path: The path of the images.
+    :param gt_path: The path of the grount truth images.
+    :return: The vector of the feature weights.
+    """
 
-    # read in normal images
-    # rm = readimages.py
-    imageread = rm.read_image(img_path)  # Bilder eines Ordners in Liste mit 2D arrays
+    # read in microscopic images
+    imageread = rm.read_image(img_path)
     image_PCA = PCA.convert_pca(imageread, 0.75)
+    # normalizing microscopic images
     normalizedimg = []
     for i in range(0, len(imageread)):
         pixelsimg = imageread[i].astype('float32')
@@ -110,22 +112,22 @@ def main(img_path, gt_path):
             normalizedimg.append(normalimg)
         else:
             normalizedimg.append(pixelsimg)
-    imagenames = rm.read_imagename(img_path)  # Liste mit Namen der Bilder
+    imagenames = rm.read_imagename(img_path)
     imageflattended = rm.image_flatten(image_PCA)
 
     X = rm.dataframe(imageflattended, imagenames)
     X.insert(loc=len(X.columns), column='intercept', value=1)
 
-    # read in gt images
-    gtread = rm.read_image(gt_path)  # Bilder eines Ordners in Liste mit 2D arrays
+    # read in ground truth images
+    gtread = rm.read_image(gt_path)
 
-    # thresholding gt images
+    # thresholding ground truth images to get black-and-white-only images
     thresholded = []
     for j in range(0, len(gtread)):
-        threshold = cv2.threshold(gtread[j], 150, 255, cv2.THRESH_BINARY)  # 0-149, intensitätswert wird 0, 150-255 intensitätswert wird 1
+        threshold = cv2.threshold(gtread[j], 150, 255, cv2.THRESH_BINARY)
         thresholded.append(threshold[1])
 
-    #normalizing gt images
+    # normalizing ground truth images
     normalizedgt = []
     for k in range(0, len(thresholded)):
         pixelsgt = thresholded[k].astype('float32')
@@ -134,12 +136,13 @@ def main(img_path, gt_path):
             normalizedgt.append(normalgt)
         else:
             normalizedgt.append(pixelsgt)
-    gtnames = rm.read_imagename(gt_path)  # Liste mit Namen der Bilder
+    gtnames = rm.read_imagename(gt_path)
     thresholded_and_normalized_flattened = rm.image_flatten(normalizedgt)
+
     y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)  # ground truths
 
     # Cross validation to train the model with different train:test splits
-    # leave-one-out cross-validation: n_splits = number of samples
+        # leave-one-out cross-validation: n_splits = number of samples
     n_splits = 2
     kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
 
