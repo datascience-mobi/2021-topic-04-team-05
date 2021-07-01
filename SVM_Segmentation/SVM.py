@@ -9,39 +9,65 @@ import cv2
 import readimages as rm
 import PCA
 
-def loss_function (x,w,y, C: float = 1e5):
-    #calculate hinge loss
-    N = x.shape[0]  #number of rows in x = number of samples
-    separation = distance_of_point_to_hyperplane(w, x, y)  #calculates distance of x to hyperplane
-    separation = [0 if i < 0 else i for i in separation] #all negative seperation values are replaced by 0
-    hinge_loss = C * (np.sum(separation) / N)  # average loss because the whole Y is taken & it encompasses several samples
-
-    # calculate loss
-    loss = 1 / 2 * np.dot(w, w) + hinge_loss  # np.dot (W,W) ist gleich Betrag von w^2
-    return loss
-
-#functions we need for the gradient/for lagrange
+#functions need for the loss function
 def distance_of_point_to_hyperplane(w, x, y):
     return 1 - y * (np.dot(x, w))
 
+def loss_function (x,w,y, C: float = 1e5):
+    """
+    This function calculates the loss of the support vectors.
+    :param x: A dataframe with the features of the samples.
+    :param w: The vector of the feature weights.
+    :param y: A dataframe with the labels of the samples.
+    :param C: A default value to define the regularization strength.
+    :return: A value representing the loss.
+    """
+    #calculate hinge loss
+    N = x.shape[0]
+    separation = distance_of_point_to_hyperplane(w, x, y)
+    separation = [0 if i < 0 else i for i in separation]
+    hinge_loss = C * (np.sum(separation) / N)
+
+    # calculate loss
+    loss = 1 / 2 * np.dot(w, w) + hinge_loss
+    return loss
+
+#functions needed for the gradient
 def distance_of_point_to_sv(index, w, x, y, C: float = 1e5):
     return w - (C * y[index] * x[index])
 
-#lagrange
-def lagrange (x: np.array,w,y): #ggf. x_sample, y_sample
-    separation = distance_of_point_to_hyperplane(w, x, y)  #calculates distance of x to hyperplane
+#calculating the gradient
+def lagrange (x: np.array,w,y):
+    """
+    This function calculates the gradient of loss, which is then to be minimized.
+    :param x: An array with the features of the samples.
+    :param w: The vector of the feature weights.
+    :param y: A dataframe with the labels of the samples.
+    :return: A value representing the gradient of the loss.
+    """
+    separation = distance_of_point_to_hyperplane(w, x, y)
     gradient = 0
-    for index, q in enumerate(separation):  # enumerate adds counter to the iterable to keep track of the number of items in the iterator; für jedes element in distance; ind = index & d ist zugehöriger distance wert
-        if q < 0: #if d = negativ --> right classification
+    for index, q in enumerate(separation):
+        # for correctly classified
+        if q < 0:
             qi = w
+        # for wrongly classified points
         else:
-            qi = distance_of_point_to_sv(index, w, x, y) #für falsch klassifizierte: distanz zwischen punkt (xi,yi) und support vector (distanz von hyperplane zu SV ist W)
+            qi = distance_of_point_to_sv(index, w, x, y)
         gradient += qi
-    gradient = gradient/len(y) #average of distances as len(y) is number of all trials
+    # calculate average of distances
+    gradient = gradient/len(y)
     return gradient
 
-#minimize gradient using Stochastic Gradient Descent (SGD)
+#minimize gradient using Stochastic Gradient Descent
 def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
+    """
+    This function calculates the gradient of loss, which is then to be minimized.
+    :param x: An array with the features of the samples.
+    :param w: The vector of the feature weights.
+    :param y: A dataframe with the labels of the samples.
+    :return: A value representing the loss.
+    """
     maximum_epochs = 5000 #an epoch indicates the number of passes of the entire training dataset the machine learning algorithm has completed
     weights = np.zeros(features.shape[1])  #creating array filled with zeros of the number of columns of our features (d.h. so viele wie features) dataset
     power = 0 #hoch
