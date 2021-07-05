@@ -173,6 +173,7 @@ def main(img_path, gt_path):
         y_pred = np.sign(np.dot(X_test.to_numpy()[i], W))
         y_test_prediction = np.append(y_test_prediction, y_pred)
 
+    return y_test_prediction, y_train_prediction
 
 if __name__ == '__main__':
     main('../Data/N2DH-GOWT1/img', '../Data/N2DH-GOWT1/gt/tif')
