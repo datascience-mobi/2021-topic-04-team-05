@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 #Gaussian Filtering
 image1 = cv2.imread('t01.tif')
 GaussianFiltered = cv2.GaussianBlur(image1, (5,5),0)
-cv2.imshow('Original', image1)
-cv2.imshow('Gauss', GaussianFiltered)
+#cv2.imshow('Original', image1)
+#cv2.imshow('Gauss', GaussianFiltered)
 #cv2.waitKey(0)
 #cv2.destroyWindow()
 

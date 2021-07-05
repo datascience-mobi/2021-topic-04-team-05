@@ -6,6 +6,7 @@ from scipy import ndimage
 import matplotlib.pyplot as plt
 
 # Load in image, convert to gray scale, and Otsu's threshold
+
 def watershed(i):
     img1 = cv2.imread(i)
     gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
@@ -19,8 +20,8 @@ def watershed(i):
     # Perform connected component analysis then apply Watershed
     markers = ndimage.label(local_max, structure=np.ones((3, 3)))[0]
     labels = watershed(-distance_map, markers, mask=dilated)
-# Iterate through unique labels
-total_area = 0
+    # Iterate through unique labels
+    total_area = 0
     for label in np.unique(labels):
         if label == 0:
             continue
