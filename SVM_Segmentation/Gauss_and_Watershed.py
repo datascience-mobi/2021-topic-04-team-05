@@ -10,11 +10,17 @@ def gauss(path_of_image_folder):
  image_list = rm.read_image(path_of_image_folder)
  gauss_image_list = []
  for image in image_list:
-     GaussianFiltered = cv2.GaussianBlur(image, (5,5),0)
-     print(GaussianFiltered)
+     cv2.GaussianBlur(image, (5,5),0)
+     gauss_image_list.append(image)
+     return image_list
+
 
 if __name__ == '__main__':
-    gauss('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/gt/jpg')
+    for i in range(1,5):
+        a = gauss('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img')
+        plt.imshow(a[i])
+        plt.show()
+
 
 
 img1 = cv2.imread("t01.tif")
