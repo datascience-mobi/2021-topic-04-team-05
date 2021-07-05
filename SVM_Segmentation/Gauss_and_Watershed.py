@@ -4,18 +4,17 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 from scipy import ndimage
 import matplotlib.pyplot as plt
+import readimages as rm
 
-#Gaussian Filtering
-image1 = cv2.imread('t01.tif')
-GaussianFiltered = cv2.GaussianBlur(image1, (5,5),0)
-#cv2.imshow('Original', image1)
-#cv2.imshow('Gauss', GaussianFiltered)
-#cv2.waitKey(0)
-#cv2.destroyWindow()
+def gauss(path_of_image_folder):
+ image_list = rm.read_image(path_of_image_folder)
+ gauss_image_list = []
+ for image in image_list:
+     GaussianFiltered = cv2.GaussianBlur(image, (5,5),0)
+     print(GaussianFiltered)
 
-#Watershed
-
-# Load in image, convert to gray scale, and Otsu's threshold
+if __name__ == '__main__':
+    gauss('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/gt/jpg')
 
 
 img1 = cv2.imread("t01.tif")
