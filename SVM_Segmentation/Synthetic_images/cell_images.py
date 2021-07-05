@@ -198,8 +198,7 @@ if __name__ == '__main__':
             #print(background2[y:y + h, x:x + w].shape)
 
             # add the cell to the background
-            background2[y:y + h, x:x + w] = 0
-            background2[y:y + h, x:x + w] = object1
+            background2[y:y + h, x:x + w] = 0 + object1
 
         background1 = np.minimum(background1, background2)
 
