@@ -176,6 +176,6 @@ def main(img_path, gt_path):
     return y_test_prediction, y_train_prediction
 
 if __name__ == '__main__':
-    main('../Data/N2DH-GOWT1/img', '../Data/N2DH-GOWT1/gt/tif')
+    main('../Data/test/img', '../Data/test/gt')
 
 
