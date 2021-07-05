@@ -87,6 +87,12 @@ def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
             power += 1
     return weights
 
+features = pd.DataFrame([5,8,7,2,6,4], [6,1,9,4,3,2])
+
+labels = pd.DataFrame([1, 1, 1, 0, 1, 0], [1, 0, 1, 0, 0, 0])
+
+stochastic_gradient_descent(features, labels)
+
 
 def main(img_path, gt_path):
     """
@@ -171,7 +177,6 @@ def main(img_path, gt_path):
 
     return y_test_prediction, y_train_prediction
 
-if __name__ == '__main__':
-    main('../Data/test/img', '../Data/test/gt')
-
+#if __name__ == '__main__':
+    #main('../Data/test/img', '../Data/test/gt')
 
