@@ -18,8 +18,8 @@ def gauss(path_of_image_folder):
 if __name__ == '__main__':
     for i in range(1,5):
         a = gauss('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img')
-        plt.imshow(a[i])
-        plt.show()
+        #plt.imshow(a[i])
+        #plt.show()
 
 
 
