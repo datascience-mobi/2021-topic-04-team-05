@@ -1,15 +1,11 @@
 import numpy as np
-import pandas as pd
-import statsmodels.api as sm
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split as tts, KFold
-from sklearn.metrics import accuracy_score, recall_score, precision_score
+from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 import cv2
 import readimages as rm
 import PCA
 
-#functions need for the loss function
+# functions need for the loss function
 def distance_of_point_to_hyperplane(w, x, y):
     return 1 - y * (np.dot(x, w))
 
@@ -22,7 +18,7 @@ def loss_function (x,w,y, C: float = 1e5):
     :param C: A default value to define the regularization strength.
     :return: A value representing the loss.
     """
-    #calculate hinge loss
+    # calculate hinge loss
     N = x.shape[0]
     separation = distance_of_point_to_hyperplane(w, x, y)
     separation = [0 if i < 0 else i for i in separation]
@@ -74,7 +70,7 @@ def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
     unbounded_upper_value = float("inf")
     stoppage_criterion = 0.01  #in percent
     for epoch in range(1, maximum_epochs):
-        # shuffel prevents the same x & y being take for several rounds
+        # shuffle prevents the same x & y being take for several rounds
         x, y = shuffle(features, labels)
         for index, x in enumerate(x):
             upward_slope = lagrange(weights, x, y[index])
