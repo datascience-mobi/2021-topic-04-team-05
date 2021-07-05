@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 import cv2
@@ -98,7 +99,7 @@ def main(img_path, gt_path):
     """
     This minimizes the gradient of loss, to find the global cost minimum.
     :param img_path: The path of the images.
-    :param gt_path: The path of the grount truth images.
+    :param gt_path: The path of the ground truth images.
     :return: The vector of the feature weights.
     """
 
