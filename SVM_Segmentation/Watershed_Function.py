@@ -9,12 +9,12 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 
 
-
 def watershed(path_of_image_folder):
     image_list = rm.read_image(path_of_image_folder)
     watershed_image_list = []
     for image in watershed_image_list:
-        gray = rgb2gray(image)  # erstezen durch skimage/matplotlib funktion
+        image1 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray = rgb2gray(image1)  # erstezen durch skimage/matplotlib funktion
         ret1, thresholded = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # ersetzen durch skimage/matplotlib funktion
         kernel = np.ones((3, 3), np.uint8)
         dilated = dilation(thresholded, kernel, iterations=9)  # ersetzen durch skimage/matplotlib funktion
