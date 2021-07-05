@@ -16,11 +16,13 @@ GaussianFiltered = cv2.GaussianBlur(image1, (5,5),0)
 #Watershed
 
 # Load in image, convert to gray scale, and Otsu's threshold
+
+
 img1 = cv2.imread("t01.tif")
 img = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 ret1, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 kernel = np.ones((3,3), np.uint8)
-thresh1 = cv2.dilate(thresh, kernel, iterations=8)
+thresh1 = cv2.dilate(thresh, kernel, iterations=9)
 
 # the kernel matrix in this case (3,3) -> 3x3, and the iterations should be adapted in every image collection
 
@@ -44,8 +46,7 @@ for label in np.unique(labels):
     # Find contours
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-    c = max(cnts, key=cv2.contourArea)
-    cv2.drawContours(img1, [c], -1, (36,255,12), 4)
+    cv2.drawContours(img1, [max(cnts)], -1, (36,255,12), 4)
 
 plt.imshow(img1)
 plt.show()
