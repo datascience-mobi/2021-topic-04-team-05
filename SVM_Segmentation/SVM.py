@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from skimage import io
 import statsmodels.api as sm
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split as tts, KFold
@@ -9,11 +10,14 @@ import cv2
 import readimages as rm
 import PCA
 
-#functions need for the loss function
-def distance_of_point_to_hyperplane(w, x, y):
-    return 1 - y * (np.dot(x, w))
 
-def loss_function (x,w,y, C: float = 1e5):
+# functions need for the loss function
+def distance_of_point_to_hyperplane(w, x, y):
+    distance_hyperplane = 1 - y * (np.dot(x, w))
+    return distance_hyperplane
+
+
+def loss_function(x, w, y, C: float = 1e5):
     """
     This function calculates the loss of the support vectors.
     :param x: A dataframe with the features of the samples.
@@ -22,7 +26,7 @@ def loss_function (x,w,y, C: float = 1e5):
     :param C: A default value to define the regularization strength.
     :return: A value representing the loss.
     """
-    #calculate hinge loss
+    # calculate hinge loss
     N = x.shape[0]
     separation = distance_of_point_to_hyperplane(w, x, y)
     separation = [0 if i < 0 else i for i in separation]
@@ -32,12 +36,25 @@ def loss_function (x,w,y, C: float = 1e5):
     loss = 1 / 2 * np.dot(w, w) + hinge_loss
     return loss
 
-#functions needed for the gradient
-def distance_of_point_to_sv(index, w, x, y, C: float = 1e5):
-    return w - (C * y[index] * x[index])
 
-#calculating the gradient
-def lagrange (x: np.array,w,y):
+# functions needed for the gradient
+def distance_of_point_to_sv(index, w, x, y, C: float = 1e5):
+    """
+
+    :param index:
+    :param w:
+    :param x:
+    :param y:
+    :param C:
+    :return:
+    """
+
+    distance_sv = w - (C * y.iloc[0, index] * x.iloc[0, index])
+    return distance_sv
+
+
+# calculating the gradient
+def lagrange(x, w, y):
     """
     This function calculates the gradient of loss, which is then to be minimized.
     :param x: An array with the features of the samples.
@@ -46,20 +63,36 @@ def lagrange (x: np.array,w,y):
     :return: A vector representing the gradient of the loss. #vector?
     """
     separation = distance_of_point_to_hyperplane(w, x, y)
+    separation_df = pd.DataFrame(separation)
+    columns = separation_df.shape[1]
+    distances_sv_list = []
     gradient = 0
-    for index, q in enumerate(separation):
+    for q in range(0, columns):
         # for correctly classified
         if q < 0:
             qi = w
-        # for wrongly classified points
+        # for falsely classified points
         else:
+            index = q
             qi = distance_of_point_to_sv(index, w, x, y)
-        gradient += qi
-    # calculate average of distances
-    gradient = gradient/len(y)
-    return gradient
+        distances_sv_list.append(qi)
+        rowname = x.index[0]
+        df = pd.DataFrame(distances_sv_list)
+        df_transposed = df.transpose()
+        df_renamed = df_transposed.rename(index={0: (f'{rowname}')})
+        qi_list = []
+        for qi in range(0, df_renamed.shape[1]):
+            gradient += qi
+            # calculate average of distances
+            gradient = gradient / len(y)
+            qi_list.append(gradient)
+            df_qi = pd.DataFrame(qi_list)
+            df_qi_transposed = df_qi.transpose()
+            df_qi_renamed = df_qi_transposed.rename(index={0: (f'{rowname}')})
+    return df_qi_renamed
 
-#minimize gradient using Stochastic Gradient Descent
+
+# minimize gradient using Stochastic Gradient Descent
 def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
     """
     This minimizes the gradient of loss, to find the global cost minimum.
@@ -72,12 +105,12 @@ def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
     weights = np.zeros(features.shape[1])
     power = 0
     unbounded_upper_value = float("inf")
-    stoppage_criterion = 0.01  #in percent
+    stoppage_criterion = 0.01  # in percent
     for epoch in range(1, maximum_epochs):
-        # shuffel prevents the same x & y being take for several rounds
+        # shuffle prevents the same x & y being take for several rounds
         x, y = shuffle(features, labels)
-        for index, x in enumerate(x):
-            upward_slope = lagrange(weights, x, y[index])
+        for counter, value in enumerate(x):
+            upward_slope = lagrange(weights, value, y[counter])
             weights = weights - (learning_rate * upward_slope)
         if epoch == pow(2, power) or epoch == maximum_epochs - 1:
             loss = loss_function(weights, features, labels)
@@ -96,7 +129,7 @@ def main(img_path, gt_path):
     """
     This minimizes the gradient of loss, to find the global cost minimum.
     :param img_path: The path of the images.
-    :param gt_path: The path of the grount truth images.
+    :param gt_path: The path of the ground truth images.
     :return: The vector of the feature weights.
     """
 
@@ -142,7 +175,7 @@ def main(img_path, gt_path):
     y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)  # ground truths
 
     # Cross validation to train the model with different train:test splits
-        # leave-one-out cross-validation: n_splits = number of samples
+    # leave-one-out cross-validation: n_splits = number of samples
     n_splits = 2
     kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
 
@@ -175,7 +208,91 @@ def main(img_path, gt_path):
 
     return y_test_prediction, y_train_prediction
 
+
 if __name__ == '__main__':
-    main('../Data/test/img', '../Data/test/gt')
+    # main('../Data/test/img', '../Data/test/gt')
+
+    imgread = io.imread('../Data/test/img/t01.tif')
+    imgtile = imgread[550:560,550:560]
+    imgflat = imgtile.flatten()
+    # normalizing microscopic images
+    imgnormal_list = []
+    for i in range(0, len(imgflat)):
+        if imgflat[i] > 0:
+            pixelsnorm = imgflat[i] / imgflat.max()
+            imgnormal_list.append(pixelsnorm)
+        else:
+            pixelsnorm = 0
+            imgnormal_list.append(pixelsnorm)
+    imgnormal = np.asarray(imgnormal_list).transpose()
+
+    X = pd.DataFrame(data=imgnormal)
+    X.insert(loc=len(X.columns), column='intercept', value=1)
 
 
+    # read in ground truth images
+    gtread = io.imread('../Data/test/gt/man_seg01.jpg')
+    gttile = gtread[550:560,550:560]
+
+    # thresholding ground truth images to get black-and-white-only images
+    gtthreshold = cv2.threshold(gttile, 0, 1, cv2.THRESH_BINARY)
+    gtflat = gtthreshold[1].flatten()
+
+    # normalizing microscopic images
+    y_labels = np.where(gtflat == 0, -1, gtflat)
+    Y = pd.DataFrame(data= y_labels)
+
+
+    # Cross validation to train the model with different train:test splits
+    # leave-one-out cross-validation: n_splits = number of samples
+    n_splits = 2
+    kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
+
+    # define test and training data
+    for i in range(n_splits):
+        result = next(kfold.split(X), None)
+        X_train = X.iloc[result[0]]
+        # !!X_train = np.array([X.iloc[result[0]]]) statt unten .to_numpy()
+        X_test = X.iloc[result[1]]
+        y_train = y.iloc[result[0]]
+        y_test = y.iloc[result[1]]
+
+
+    features = X_train
+    outputs = y_train
+    learning_rate: float = 1e-6
+    maximum_epochs = 5000
+    array_of_weights = np.zeros(features.shape[1])
+    # array_of_weights_transposed = array_of_weights.transpose()
+    row_1 = features.iloc[0]
+    row_2 = outputs.iloc[0]
+
+    distance_hyperplane = 1 - row_2[0] * (np.dot(row_1[0], array_of_weights))
+
+    power = 0
+    unbounded_upper_value = float("inf")
+    stoppage_criterion = 0.01  # in percent
+    for epoch in range(1, maximum_epochs):
+        # shuffle prevents the same x & y being take for several rounds
+        x, y = shuffle(features, outputs)
+        print(type(x), type(y))
+        # x_list = list(x.iloc[0,])
+        # y_list = list(y.iloc[0,])
+        for index, value in enumerate(x):
+            upward_slope = lagrange(array_of_weights, x, y[index])
+            array_of_weights = array_of_weights - (learning_rate * upward_slope)
+        if epoch == pow(2, power) or epoch == maximum_epochs - 1:
+            loss = loss_function(array_of_weights, features, labels)
+            print("{}. epoch: current loss is {}.".format(epoch, loss))
+            # stoppage criterion to stop at convergence
+            deviance = abs(unbounded_upper_value - loss)
+            # if cost no longer changes, stop gradient decend
+            if stoppage_criterion * unbounded_upper_value > deviance:
+                print(array_of_weights)
+            unbounded_upper_value = loss
+            power += 1
+    print(array_of_weights)
+
+    # train the model
+    # W = stochastic_gradient_descent(X_train.to_numpy(), y_train.to_numpy())
+    # print("The weights vector is: {}".format(W))
