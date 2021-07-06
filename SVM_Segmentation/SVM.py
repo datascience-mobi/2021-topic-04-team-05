@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, recall_score, precision_score
 from sklearn.utils import shuffle
 import cv2
 import readimages as rm
-import PCA
+import preparation_PCA
 
 
 # functions need for the loss function
@@ -137,7 +137,7 @@ def main(img_path, gt_path):
 
     # read in microscopic images
     imageread = rm.read_image(img_path)
-    image_PCA = PCA.convert_pca(imageread, 0.75)
+    image_PCA = preparation_PCA.convert_pca(imageread, 0.75)
     # normalizing microscopic images
     normalizedimg = []
     for i in range(0, len(imageread)):
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     #main('../Data/test/img', '../Data/test/gt')
 
     imageread = rm.read_image('../Data/test/img')
-    image_PCA = PCA.convert_pca(imageread, 0.75)
+    image_PCA = preparation_PCA.convert_pca(imageread, 0.75)
     # normalizing microscopic images
     normalizedimg = []
     for i in range(0, len(imageread)):

@@ -3,7 +3,7 @@ from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 import cv2
 import readimages as rm
-import PCA
+import preparation_PCA
 
 
 
