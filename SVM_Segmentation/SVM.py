@@ -19,11 +19,12 @@ def distance_of_point_to_hyperplane(w, x, y):
     :param y:
     :return:
     """
+
     distance_hyperplane = 1 - y * (np.dot(x, w))
     return distance_hyperplane
 
 
-def loss_function(x, w, y, C: float = 1e5):
+def loss_function(w, x, y, C: float = 1e5):
     """
     This function calculates the loss of the support vectors.
     :param x: A dataframe with the features of the samples.
@@ -59,7 +60,7 @@ def distance_of_point_to_sv(w, x, y, C: float = 1e5):
 
 
 # calculating the gradient
-def lagrange(x, w, y):
+def lagrange(w, x, y):
     """
     This function calculates the gradient of loss, which is then to be minimized.
     :param x: An array with the features of the samples.
@@ -67,30 +68,30 @@ def lagrange(x, w, y):
     :param y: A dataframe with the labels of the samples.
     :return: A vector representing the gradient of the loss. #vector?
     """
+    if x.shape == (1,):
+        x = x[0]
+    y = y[0]
     separation = distance_of_point_to_hyperplane(w, x, y)
+    #if separation.shape[] == (1,):
+     #   x = x[0]
+    print(separation)
+    # seperation is an 1Darray, if 1 feature and an multidimensional array if more features
+    # in this array every element is the distance of a pixel of one feature/image
     separation_df = pd.DataFrame(separation)
-    print(separation_df.shape)
-    columns = separation_df.shape[1]
-    distances_sv_list = []
+    rows = separation_df.shape[0]
     gradient = 0
-    for q in range(0, columns):
+    for q in range(0, rows):
         # for correctly classified
         if q < 0:
             qi = w
         # for falsely classified points
         else:
-            index = q
             qi = distance_of_point_to_sv(w, x, y)
-        distances_sv_list.append(qi)
-        rowname = index
-        df = pd.DataFrame(distances_sv_list)
-        df_transposed = df.transpose()
-        df_renamed = df_transposed.rename(index={0: (f'{rowname}')})
-        qi_list = []
-        for qi in range(0, df_renamed.shape[1]):
+        df = pd.DataFrame(qi)
+        for qi in range(0, df.shape[1]):
             gradient += qi
             # calculate average of distances
-            gradient = gradient / len(y)
+            gradient = gradient / len([y])
     return gradient
 
 
@@ -350,7 +351,12 @@ if __name__ == '__main__':
 
     features = X_train
     labels = y_train
+
+    print(features, labels)
+
     learning_rate: float = 1e-6
+    #number of features starting with 0, so for one feature it is 0, for 2 it is 1 etc.
+    number_of_features = 0
 
     maximum_epochs = 5000
     array_of_weights = np.zeros(features.shape[1])
@@ -360,18 +366,26 @@ if __name__ == '__main__':
     for epoch in range(1, maximum_epochs):
         #shuffle prevents the same x & y being taken for several rounds
         x, y = shuffle(features, labels)
-        for i in range(0, x.shape[1]):
-            x = x.values[:, [i]]
-            y = y.iloc[:, [i]]
+        i = 0
+        if number_of_features != 0:
+            for i in [0, x.shape[1]]:
+                end = i + number_of_features
+                x = x.values[:, [i, end]]
+                i += number_of_features
+        else:
+            for k in range(0, x.shape[1]):
+                x = x.values[:, [k]]
+        for j in range(0, y.shape[1]):
+            y = y.values[:, [j]]
             list = []
             df_of_weights = ()
             for ind, value in enumerate(x):
-                upward_slope = lagrange(array_of_weights, value, y.loc[ind].values)
-                list.append(upward_slope)
-                array = np.asarray(list)
-                array_of_weights = array_of_weights - (learning_rate * array)
+                upward_slope = lagrange(array_of_weights, value, y[ind])
+                array_of_weights = array_of_weights - (learning_rate * upward_slope)
             if epoch == pow(2, power) or epoch == maximum_epochs - 1:
-                loss = loss_function(array_of_weights, features, labels)
+                if array_of_weights.shape == (1,):
+                    array_of_weights = array_of_weights[0]
+                loss = loss_function(array_of_weights, features.values, labels.values)
                 print("{}. epoch: current loss is {}.".format(epoch, loss))
                 # stoppage criterion to stop at convergence
                 deviance = abs(unbounded_upper_value - loss)
