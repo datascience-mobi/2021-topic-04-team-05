@@ -37,7 +37,7 @@ def loss_function(x, w, y, C: float = 1e5):
 
 
 # functions needed for the gradient
-def distance_of_point_to_sv(index, w, x, y, C: float = 1e5):
+def distance_of_point_to_sv(w, x, y, C: float = 1e5):
     """
 
     :param index:
@@ -47,8 +47,7 @@ def distance_of_point_to_sv(index, w, x, y, C: float = 1e5):
     :param C:
     :return:
     """
-
-    distance_sv = w - (C * y.iloc[0, index] * x.iloc[0, index])
+    distance_sv = w - (C * y * x)
     return distance_sv
 
 
@@ -73,9 +72,9 @@ def lagrange(x, w, y):
         # for falsely classified points
         else:
             index = q
-            qi = distance_of_point_to_sv(index, w, x, y)
+            qi = distance_of_point_to_sv(w, x, y)
         distances_sv_list.append(qi)
-        rowname = x.index[0]
+        rowname = index
         df = pd.DataFrame(distances_sv_list)
         df_transposed = df.transpose()
         df_renamed = df_transposed.rename(index={0: (f'{rowname}')})
@@ -83,7 +82,10 @@ def lagrange(x, w, y):
         for qi in range(0, df_renamed.shape[1]):
             gradient += qi
             # calculate average of distances
-            gradient = gradient / len(y)
+            if len(y) != 0:
+                gradient = gradient / len(y)
+            else:
+                gradient = gradient
             qi_list.append(gradient)
             df_qi = pd.DataFrame(qi_list)
             df_qi_transposed = df_qi.transpose()
@@ -297,6 +299,7 @@ if __name__ == '__main__':
     w = 7
     x = X_train
     y = y_train
+
         #C = 1e5
         #list = []
         #for index in range(0, columns):
@@ -341,55 +344,36 @@ if __name__ == '__main__':
             #df_qi_renamed = df_qi_transposed.rename(index={0: (f'{rowname}')})
     #print(df_qi_renamed)
 
-    #print(X_train)
-    #print(y_train)
-    features = X_train
-    array_of_weights = np.zeros(features.shape[1])
-    array_of_weights_transposed = array_of_weights.transpose()
-    df_weights = pd.DataFrame(array_of_weights)
-    df_weights_transposed = df_weights.transpose()
-    print(X_train.shape)
-    print(y_train.shape)
-    print(df_weights_transposed.shape)
-    y_train_array = np.asarray(y_train)
-    X_train_array = np.asarray(X_train)
-    print(y_train_array.shape)
-    print(X_train_array.shape)
-    #print(lagrange(X_train, df_weights_transposed, y_train))
-    distance_hyperplane = 1 - y_train_array * (np.dot(X_train_array, array_of_weights_transposed))
-    print(distance_hyperplane)
-
-    #print(stochastic_gradient_descent(X_train, y_train))
 
     features = X_train
     labels = y_train
     learning_rate: float = 1e-6
 
     maximum_epochs = 5000
-    array_of_weights = np.zeros(features.shape[1])
-    array_of_weights_transposed = array_of_weights.transpose()
+    array_of_weights = np.zeros(features.shape[0])
+    #array_of_weights_transposed = array_of_weights.transpose()
     power = 0
+    print(array_of_weights)
     unbounded_upper_value = float("inf")
     stoppage_criterion = 0.01  # in percent
     for epoch in range(1, maximum_epochs):
-        #shuffle prevents the same x & y being take for several rounds
+        #shuffle prevents the same x & y being taken for several rounds
         x, y = shuffle(features, labels)
-        #x_list = list(x.iloc[0,])
-        #y_list = list(y.iloc[0,])
-        for index, value in enumerate(x):
-            upward_slope = lagrange(array_of_weights_transposed, x, y[index])
-            array_of_weights_transposed = array_of_weights_transposed - (learning_rate * upward_slope)
+        for ind, value in enumerate(x):
+            y_new = np.asarray(y[ind][0])
+            upward_slope = lagrange(array_of_weights, value, y_new)
+            array_of_weights = array_of_weights - (learning_rate * upward_slope)
         if epoch == pow(2, power) or epoch == maximum_epochs - 1:
-            loss = loss_function(array_of_weights_transposed, features, labels)
+            loss = loss_function(array_of_weights, features, labels)
             print("{}. epoch: current loss is {}.".format(epoch, loss))
             # stoppage criterion to stop at convergence
             deviance = abs(unbounded_upper_value - loss)
             # if cost no longer changes, stop gradient decend
             if stoppage_criterion * unbounded_upper_value > deviance:
-                print(array_of_weights_transposed)
+                print(array_of_weights)
             unbounded_upper_value = loss
             power += 1
-    print(array_of_weights_transposed)
+    print(array_of_weights)
 
 
 
