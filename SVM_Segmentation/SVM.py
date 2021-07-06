@@ -12,6 +12,13 @@ import PCA
 
 # functions need for the loss function
 def distance_of_point_to_hyperplane(w, x, y):
+    """
+
+    :param w:
+    :param x:
+    :param y:
+    :return:
+    """
     distance_hyperplane = 1 - y * (np.dot(x, w))
     return distance_hyperplane
 
@@ -62,6 +69,7 @@ def lagrange(x, w, y):
     """
     separation = distance_of_point_to_hyperplane(w, x, y)
     separation_df = pd.DataFrame(separation)
+    print(separation_df.shape)
     columns = separation_df.shape[1]
     distances_sv_list = []
     gradient = 0
@@ -82,15 +90,8 @@ def lagrange(x, w, y):
         for qi in range(0, df_renamed.shape[1]):
             gradient += qi
             # calculate average of distances
-            if len(y) != 0:
-                gradient = gradient / len(y)
-            else:
-                gradient = gradient
-            qi_list.append(gradient)
-            df_qi = pd.DataFrame(qi_list)
-            df_qi_transposed = df_qi.transpose()
-            df_qi_renamed = df_qi_transposed.rename(index={0: (f'{rowname}')})
-    return df_qi_renamed
+            gradient = gradient / len(y)
+    return gradient
 
 
 # minimize gradient using Stochastic Gradient Descent
@@ -258,7 +259,7 @@ if __name__ == '__main__':
 
     y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)
     y = y.iloc[:, 0:5]
-    #print(y)
+    y_labels = y.replace(0, -1)
 
     # Cross validation to train the model with different train:test splits
     # leave-one-out cross-validation: n_splits = number of samples
@@ -271,8 +272,14 @@ if __name__ == '__main__':
         X_train = X.iloc[result[0]]
         # !!X_train = np.array([X.iloc[result[0]]]) statt unten .to_numpy()
         X_test = X.iloc[result[1]]
-        y_train = y.iloc[result[0]]
-        y_test = y.iloc[result[1]]
+        y_train = y_labels.iloc[result[0]]
+        y_test = y_labels.iloc[result[1]]
+
+    X_train = X_train.transpose()
+    y_train = y_train.transpose()
+    X_test = X_test.transpose()
+    y_test = y_test.transpose()
+
 
 
         #print(X_test)
@@ -296,9 +303,6 @@ if __name__ == '__main__':
         #gradient = 0
         #columns = separation_df.shape[1]
         #print(separation_df)
-    w = 7
-    x = X_train
-    y = y_train
 
         #C = 1e5
         #list = []
@@ -344,35 +348,38 @@ if __name__ == '__main__':
             #df_qi_renamed = df_qi_transposed.rename(index={0: (f'{rowname}')})
     #print(df_qi_renamed)
 
-
     features = X_train
     labels = y_train
     learning_rate: float = 1e-6
 
     maximum_epochs = 5000
-    array_of_weights = np.zeros(features.shape[0])
-    #array_of_weights_transposed = array_of_weights.transpose()
+    array_of_weights = np.zeros(features.shape[1])
     power = 0
-    print(array_of_weights)
     unbounded_upper_value = float("inf")
     stoppage_criterion = 0.01  # in percent
     for epoch in range(1, maximum_epochs):
         #shuffle prevents the same x & y being taken for several rounds
         x, y = shuffle(features, labels)
-        for ind, value in enumerate(x):
-            y_new = np.asarray(y[ind][0])
-            upward_slope = lagrange(array_of_weights, value, y_new)
-            array_of_weights = array_of_weights - (learning_rate * upward_slope)
-        if epoch == pow(2, power) or epoch == maximum_epochs - 1:
-            loss = loss_function(array_of_weights, features, labels)
-            print("{}. epoch: current loss is {}.".format(epoch, loss))
-            # stoppage criterion to stop at convergence
-            deviance = abs(unbounded_upper_value - loss)
-            # if cost no longer changes, stop gradient decend
-            if stoppage_criterion * unbounded_upper_value > deviance:
-                print(array_of_weights)
-            unbounded_upper_value = loss
-            power += 1
+        for i in range(0, x.shape[1]):
+            x = x.values[:, [i]]
+            y = y.iloc[:, [i]]
+            list = []
+            df_of_weights = ()
+            for ind, value in enumerate(x):
+                upward_slope = lagrange(array_of_weights, value, y.loc[ind].values)
+                list.append(upward_slope)
+                array = np.asarray(list)
+                array_of_weights = array_of_weights - (learning_rate * array)
+            if epoch == pow(2, power) or epoch == maximum_epochs - 1:
+                loss = loss_function(array_of_weights, features, labels)
+                print("{}. epoch: current loss is {}.".format(epoch, loss))
+                # stoppage criterion to stop at convergence
+                deviance = abs(unbounded_upper_value - loss)
+                # if cost no longer changes, stop gradient decend
+                if stoppage_criterion * unbounded_upper_value > deviance:
+                    print(array_of_weights)
+                unbounded_upper_value = loss
+                power += 1
     print(array_of_weights)
 
 
