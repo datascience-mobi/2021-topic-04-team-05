@@ -72,12 +72,11 @@ def lagrange(w, x, y):
         x = x[0]
     y = y[0]
     separation = distance_of_point_to_hyperplane(w, x, y)
-    #if separation.shape[] == (1,):
-     #   x = x[0]
-    print(separation)
-    # seperation is an 1Darray, if 1 feature and an multidimensional array if more features
+    # separation is an 1Darray, if 1 feature and an multidimensional array if more features
     # in this array every element is the distance of a pixel of one feature/image
-    separation_df = pd.DataFrame(separation)
+    if separation.shape == (1,):
+        separation = separation[0]
+    separation_df = pd.DataFrame(np.asarray(separation))
     rows = separation_df.shape[0]
     gradient = 0
     for q in range(0, rows):
@@ -351,8 +350,6 @@ if __name__ == '__main__':
 
     features = X_train
     labels = y_train
-
-    print(features, labels)
 
     learning_rate: float = 1e-6
     #number of features starting with 0, so for one feature it is 0, for 2 it is 1 etc.
