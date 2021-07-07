@@ -196,8 +196,7 @@ if __name__ == '__main__':
             x = np.random.randint(0, max_x_new)
 
             # add the cell to the background
-            background2[y:y + h, x:x + w] = 0
-            background2[y:y + h, x:x + w] = object1
+            background2[y:y + h, x:x + w] += object1
 
         background1 = np.minimum(background1, background2)
 
