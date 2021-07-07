@@ -190,15 +190,17 @@ if __name__ == '__main__':
 
             # get a random x-coord
             max_y_new = max_y - h
-            y = np.random.randint(0, max_y_new)
+            #y = np.random.randint(0, max_y_new)
+            y = 500
             # get a random y-coord
             max_x_new = max_x - w
-            x = np.random.randint(0, max_x_new)
+            #x = np.random.randint(0, max_x_new)
+            x = 500
 
             # add the cell to the background
             background2[y:y + h, x:x + w] += object1
 
-        background1 = np.minimum(background1, background2)
+        background1 = np.maximum(background1, background2)
 
 
         path = (f'{new_image_path}/{new_filename}_{i}.tif')
