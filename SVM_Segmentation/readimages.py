@@ -1,5 +1,4 @@
 import os
-import numpy
 from skimage import io
 import numpy as np
 from numpy import asarray, ndarray

@@ -1,0 +1,12 @@
+dependencies:
+  - python = 3.8
+  - os
+  - skimage
+  - numpy
+  - pandas
+  - sklearn
+  - cv2
+  - matplotlib
+  - math
+  - scipy
+  - PIL
