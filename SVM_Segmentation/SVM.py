@@ -8,6 +8,7 @@ from sklearn.utils import shuffle
 import cv2
 import readimages as rm
 import preparation_PCA
+import imagecodecs
 
 
 # functions need for the loss function
@@ -76,7 +77,7 @@ def lagrange(w, x, y):
     # in this array every element is the distance of a pixel of one feature/image
     if separation.shape == (1,):
         separation = separation[0]
-    separation_df = pd.DataFrame(np.asarray(separation))
+    separation_df = np.asarray(separation)
     rows = separation_df.shape[0]
     gradient = 0
     for q in range(0, rows):

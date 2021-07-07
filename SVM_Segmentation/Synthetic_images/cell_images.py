@@ -182,33 +182,29 @@ if __name__ == '__main__':
             # add a random rotation to the cell
             object1 = np.rot90(object1, k = np.random.randint(0, 3))
 
-            print(object1.shape)
-
-
             object_shape = object1.shape
-            # get a random x-coord
-            y = np.random.randint(0, max_y)
-            # get a random y-coord
-            x = np.random.randint(0, max_x)
+
             # set the width and height
             h = (object1.shape)[0]
             w = (object1.shape)[1]
 
-            print(h, w)
-            #print(background2[y:y + h, x:x + w].shape)
+            # get a random x-coord
+            max_y_new = max_y - h
+            y = np.random.randint(0, max_y_new)
+            # get a random y-coord
+            max_x_new = max_x - w
+            x = np.random.randint(0, max_x_new)
 
             # add the cell to the background
-            background2[y:y + h, x:x + w]  += object1
+            background2[y:y + h, x:x + w] = 0
+            background2[y:y + h, x:x + w] = object1
 
         background1 = np.minimum(background1, background2)
-
-        #print(background_resized1.shape)
-        #print(background_resized2.shape)
-        #print(rotated_image)
-        #print(rotated_image.shape)
-        #plt.imshow(rotated_image)
-        #plt.show()
 
 
         path = (f'{new_image_path}/{new_filename}_{i}.tif')
         cv2.imwrite(path, background1)
+
+    image_gen = io.imread('new_images_dir/generated_image_2.tif')
+    plt.imshow(image_gen)
+    plt.show()

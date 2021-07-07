@@ -18,6 +18,7 @@
   haben: Es sollten auf keinen Fall alle Code-Blöcke im pdf angezeigt werden (dazu reicht der Platz nicht). 
   Nur wichtige Code-Teile sollten (wenn überhaupt) im pdf angezeigt werden. Allerdings enthält das Markdown/Jupyter 
   Notebook alle Code-Blöcke.
+  --> top function ausführen und dann deskriptive Statistik für die verschiedenen Dice-Scores (Boxplot, Swarmplot)
 
 ## Plans for next week
 - Analysis
