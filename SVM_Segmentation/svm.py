@@ -20,7 +20,10 @@ def distance_of_point_to_hyperplane(w, x, y):
     :param y:
     :return:
     """
-
+    if x.shape == (1,):
+        x = x[0]
+    if w.shape == (1,):
+        w = w[0]
     distance_hyperplane = 1 - y * (np.dot(x, w))
     return distance_hyperplane
 
@@ -37,6 +40,7 @@ def loss_function(w, x, y, soft_margin_parameter: float = 1e5):
     # calculate hinge loss
     N = x.shape[0]
     separation = distance_of_point_to_hyperplane(w, x, y)
+    separation = separation[0,:]
     separation = [0 if i < 0 else i for i in separation]
     hinge_loss = soft_margin_parameter * (np.sum(separation) / N)
 
@@ -71,23 +75,26 @@ def lagrange(weights, features, labels, distances_to_hyperplane: list):
     :return: gradient for one image/feature
     """
 
+    if type(features) == np.float64:
+        labels = np.array([labels])
+        features = np.array([features])
+
     gradient = 0
     # iterating trough all rows (for every pixel)
     for index1, distance_to_hyperplane in enumerate(distances_to_hyperplane):
         # iterating through all values of the different features
-        for index2, value_distance_to_hyperplane in enumerate(list(distance_to_hyperplane)):
-            # for correctly classified
-            if value_distance_to_hyperplane < 0:
-                distances_to_sv = weights
-            # for falsely classified points
-            else:
-                # calculating the distance to the support vector for every row/pixel
-                distances_to_sv = distance_of_point_to_sv(weights, features[index1], labels[index1])
+        # for correctly classified
+        if distance_to_hyperplane < 0:
+            distances_to_sv = weights
+        # for falsely classified points
+        else:
+            # calculating the distance to the support vector for every feature
+            for index2 in range(0, len(list(features))):
+                distances_to_sv = distance_of_point_to_sv(weights, features[index2], labels)
 
-            for distances_to_sv in range(0, distances_to_sv.shape[0]):
-                gradient += distances_to_sv
-                # calculate average of distances
-                gradient = gradient / len([labels])
+        gradient += distances_to_sv
+            # calculate average of distances
+    gradient = gradient / len([labels])
     return gradient
 
 
@@ -228,8 +235,7 @@ if __name__ == '__main__':
     imageflattended = rm.image_flatten(image_PCA)
 
     X = rm.dataframe(imageflattended, imagenames)
-    X.insert(loc=len(X.columns), column='intercept', value=1)
-    X = X.iloc[:, 0:5]
+    X = X.iloc[:, 0:1000]
 
     #print(X)
 
@@ -255,7 +261,7 @@ if __name__ == '__main__':
     thresholded_and_normalized_flattened = rm.image_flatten(normalizedgt)
 
     y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)
-    y = y.iloc[:, 0:5]
+    y = y.iloc[:, 0:1000]
     y_labels = y.replace(0, -1)
 
     # Cross validation to train the model with different train:test splits
@@ -354,7 +360,6 @@ if __name__ == '__main__':
     number_of_features = 0
 
     maximum_epochs = 5000
-    array_of_weights = np.zeros(features.shape[0])
     power = 0
     unbounded_upper_value = float("inf")
     stoppage_criterion = 0.01  # in percent
@@ -373,31 +378,50 @@ if __name__ == '__main__':
         for j in range(0, y.shape[1]):
             y = y.values[:, [j]]
             distances_to_hyperplane = []
-            x = np.array([[2, 3], [5, 4], [3, 8], [6, 7], [4, 9]])
-            for ind, value in enumerate(x):
+            #x = np.array([[2, 3], [2, 4], [6, 8], [6, 7], [4, 9]])
+            intercept = np.zeros((x.shape[0], 1), dtype=x.dtype)
+            intercept += 1
+            x_with_intercept = np.hstack((x, intercept))
+            array_of_weights = np.zeros(x_with_intercept.shape[1])
+            #y = np.array([-1, -1, 1, 1, -1])
+            for index in range(0, x_with_intercept.shape[0]):
                 # distance is always a value, also for multiple features
-                distance_to_hyperplane = distance_of_point_to_hyperplane(array_of_weights[ind], value, y[ind])
+                distance_to_hyperplane = distance_of_point_to_hyperplane(array_of_weights, x_with_intercept[index], y[index])
                 # creating a list with all of the distances, for each pixel
                 distances_to_hyperplane.append(distance_to_hyperplane)
             # we calculate the gradient for one picture/column
-            for index in range(0, number_of_features):
-                gradient = lagrange(array_of_weights, x[:, index], y, distances_to_hyperplane)
+                gradient = lagrange(array_of_weights, x_with_intercept[index], y[index], distances_to_hyperplane)
                 array_of_weights = array_of_weights - (learning_rate * gradient)
-                if epoch == pow(2, power) or epoch == maximum_epochs - 1:
-                    # calculate the loss
-                    #array_of_weights = np.asarray(array_of_weights)
-                    loss = loss_function(array_of_weights, features.values, labels.values)
-                    print("{}. epoch: current loss is {}.".format(epoch, loss))
-                    # stoppage criterion to stop at convergence
-                    deviance = abs(unbounded_upper_value - loss)
-                    # if cost no longer changes, stop gradient decend
-                    if stoppage_criterion * unbounded_upper_value > deviance:
-                        print(array_of_weights)
-                    unbounded_upper_value = loss
-                    power += 1
-                    # hier fehlt noch der Code, der die ganzen arrays dann in eine dataframe als spalten nebeneinander appeneded
+            if epoch == pow(2, power) or epoch == maximum_epochs - 1:
+                # calculate the loss
+                #array_of_weights = np.asarray(array_of_weights)
+                loss = loss_function(array_of_weights, x_with_intercept, y)
+                print("{}. epoch: current loss is {}.".format(epoch, loss))
+                # stoppage criterion to stop at convergence
+                deviance = abs(unbounded_upper_value - loss)
+                # if cost no longer changes, stop gradient decend
+                if stoppage_criterion * unbounded_upper_value > deviance:
+                    print(array_of_weights)
+                unbounded_upper_value = loss
+                power += 1
     print(array_of_weights)
 
+    # use model to predict y for the training data
+    y_train_prediction = np.array([])
+    for i in range(x_with_intercept.shape[0]):
+        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+        y_pred = np.sign(np.dot(x_with_intercept[i], array_of_weights))
+        y_train_prediction = np.append(y_train_prediction, y_pred)
+
+    # test model
+    y_test_prediction = np.array([])
+    for i in range(x_with_intercept.shape[0]):
+        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+        y_pred = np.sign(np.dot(x_with_intercept[i], array_of_weights))
+        y_test_prediction = np.append(y_test_prediction, y_pred)
+
+    print(y_train_prediction)
+    print(y_test_prediction)
 
 
         # train the model
