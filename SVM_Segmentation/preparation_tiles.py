@@ -1,14 +1,15 @@
+import os
+import cv2
 import numpy as np
 import pandas as pd
 import math
 from skimage import io
 from matplotlib import pyplot as plt
-import cv2
 from SVM_Segmentation import readimages as rm
 from SVM_Segmentation import pixel_conversion as pc
 
-def tiles(image_path, number):
 
+def tiles(image_path, number):
     images = rm.read_image(image_path)
     names = rm.read_imagename(image_path)
     list_of_arrays = []
@@ -29,7 +30,11 @@ def tiles(image_path, number):
         array_mean = np.asarray(list_mean)
         twod_array_mean = pc.oneD_array_to_twoD_array(array_mean)
         list_of_arrays.append(twod_array_mean)
-        cv2.imwrite(f'../Data/tiles/{names[index]}', twod_array_mean)
+        for index, name in enumerate(names):
+            filename = name
+            path = (f'../Data/tiles/{filename}.tif'
+            cv2.imwrite(path, twod_array_mean)
     return list_of_arrays
 
-tiles('../Data/N2DH-GOWT1', 50)
+
+tiles('../Data/N2DH-GOWT1/gt/tif', 50)
