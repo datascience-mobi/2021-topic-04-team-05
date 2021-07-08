@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from skimage import io
+import math
 import statsmodels.api as sm
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split as tts, KFold
@@ -210,11 +211,11 @@ def main(img_path, gt_path):
 
 
 if __name__ == '__main__':
-    # main('../Data/test/img', '../Data/test/gt')
-
+    # read in images
     imgread = io.imread('../Data/test/img/t01.tif')
     imgtile = imgread[550:560,550:560]
     imgflat = imgtile.flatten()
+
     # normalizing microscopic images
     imgnormal_list = []
     for i in range(0, len(imgflat)):
@@ -229,7 +230,6 @@ if __name__ == '__main__':
     X = pd.DataFrame(data=imgnormal)
     X.insert(loc=len(X.columns), column='intercept', value=1)
 
-
     # read in ground truth images
     gtread = io.imread('../Data/test/gt/man_seg01.jpg')
     gttile = gtread[550:560,550:560]
@@ -238,10 +238,9 @@ if __name__ == '__main__':
     gtthreshold = cv2.threshold(gttile, 0, 1, cv2.THRESH_BINARY)
     gtflat = gtthreshold[1].flatten()
 
-    # normalizing microscopic images
+    # Turning gt values into 1 and -1 labels
     y_labels = np.where(gtflat == 0, -1, gtflat)
     Y = pd.DataFrame(data= y_labels)
-
 
     # Cross validation to train the model with different train:test splits
     # leave-one-out cross-validation: n_splits = number of samples
@@ -254,12 +253,11 @@ if __name__ == '__main__':
         X_train = X.iloc[result[0]]
         # !!X_train = np.array([X.iloc[result[0]]]) statt unten .to_numpy()
         X_test = X.iloc[result[1]]
-        y_train = y.iloc[result[0]]
-        y_test = y.iloc[result[1]]
-
+        Y_train = Y.iloc[result[0]]
+        Y_test = Y.iloc[result[1]]
 
     features = X_train
-    outputs = y_train
+    outputs = Y_train
     learning_rate: float = 1e-6
     maximum_epochs = 5000
     array_of_weights = np.zeros(features.shape[1])
