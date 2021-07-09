@@ -28,9 +28,9 @@ a = numpy.array([[0.7, 0.66, 0.73, 0.86, 0.98, 0.65]])
 
 #example for several arrays
 d = numpy.array([[0.7, 0.66, 0.73, 0.86, 0.98, 0.65], [0.7, 0.66, 0.73, 0.86, 0.98, 0.65], [0.7, 0.66, 0.73, 0.86, 0.98, 0.65], [0.7, 0.66, 0.73, 0.86, 0.98, 0.65]])
-plt.boxplot(d)
+plt.boxplot(d.transpose())
 ticks = [1, 2, 3, 4]
-labels = ['Dice score for setting No. 1', 'Dice score for setting No. 2', 'Dice score for setting No. 3',
-          'Dice score for setting No. 4']
+labels = ['Setting 1', 'Setting 2', 'Setting 3',
+          'Setting 4']
 plt.xticks(ticks, labels)
 plt.show()
