@@ -34,12 +34,17 @@ def tiles(image_path, number):
         list_of_arrays.append(twod_array_mean)
 
     output_dir = '../Data/tiles'
-    for tiles_image in list_of_arrays:
-        for name in names:
-            x = Image.fromarray(tiles_image, 'L')
-            x.save(f'{output_dir}/{name}', 'TIF')
+    for i in range(0, len(names)):
+            path = (f'{output_dir}/{names[i]}')
+            cv2.imwrite(path, list_of_arrays[i])
 
     return list_of_arrays
 
 tiles1 = tiles('../Data/N2DH-GOWT1/gt/tif', 50)
+
+
+img1 = tiles1[1]
+plt.imshow(img1)
+plt.show()
+
 print(tiles1)
