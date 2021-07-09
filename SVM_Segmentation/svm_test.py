@@ -11,6 +11,8 @@ from skimage import io
 import sklearn.decomposition as skdecomp
 from sklearn.preprocessing import StandardScaler
 from matplotlib import pyplot as plt
+from skimage.feature import multiscale_basic_features, canny
+from skimage.filters import threshold_otsu
 import cv2
 
 
@@ -105,22 +107,25 @@ learning_rate = 0.000001
 if __name__ == '__main__':
     # read in images
     imgread = io.imread('../Data/test/img/t01.tif')
-    #imgtile = imgread[0:, 550:551]
-    imgpca = pca(imgread, 0.75)
-    imgresize = resize(imgpca, (100, 100))
+    imgresize = resize(imgread, (100, 100))
+    imgcanny = canny(imgresize, sigma=.5)
+    imgcannyflat = imgcanny.flatten()
+    imgcannyflat = np.where(imgcannyflat == 'True', 1, imgcannyflat)
+    thr = threshold_otsu(imgresize)
+    imgotsu = (imgresize > thr).astype(float)
+    imgotsuflat = imgotsu.flatten()
     imgflat = imgresize.flatten()
-    imgnormal = np.asarray(imgflat).transpose()
-
+    imgnormal = np.hstack((imgflat, imgcannyflat, imgotsuflat))
     X = pd.DataFrame(data=imgnormal)
     X.insert(loc=len(X.columns), column='intercept', value=1)
 
+
     # read in ground truth images
     gtread = io.imread('../Data/test/gt/man_seg01.jpg')
-    #gttile = gtread[0:, 550:551]
 
     # thresholding ground truth images to get black-and-white-only images
-    gtresize = resize(gtread, (100, 100))
-    gtthreshold = (cv2.threshold(gtresize, 0, 1, cv2.THRESH_BINARY))[1]
+    gtthreshold = (cv2.threshold(gtread, 0, 1, cv2.THRESH_BINARY))[1]
+    gtresize = resize(gtthreshold, (100, 100))
     gtflat = gtthreshold.flatten()
 
     # Turning gt values into 1 and -1 labels

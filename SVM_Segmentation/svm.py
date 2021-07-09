@@ -1,18 +1,15 @@
 import numpy as np
 import pandas as pd
-from skimage import io
-import math
 import statsmodels.api as sm
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split as tts, KFold
 from sklearn.metrics import accuracy_score, recall_score, precision_score
 from sklearn.utils import shuffle
-import readimages as rm
-from SVM_Segmentation import tiles as t
-import imagecodecs
-from matplotlib import pyplot as plt
 import cv2
-from SVM_Segmentation import svm_test as st
+from SVM_Segmentation import readimages as rm
+from SVM_Segmentation import preparation_PCA
+from SVM_Segmentation import preparation_tiles as pt
+import imagecodecs
 
 
 # functions need for the loss function
@@ -224,36 +221,22 @@ def main(img_path, gt_path):
 if __name__ == '__main__':
     #main('../Data/test/img', '../Data/test/gt')
 
-    imgread = io.imread('../Data/test/img/t01.tif')
-    imgpca = st.pca(imgread, 0.75)
-    #tiles
-    imgtiles = t.tiles(imgpca, 50)
+    imageread = rm.read_image('../Data/test/img')
+    image_PCA = preparation_PCA.convert_pca(imageread, 0.75)
     # normalizing microscopic images
-    imgnormal = []
-    for i in range(0, len(imgtiles)):
-        pixelsimg = imgtiles[i].astype('float32')
+    normalizedimg = []
+    for i in range(0, len(imageread)):
+        pixelsimg = imageread[i].astype('float32')
         if pixelsimg.max() > 0:
             normalimg = pixelsimg / pixelsimg.max()
-            imgnormal.append(normalimg)
+            normalizedimg.append(normalimg)
         else:
-            imgnormal.append(pixelsimg)
+            normalizedimg.append(pixelsimg)
+    imagenames = rm.read_imagename('../Data/test/img')
+    imageflattended = rm.image_flatten(image_PCA)
 
-    imgread2 = io.imread('../Data/test/img/t21.tif')
-    imgpca2 = st.pca(imgread, 0.75)
-    #tiles
-    imgtiles2 = t.tiles(imgpca, 50)
-    # normalizing microscopic images
-    imgnormal2 = []
-    for i in range(0, len(imgtiles2)):
-        pixelsimg = imgtiles[i].astype('float32')
-        if pixelsimg.max() > 0:
-            normalimg = pixelsimg / pixelsimg.max()
-            imgnormal2.append(normalimg)
-        else:
-            imgnormal2.append(pixelsimg)
-
-    X = pd.DataFrame(imgnormal, 't01.tif')
-    X = X.append(imgnormal2, 't21.tif')
+    X = rm.dataframe(imageflattended, imagenames)
+    X = X.iloc[:, 0:1000]
 
     #print(X)
 
@@ -300,6 +283,75 @@ if __name__ == '__main__':
     y_train = y_train.transpose()
     X_test = X_test.transpose()
     y_test = y_test.transpose()
+
+
+
+        #print(X_test)
+
+        #print(y_train)
+
+        #print(X_train)
+
+        #print(y_test)
+
+        #print(distance_of_point_to_hyperplane(7, X_train, y_train))
+
+        #print(loss_function(X_train, 7, y_train))
+
+        #stochastic_gradient_descent(X_train.to_numpy(), y_train.to_numpy())
+
+
+
+        #separation = distance_of_point_to_hyperplane(7, X_train, y_train)
+        #separation_df = pd.DataFrame(separation)
+        #gradient = 0
+        #columns = separation_df.shape[1]
+        #print(separation_df)
+
+        #C = 1e5
+        #list = []
+        #for index in range(0, columns):
+            #distance_sv = w - (C * y_train.iloc[0, index] * X_train.iloc[0, index])
+            #print(distance_sv)
+            #list.append(distance_sv)
+        #rowname = X_train.index[0]
+        #rowname_list = (rowname)
+        #print(rowname_list)
+        #print(rowname)
+        #df_final = pd.DataFrame(list)
+        #df_transposed = df_final.transpose()
+        #df_transposed2 = df_transposed.rename(index={0: (f'{rowname}')})
+        #print(df_transposed2)
+
+    #separation = distance_of_point_to_hyperplane(w, x, y)
+    #separation_df = pd.DataFrame(separation)
+    #columns = separation_df.shape[1]
+    #distances_sv_list = []
+    #gradient = 0
+    #for q in range(0, columns):
+        # for correctly classified
+        #if q < 0:
+            #qi = w
+        # for falsely classified points
+        #else:
+            #index = q
+            #qi = distance_of_point_to_sv(index, w, x, y)
+        #distances_sv_list.append(qi)
+        #rowname = x.index[0]
+        #df = pd.DataFrame(distances_sv_list)
+        #df_transposed = df.transpose()
+        #df_renamed = df_transposed.rename(index={0: (f'{rowname}')})
+        #qi_list = []
+        #for qi in range(0, df_renamed.shape[1]):
+            #gradient += qi
+            # calculate average of distances
+            #gradient = gradient / len(y)
+            #qi_list.append(gradient)
+            #df_qi = pd.DataFrame(qi_list)
+            #df_qi_transposed = df_qi.transpose()
+            #df_qi_renamed = df_qi_transposed.rename(index={0: (f'{rowname}')})
+    #print(df_qi_renamed)
+
 
     features = X_train
     labels = y_train
