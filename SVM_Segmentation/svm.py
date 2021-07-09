@@ -107,178 +107,6 @@ def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
     :return: The vector of the feature weights.
     """
     maximum_epochs = 5000
-    weights = np.zeros(features.shape[1])
-    power = 0
-    unbounded_upper_value = float("inf")
-    stoppage_criterion = 0.01  # in percent
-    for epoch in range(1, maximum_epochs):
-        # shuffle prevents the same x & y being take for several rounds
-        x, y = shuffle(features, labels)
-        for index, x in enumerate(x):
-            upward_slope = lagrange(weights, x, y[index])
-            weights = weights - (learning_rate * upward_slope)
-        if epoch == pow(2, power) or epoch == maximum_epochs - 1:
-            loss = loss_function(weights, features, labels)
-            print("{}. epoch: current loss is {}.".format(epoch, loss))
-            # stoppage criterion to stop at convergence
-            deviance = abs(unbounded_upper_value - loss)
-            # if cost no longer changes, stop gradient decend
-            if stoppage_criterion * unbounded_upper_value > deviance:
-                return weights
-            unbounded_upper_value = loss
-            power += 1
-    return weights
-
-
-def main(img_dataframe, gt_dataframe, number_of_features):
-    """
-    This minimizes the gradient of loss, to find the global cost minimum.
-    :param img_path: The path of the images.
-    :param gt_path: The path of the ground truth images.
-    :return: The vector of the feature weights.
-    """
-
-    # normalizing microscopic images
-    img_array = img_dataframe.values
-    img_normalized_array = MMS().fit_transform(img_array)
-    img_normalized_df = pd.DataFrame(img_normalized_array, columns=img_dataframe.columns)
-
-    # thresholding ground truth images to get black-and-white-only images
-    gt_threshold_array = cv2.threshold(gt_dataframe.values, 0, 1, cv2.THRESH_BINARY)
-    gt_threshold_df = pd.DataFrame(gt_threshold_array[1], columns=gt_dataframe.columns)
-
-    # Cross validation to train the model with different train:test splits
-    # leave-one-out cross-validation: n_splits = number of samples
-    n_splits = 2
-    kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
-
-    # define test and training data
-    for i in range(n_splits):
-        split_data = next(kfold.split(img_normalized_df.transpose()), None)
-        gt_train = gt_threshold_df.iloc[:, split_data[0]]
-        gt_test = gt_threshold_df.iloc[:, split_data[1]]
-
-    number_of_features = 0
-
-    for i in range(0, split_data[0].size):
-        split_train = split_data[0]
-        split_train_value = split_train[i]
-        if number_of_features == 0:
-            img_train = img_normalized_df.iloc[:, split_train_value]
-        else:
-            img_train = img_normalized_df.iloc[:, split_train_value: split_train_value+number_of_features]
-
-        # train the model
-        W = stochastic_gradient_descent(X_train.to_numpy(), y_train.to_numpy())
-        print("The weights vector is: {}".format(W))
-
-    # use model to predict y for the training data
-    y_train_prediction = np.array([])
-    for i in range(X_train.shape[0]):
-        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
-        y_pred = np.sign(np.dot(X_train.to_numpy()[i], W))
-        y_train_prediction = np.append(y_train_prediction, y_pred)
-
-    # test model
-    y_test_prediction = np.array([])
-    for i in range(X_test.shape[0]):
-        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
-        y_pred = np.sign(np.dot(X_test.to_numpy()[i], W))
-        y_test_prediction = np.append(y_test_prediction, y_pred)
-
-    return y_test_prediction, y_train_prediction
-
-
-if __name__ == '__main__':
-    imageread = pt.tiles('../Data/N2DH-GOWT1/img', 50)
-    imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')
-    flattened = rm.image_flatten(imageread)
-    img_df = rm.dataframe(flattened, imagenames)
-
-    imageread_gt = pt.tiles('../Data/N2DH-GOWT1/gt/tif', 50)
-    imagenames_gt = rm.read_imagename('../Data/N2DH-GOWT1/gt/tif')
-    flattened_gt = rm.image_flatten(imageread_gt)
-    gt_df = rm.dataframe(flattened_gt, imagenames_gt)
-
-    main(img_df, gt_df, 0)
-
-    # main('../Data/test/img', '../Data/test/gt')
-
-    # imageread = rm.read_image('../Data/N2DH-GOWT1/img')
-    # imageread = pt.tiles('../Data/N2DH-GOWT1/img', 50)
-
-    image_PCA = preparation_PCA.convert_pca(imageread, 0.75)
-    # normalizing microscopic images
-    normalizedimg = []
-    for i in range(0, len(imageread)):
-        pixelsimg = imageread[i].astype('float32')
-        if pixelsimg.max() > 0:
-            normalimg = pixelsimg / pixelsimg.max()
-            normalizedimg.append(normalimg)
-        else:
-            normalizedimg.append(pixelsimg)
-    imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')
-    imageflattended = rm.image_flatten(image_PCA)
-
-    X = rm.dataframe(imageflattended, imagenames)
-    X = X.iloc[:, 0:2]
-
-    # print(X)
-
-    # read in ground truth images
-    # gtread = rm.read_image('../Data/N2DH-GOWT1/gt/tif')
-    gtread = pt.tiles('../Data/N2DH-GOWT1/gt/tif', 50)
-
-    # thresholding ground truth images to get black-and-white-only images
-    thresholded = []
-    for j in range(0, len(gtread)):
-        threshold = cv2.threshold(gtread[j], 0, 1, cv2.THRESH_BINARY)
-        thresholded.append(threshold[1])
-
-    # normalizing ground truth images
-    normalizedgt = []
-    for k in range(0, len(thresholded)):
-        pixelsgt = thresholded[k].astype('float32')
-        if pixelsgt.max() > 0:
-            normalgt = pixelsgt / pixelsgt.max()
-            normalizedgt.append(normalgt)
-        else:
-            normalizedgt.append(pixelsgt)
-
-    gtnames = rm.read_imagename('../Data/N2DH-GOWT1/gt/tif')
-    thresholded_and_normalized_flattened = rm.image_flatten(normalizedgt)
-
-    y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)
-    y = y.iloc[:, 0:2]
-    y_labels = y.replace(0, -1)
-
-    # Cross validation to train the model with different train:test splits
-    # leave-one-out cross-validation: n_splits = number of samples
-    n_splits = 2
-    kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
-
-    # define test and training data
-    for i in range(n_splits):
-        result = next(kfold.split(X), None)
-        X_train = X.iloc[result[0]]
-        # !!X_train = np.array([X.iloc[result[0]]]) statt unten .to_numpy()
-        X_test = X.iloc[result[1]]
-        y_train = y_labels.iloc[result[0]]
-        y_test = y_labels.iloc[result[1]]
-
-    X_train = X_train.transpose()
-    y_train = y_train.transpose()
-    X_test = X_test.transpose()
-    y_test = y_test.transpose()
-
-    features = X_train
-    labels = y_train
-
-    learning_rate: float = 1e-6
-    # number of features starting with 0, so for one feature it is 0, for 2 it is 1 etc.
-    number_of_features = 0
-
-    maximum_epochs = 5000
     power = 0
     unbounded_upper_value = float("inf")
     stoppage_criterion = 0.01  # in percent
@@ -301,12 +129,10 @@ if __name__ == '__main__':
                 for i in range(0, x.shape[1] - 1):
                     x = x[:, [i]]
             distances_to_hyperplane = []
-            # x = np.array([[2, 3], [2, 4], [6, 8], [6, 7], [4, 9]])
             intercept = np.zeros((x.shape[0], 1), dtype=x.dtype)
             intercept += 1
             x_with_intercept = np.hstack((x, intercept))
             array_of_weights = np.zeros(x_with_intercept.shape[1])
-            # y = np.array([-1, -1, 1, 1, -1])
             for index in range(0, x_with_intercept.shape[0]):
                 # distance is always a value, also for multiple features
                 distance_to_hyperplane = distance_of_point_to_hyperplane(array_of_weights, x_with_intercept[index],
@@ -330,19 +156,74 @@ if __name__ == '__main__':
                 power += 1
     print(array_of_weights)
 
-    # use model to predict y for the training data
-    y_train_prediction = np.array([])
-    for i in range(x_with_intercept.shape[0]):
-        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
-        y_pred = np.sign(np.dot(x_with_intercept[i], array_of_weights))
-        y_train_prediction = np.append(y_train_prediction, y_pred)
 
-    # test model
-    y_test_prediction = np.array([])
-    for i in range(x_with_intercept.shape[0]):
-        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
-        y_pred = np.sign(np.dot(x_with_intercept[i], array_of_weights))
-        y_test_prediction = np.append(y_test_prediction, y_pred)
+def main(img_dataframe, gt_dataframe, number_of_features):
+    """
+    This minimizes the gradient of loss, to find the global cost minimum.
+    :param img_path: The path of the images.
+    :param gt_path: The path of the ground truth images.
+    :return: The vector of the feature weights.
+    """
 
-    print(y_train_prediction)
-    print(y_test_prediction)
+    # normalizing microscopic images
+    img_array = img_dataframe.values
+    img_normalized_array = MMS().fit_transform(img_array)
+    img_normalized_df = pd.DataFrame(img_normalized_array, columns=img_dataframe.columns)
+
+    # thresholding ground truth images to get black-and-white-only images
+    gt_threshold_array = cv2.threshold(gt_dataframe.values, 0, 1, cv2.THRESH_BINARY)
+    gt_threshold_df = pd.DataFrame(gt_threshold_array[1], columns=gt_dataframe.columns)
+    gt_labels_df = gt_threshold_df.replace(0, -1)
+
+    # Cross validation to train the model with different train:test splits
+    # leave-one-out cross-validation: n_splits = number of samples
+    n_splits = 2
+    kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
+
+    # define test and training data
+    for i in range(n_splits):
+        split_data = next(kfold.split(img_normalized_df.transpose()), None)
+        gt_train = gt_labels_df.iloc[:, split_data[0]]
+        gt_test = gt_labels_df.iloc[:, split_data[1]]
+
+    if number_of_features != 0:
+        for j in range(0, len(split_data)):
+            for i in range(0, split_data[j].size):
+                split_train = split_data[j]
+                split_train_value = split_train[i]
+                img_train = img_normalized_df.iloc[:, split_train_value: split_train_value+number_of_features]
+                img_test = img_normalized_df.iloc[:, split_data[j]]
+
+                # train the model
+                W = stochastic_gradient_descent(img_train.to_numpy(), gt_train.to_numpy())
+                print("The weights vector is: {}".format(W))
+
+                # use model to predict y for the training data
+                y_train_prediction = np.array([])
+                for i in range(img_train.shape[0]):
+                    # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+                    y_pred = np.sign(np.dot(img_train.to_numpy()[i], W))
+                    y_train_prediction = np.append(y_train_prediction, y_pred)
+
+                # test model
+                y_test_prediction = np.array([])
+                for i in range(img_test.shape[0]):
+                    # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+                    y_pred = np.sign(np.dot(img_test.to_numpy()[i], W))
+                    y_test_prediction = np.append(y_test_prediction, y_pred)
+
+    return y_test_prediction, y_train_prediction
+
+
+if __name__ == '__main__':
+    imageread = pt.tiles('../Data/N2DH-GOWT1/img', 50)
+    imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')
+    flattened = rm.image_flatten(imageread)
+    img_df = rm.dataframe(flattened, imagenames)
+
+    imageread_gt = pt.tiles('../Data/N2DH-GOWT1/gt/tif', 50)
+    imagenames_gt = rm.read_imagename('../Data/N2DH-GOWT1/gt/tif')
+    flattened_gt = rm.image_flatten(imageread_gt)
+    gt_df = rm.dataframe(flattened_gt, imagenames_gt)
+
+    main(img_df, gt_df, 0)
