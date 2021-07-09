@@ -186,6 +186,8 @@ def main(img_dataframe, gt_dataframe, number_of_features):
         gt_train = gt_labels_df.iloc[:, split_data[0]]
         gt_test = gt_labels_df.iloc[:, split_data[1]]
 
+    y_train_prediction_list = []
+    y_test_prediction_list = []
     if number_of_features != 0:
         for j in range(0, len(split_data)):
             for i in range(0, split_data[j].size):
@@ -204,6 +206,7 @@ def main(img_dataframe, gt_dataframe, number_of_features):
                     # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
                     y_pred = np.sign(np.dot(img_train.to_numpy()[i], W))
                     y_train_prediction = np.append(y_train_prediction, y_pred)
+                    y_train_prediction_list.append(y_train_prediction)
 
                 # test model
                 y_test_prediction = np.array([])
@@ -211,8 +214,9 @@ def main(img_dataframe, gt_dataframe, number_of_features):
                     # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
                     y_pred = np.sign(np.dot(img_test.to_numpy()[i], W))
                     y_test_prediction = np.append(y_test_prediction, y_pred)
+                    y_test_prediction_list.append(y_test_prediction)
 
-    return y_test_prediction, y_train_prediction
+    return y_test_prediction_list, y_train_prediction_list
 
 
 if __name__ == '__main__':
