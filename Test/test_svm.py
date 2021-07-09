@@ -12,17 +12,24 @@ from SVM_Segmentation import preparation_PCA
 import imagecodecs
 
 
-from SVM_Segmentation import svm
+from SVM_Segmentation import testing_the_svm
+
+#put SVM into testing_the_svm depending on what we use for testing (pictures: all SVM; test_dataframe X & y: part of SVM)
+
+X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
+y = np.array([-1, 1, -1, -1])
+
 
 class TestSVM(unittest.TestCase):
     def setUp(self) -> None:
-        self.img = np.asarray(imread('img29test.png'))
-        self.img2 = np.asarray(imread('gt29test.png'))
+        #self.img = np.asarray(imread('img29test.png'))
+        #self.img2 = np.asarray(imread('gt29test.png'))
+        self.X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
+        self.y = np.array([-1, 1, -1, -1])
 
     def test_svm(self):
-        result = svm.main(self.img, self.img)
-        result_SVC =
-        self.assertEqual(result_SVC, result)  # checks if a (1.0) == b (result) (dice score should be 1 for image with itself)
-
-        make_pipeline(StandardScaler(), SVC(class_weight='balanced', gamma=0.1))
-        clf.fit(X, Y)
+        result = svm.main(self.X, self.y)
+        model = svm.SVC(C=1, kernel='linear') #C = regularization strengh, kernel = linear?, gamma is not needed for linear kernel
+        model.fit(X, y)
+        result_SVC = model.predict([[-0.8, -1]])
+        self.assertEqual(result_SVC, result)  # checks if a (1.0) == b (result)
