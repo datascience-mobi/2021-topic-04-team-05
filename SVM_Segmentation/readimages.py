@@ -70,7 +70,7 @@ def dataframe(image_list, name_list):
         i += 1
         dataframe_images = dataframe_images.append(element)
     dataframe_images = dataframe_images.set_axis(name_list, axis=0)
-
+    dataframe_images = dataframe_images.transpose()
     return dataframe_images
 
 def fuse_dataframes(dataframe1, name1, dataframe2, name2, dataframe3, name3):

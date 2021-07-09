@@ -9,6 +9,7 @@ import cv2
 import readimages as rm
 import preparation_PCA
 import imagecodecs
+from SVM_Segmentation import preparation_tiles as pt
 
 
 # functions need for the loss function
@@ -220,7 +221,9 @@ def main(img_path, gt_path):
 if __name__ == '__main__':
     #main('../Data/test/img', '../Data/test/gt')
 
-    imageread = rm.read_image('../Data/test/img')
+    #imageread = rm.read_image('../Data/N2DH-GOWT1/img')
+    imageread = pt.tiles('../Data/N2DH-GOWT1/img', 50)
+
     image_PCA = preparation_PCA.convert_pca(imageread, 0.75)
     # normalizing microscopic images
     normalizedimg = []
@@ -231,21 +234,22 @@ if __name__ == '__main__':
             normalizedimg.append(normalimg)
         else:
             normalizedimg.append(pixelsimg)
-    imagenames = rm.read_imagename('../Data/test/img')
+    imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')
     imageflattended = rm.image_flatten(image_PCA)
 
     X = rm.dataframe(imageflattended, imagenames)
-    X = X.iloc[:, 0:1000]
+    X = X.iloc[:, 0:2]
 
     #print(X)
 
     # read in ground truth images
-    gtread = rm.read_image('../Data/test/gt')
+    #gtread = rm.read_image('../Data/N2DH-GOWT1/gt/tif')
+    gtread = pt.tiles('../Data/N2DH-GOWT1/gt/tif', 50)
 
     # thresholding ground truth images to get black-and-white-only images
     thresholded = []
     for j in range(0, len(gtread)):
-        threshold = cv2.threshold(gtread[j], 150, 255, cv2.THRESH_BINARY)
+        threshold = cv2.threshold(gtread[j], 0, 1, cv2.THRESH_BINARY)
         thresholded.append(threshold[1])
 
     # normalizing ground truth images
@@ -257,11 +261,12 @@ if __name__ == '__main__':
             normalizedgt.append(normalgt)
         else:
             normalizedgt.append(pixelsgt)
-    gtnames = rm.read_imagename('../Data/test/gt')
+
+    gtnames = rm.read_imagename('../Data/N2DH-GOWT1/gt/tif')
     thresholded_and_normalized_flattened = rm.image_flatten(normalizedgt)
 
     y = rm.dataframe(thresholded_and_normalized_flattened, gtnames)
-    y = y.iloc[:, 0:1000]
+    y = y.iloc[:, 0:2]
     y_labels = y.replace(0, -1)
 
     # Cross validation to train the model with different train:test splits
@@ -366,17 +371,21 @@ if __name__ == '__main__':
     for epoch in range(1, maximum_epochs):
         # shuffle prevents the same x & y being taken for several rounds
         x, y = shuffle(features, labels)
+        x = pd.DataFrame.to_numpy(x)
+        x = x.transpose()
+        y = pd.DataFrame.to_numpy(y)
+        y = y.transpose()
         i = 0
-        if number_of_features != 0:
-            for i in [0, x.shape[1]]:
-                end = i + number_of_features
-                x = x.values[:, [i, end]]
-                i += number_of_features
-        else:
-            for k in range(0, x.shape[1]):
-                x = x.values[:, [k]]
-        for j in range(0, y.shape[1]):
-            y = y.values[:, [j]]
+        for j in range(0, y.shape[1]-1):
+            y = y[:, [j]]
+            if number_of_features != 0:
+                for i in range(0, x.shape[1]-1):
+                    end = i + number_of_features
+                    x = x[:, [i, end]]
+                    i += number_of_features
+            else:
+                for i in range(0, x.shape[1]-1):
+                    x = x[:, [i]]
             distances_to_hyperplane = []
             #x = np.array([[2, 3], [2, 4], [6, 8], [6, 7], [4, 9]])
             intercept = np.zeros((x.shape[0], 1), dtype=x.dtype)
@@ -422,8 +431,3 @@ if __name__ == '__main__':
 
     print(y_train_prediction)
     print(y_test_prediction)
-
-
-        # train the model
-        #W = stochastic_gradient_descent(X_train.to_numpy(), y_train.to_numpy())
-        #print("The weights vector is: {}".format(W))

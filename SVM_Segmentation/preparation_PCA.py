@@ -1,3 +1,4 @@
+import pandas as pd
 import sklearn.decomposition as skdecomp
 from sklearn.preprocessing import StandardScaler
 import readimages as rm
@@ -22,6 +23,23 @@ def convert_pca(image_dataframe, variance):
             pca_list.append(projected)
     return pca_list
 
+def pca(image_list, principal_components, variance):
+
+    pca_list = []
+    for image in image_list:
+        image = image.reshape(1, -1)
+        image_df = pd.DataFrame(image)
+        new_image_pca_dataframe = pd.concat([image_df] * principal_components)
+            #pca_data = rm.dataframe(pca_list)
+        new_image_pca_dataframe = new_image_pca_dataframe.values
+        pca = skdecomp.PCA()
+        pca.fit(new_image_pca_dataframe)
+        components = pca.transform(new_image_pca_dataframe)
+        pca_image = components[0, :]
+        pca_list.append(pca_image)
+    return pca_list
+
+
 
 if __name__ == '__main__':
 
@@ -29,9 +47,14 @@ if __name__ == '__main__':
     imagenames1 = rm.read_imagename('../Data/N2DH-GOWT1/img')
     pca1 = convert_pca(imageread1, 0.75)
 
-    plt.imshow(pca1[0])
-    plt.show()
+    #plt.imshow(pca1[0])
+    #plt.show()
 
-    flattened = rm.image_flatten(pca1)
-    data1 = rm.dataframe(flattened, imagenames1)
+    #flattened = rm.image_flatten(pca1)
+    #data1 = rm.dataframe(flattened, imagenames1)
     #print(data1)
+
+    flattened_image = rm.image_flatten(imageread1)
+    dataframe = rm.dataframe(flattened_image, imagenames1)
+    pca_list_images = pca(imageread1, 100, 0.9)
+    print(pca_list_images)
