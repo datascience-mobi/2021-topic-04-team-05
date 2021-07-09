@@ -33,18 +33,14 @@ def tiles(image_path, number):
         twod_array_mean = pc.oneD_array_to_twoD_array(array_mean)
         list_of_arrays.append(twod_array_mean)
 
-    output_dir = '../Data/tiles'
-    for i in range(0, len(names)):
-            path = (f'{output_dir}/{names[i]}')
-            cv2.imwrite(path, list_of_arrays[i])
+    #output_dir = '../Data/tiles'
+    #for i in range(0, len(names)):
+     #   if i is not None:
+      #      path = (f'{output_dir}/{names[i]}')
+       #     matrix = np.asmatrix(list_of_arrays[i])
+        #    cv2.imwrite(path, matrix)
 
-    return list_of_arrays
-
-tiles1 = tiles('../Data/N2DH-GOWT1/gt/tif', 50)
+    return(list_of_arrays)
 
 
-img1 = tiles1[1]
-plt.imshow(img1)
-plt.show()
 
-print(tiles1)
