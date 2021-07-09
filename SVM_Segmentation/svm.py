@@ -98,7 +98,7 @@ def lagrange(weights, features, labels, distances_to_hyperplane: list):
 
 
 # minimize gradient using Stochastic Gradient Descent
-def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6):
+def stochastic_gradient_descent(features, labels, learning_rate: float = 1e-6, number_of_features):
     """
     This minimizes the gradient of loss, to find the global cost minimum.
     :param features: An array with the features of the samples.
@@ -197,7 +197,7 @@ def main(img_dataframe, gt_dataframe, number_of_features):
                 img_test = img_normalized_df.iloc[:, split_data[j]]
 
                 # train the model
-                W = stochastic_gradient_descent(img_train.to_numpy(), gt_train.to_numpy())
+                W = stochastic_gradient_descent(img_train.to_numpy(), gt_train.to_numpy(), number_of_features)
                 print("The weights vector is: {}".format(W))
 
                 # use model to predict y for the training data
