@@ -28,7 +28,7 @@ def watershed(path_to_folder):
         # Now, mark the region of unknown with zero
         markers[unknown == 255] = 0
         markers = cv2.watershed(original_image, markers)
-        original_image[markers == -1] = [255, 0, 0]
+        original_image[markers == -1] = [255, 0, 20]
 
         if original_image is not None:
             images.append(original_image)
@@ -42,6 +42,15 @@ if __name__ == '__main__':
         segmented_images = watershed(path)
         plt.imshow(segmented_images[i])
         plt.show()
+
+
+
+
+
+
+
+
+
 
 
 
