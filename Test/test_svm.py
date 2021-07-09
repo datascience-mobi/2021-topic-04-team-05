@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+from matplotlib.image import imread
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split as tts, KFold
 from sklearn.metrics import accuracy_score, recall_score, precision_score
@@ -14,7 +15,7 @@ import imagecodecs
 
 from SVM_Segmentation import svm
 
-class TestDiceScore(unittest.TestCase):
+class TestSVM(unittest.TestCase):
     def setUp(self) -> None:
         self.img = np.asarray(imread('29test.png'))
 
