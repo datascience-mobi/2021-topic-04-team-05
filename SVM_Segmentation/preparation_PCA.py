@@ -23,7 +23,7 @@ def convert_pca(image_dataframe, variance):
             pca_list.append(projected)
     return pca_list
 
-def pca(image_list, principal_components, variance):
+def pca_self(image_list, principal_components, variance):
 
     pca_list = []
     for image in image_list:
@@ -38,6 +38,20 @@ def pca(image_list, principal_components, variance):
         pca_image = components[0, :]
         pca_list.append(pca_image)
     return pca_list
+
+def pca_different_images(image_path, variance):
+
+    pca_list = []
+    imagelist = rm.read_image(image_path)
+    imagenames = rm.read_imagename(image_path)
+    flattened = rm.image_flatten(imagelist)
+    df = rm.dataframe(flattened, imagenames)
+    arrays = df.values
+    arrays_transposed = arrays.transpose()
+    pca = skdecomp.PCA(variance)
+    pca.fit(arrays_transposed)
+    components = pca.transform(arrays_transposed)
+    return components
 
 
 
@@ -54,7 +68,9 @@ if __name__ == '__main__':
     #data1 = rm.dataframe(flattened, imagenames1)
     #print(data1)
 
-    flattened_image = rm.image_flatten(imageread1)
-    dataframe = rm.dataframe(flattened_image, imagenames1)
-    pca_list_images = pca(imageread1, 100, 0.9)
-    print(pca_list_images)
+    #flattened_image = rm.image_flatten(imageread1)
+    #dataframe = rm.dataframe(flattened_image, imagenames1)
+    #pca_list_images = pca_self(imageread1, 100, 0.9)
+    #print(pca_list_images)
+
+    print(pca_different_images('../Data/N2DH-GOWT1/img', 0.95).shape)
