@@ -30,10 +30,6 @@ def tiles(image_path, number):
         array_mean = np.asarray(list_mean)
         twod_array_mean = pc.oneD_array_to_twoD_array(array_mean)
         list_of_arrays.append(twod_array_mean)
-        for index, name in enumerate(names):
-            filename = name
-            path = (f'../Data/tiles/{filename}.tif'
-            cv2.imwrite(path, twod_array_mean)
     return list_of_arrays
 
 
