@@ -108,14 +108,14 @@ if __name__ == '__main__':
     # read in images
     imgread = io.imread('../Data/test/img/t01.tif')
     imgresize = resize(imgread, (100, 100))
+    imgflat = imgresize.flatten()
     imgcanny = canny(imgresize, sigma=.5)
     imgcannyflat = imgcanny.flatten()
     imgcannyflat = np.where(imgcannyflat == 'True', 1, imgcannyflat)
     thr = threshold_otsu(imgresize)
     imgotsu = (imgresize > thr).astype(float)
     imgotsuflat = imgotsu.flatten()
-    imgflat = imgresize.flatten()
-    imgnormal = np.hstack((imgflat, imgcannyflat, imgotsuflat))
+    imgnormal = np.vstack((imgflat, imgcannyflat, imgotsuflat)).transpose()
     X = pd.DataFrame(data=imgnormal)
     X.insert(loc=len(X.columns), column='intercept', value=1)
 
@@ -124,8 +124,8 @@ if __name__ == '__main__':
     gtread = io.imread('../Data/test/gt/man_seg01.jpg')
 
     # thresholding ground truth images to get black-and-white-only images
-    gtthreshold = (cv2.threshold(gtread, 0, 1, cv2.THRESH_BINARY))[1]
-    gtresize = resize(gtthreshold, (100, 100))
+    gtresize = resize(gtread, (100, 100))
+    gtthreshold = (cv2.threshold(gtresize, 0, 1, cv2.THRESH_BINARY))[1]
     gtflat = gtthreshold.flatten()
 
     # Turning gt values into 1 and -1 labels
@@ -169,6 +169,7 @@ if __name__ == '__main__':
     y_svm = np.array([])
     y_svm_train = np.append(y_svm, y_train_predicted)
     y_svm_test = np.append(y_svm_train, y_test_predicted)
+    y_svm_test = np.where(y_svm_test == -1, 0, y_svm_test)
     segmented_image = oneD_array_to_twoD_array(y_svm_test)
     plt.imshow(segmented_image)
     plt.show()
