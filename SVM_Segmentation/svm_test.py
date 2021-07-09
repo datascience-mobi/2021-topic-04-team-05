@@ -33,6 +33,34 @@ def pca(image, variance):
     if projected is not None:
         return projected
 
+def remove_correlated_features(X):
+    corr_threshold = 0.9
+    corr = X.corr()
+    drop_columns = np.full(corr.shape[0], False, dtype=bool)
+    for i in range(corr.shape[0]):
+        for j in range(i + 1, corr.shape[0]):
+            if corr.iloc[i, j] >= corr_threshold:
+                drop_columns[j] = True
+    columns_dropped = X.columns[drop_columns]
+    X.drop(columns_dropped, axis=1, inplace=True)
+    return columns_dropped
+
+def remove_less_significant_features(X, Y):
+    sl = 0.05
+    regression_ols = None
+    columns_dropped = np.array([])
+    for itr in range(0, len(X.columns)):
+        regression_ols = sm.OLS(Y, X).fit()
+        max_col = regression_ols.pvalues.idxmax()
+        max_val = regression_ols.pvalues.max()
+        if max_val > sl:
+            X.drop(max_col, axis='columns', inplace=True)
+            columns_dropped = np.append(columns_dropped, [max_col])
+        else:
+            break
+    regression_ols.summary()
+    return columns_dropped
+
 ##############################
 
 
@@ -107,24 +135,28 @@ learning_rate = 0.000001
 if __name__ == '__main__':
     # read in images
     imgread = io.imread('../Data/test/img/t01.tif')
-    imgresize = resize(imgread, (100, 100))
+    imgresize = resize(imgread, (50, 50))
     imgflat = imgresize.flatten()
+
+    #canny
     imgcanny = canny(imgresize, sigma=.5)
     imgcannyflat = imgcanny.flatten()
     imgcannyflat = np.where(imgcannyflat == 'True', 1, imgcannyflat)
+
+    #otsu
     thr = threshold_otsu(imgresize)
     imgotsu = (imgresize > thr).astype(float)
     imgotsuflat = imgotsu.flatten()
-    imgnormal = np.vstack((imgflat, imgcannyflat, imgotsuflat)).transpose()
-    X = pd.DataFrame(data=imgnormal)
-    X.insert(loc=len(X.columns), column='intercept', value=1)
 
+
+    imgnormal = np.vstack((imgflat, imgcannyflat, imgotsuflat))
+    X_df = pd.DataFrame(imgnormal.transpose())
 
     # read in ground truth images
     gtread = io.imread('../Data/test/gt/man_seg01.jpg')
 
     # thresholding ground truth images to get black-and-white-only images
-    gtresize = resize(gtread, (100, 100))
+    gtresize = resize(gtread, (50, 50))
     gtthreshold = (cv2.threshold(gtresize, 0, 1, cv2.THRESH_BINARY))[1]
     gtflat = gtthreshold.flatten()
 
@@ -133,12 +165,15 @@ if __name__ == '__main__':
     Y = pd.DataFrame(data=y_labels)
 
     # filter features
-    #remove_correlated_features(X)
-    #remove_less_significant_features(X, Y)
+    remove_correlated_features(X_df)
+    remove_less_significant_features(X_df, Y)
 
     # normalize data for better convergence and to prevent overflow
-    # X_normalized = MinMaxScaler().fit_transform(X.values)
-    # X = pd.DataFrame(X_normalized)
+    X_normalized = MinMaxScaler().fit_transform(X_df.values)
+    X = pd.DataFrame(X_normalized)
+
+    # insert 1 in every row for intercept b
+    X.insert(loc=len(X.columns), column='intercept', value=1)
 
     # split data into train and test set
     print("splitting dataset into train and test sets...")
@@ -163,13 +198,13 @@ if __name__ == '__main__':
         y_test_predicted = np.append(y_test_predicted, yp)
 
     print("accuracy on test dataset: {}".format(accuracy_score(y_test, y_test_predicted)))
-    print("recall on test dataset: {}".format(recall_score(y_test, y_test_predicted)))
+    print("recall on train dataset: {}".format(recall_score(y_train, y_train_predicted)))
     print("precision on test dataset: {}".format(recall_score(y_test, y_test_predicted)))
 
     y_svm = np.array([])
     y_svm_train = np.append(y_svm, y_train_predicted)
     y_svm_test = np.append(y_svm_train, y_test_predicted)
-    y_svm_test = np.where(y_svm_test == -1, 0, y_svm_test)
+    #y_svm_test = np.where(y_svm_test == -1, 0, y_svm_test)
     segmented_image = oneD_array_to_twoD_array(y_svm_test)
     plt.imshow(segmented_image)
     plt.show()
