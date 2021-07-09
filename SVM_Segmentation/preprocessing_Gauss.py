@@ -13,7 +13,7 @@ def gauss_filter(path_to_folder):
 
 if __name__ == '__main__':
 
-    path = ("/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img")
+    path = ("/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DL-HeLa/gt")
     max = os.listdir(path)
     for i in range (1, len(max)):
         segmented_images = gauss_filter(path)
