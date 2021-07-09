@@ -7,13 +7,13 @@ def watershed(path_to_folder):
     images = []
     for filename in os.listdir(path_to_folder):
         original_image = cv2.imread(os.path.join(path_to_folder,filename))
-        # Segmentation
+        # Segmentation through threshold
         grayconverted = cv2.cvtColor(original_image, cv2.COLOR_RGB2GRAY)
         ret, thresh = cv2.threshold(grayconverted, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        # Further noise removal, the kernel matrix in this case (3,3) -> 3x3
+        # Further noise removal from thresholded image, the kernel matrix in this case (4,4) -> 4x4
         kernel = np.ones((4, 4), np.uint8)
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
-        # clear background area, dilate the matrix
+        # clear background area by matrix dilation
         clear_background = cv2.dilate(opening, kernel, iterations=3)
         # Finding clear foreground area
         dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
@@ -35,6 +35,7 @@ def watershed(path_to_folder):
     return images
 
 if __name__ == '__main__':
+
     path = ("/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img")
     max = os.listdir(path)
     for i in range (1, len(max)):
