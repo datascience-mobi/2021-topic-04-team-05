@@ -4,8 +4,14 @@ import os
 import numpy as np
 
 def watershed(path_to_folder):
+    """
+       This is a gradient-ascend-based super pixel algorithm function - a "rough" segmentation. It also can be use for
+       comparison with the SVM.
+       :param path to folder to extract each image:
+       :return:
+       """
     images = []
-    for filename in os.listdir(path_to_folder):
+    for filename in os.listdir(path_to_folder): #read each images
         original_image = cv2.imread(os.path.join(path_to_folder,filename))
         # Segmentation through threshold
         grayconverted = cv2.cvtColor(original_image, cv2.COLOR_RGB2GRAY)
