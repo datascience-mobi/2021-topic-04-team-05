@@ -11,6 +11,15 @@ from SVM_Segmentation import pixel_conversion as pc
 
 
 def tiles(image_path, number):
+    """
+    This function cuts each input image into n tiles of size NxN and then asserts the mean intensity value of all original
+    pixels to that tile.
+    :param image_path: path of the images
+    :param number: amount of tiles that the image should be cut into
+    :return: a list of arrays representing the tiles of the input images; the intensity value of each tile equals the
+    mean intensity value of each tile
+    """
+
     images = rm.read_image(image_path)
     names = rm.read_imagename(image_path)
     list_of_arrays = []
