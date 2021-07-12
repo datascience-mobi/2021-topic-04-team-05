@@ -17,7 +17,6 @@ def dice_score(pred, gt):
     dice = np.sum(pred[gt == pred]) * 2.0 / (np.sum(gt) + np.sum(pred))
     print(dice)
 
-#führt Code nur aus, wenn dicescore.py direkt gerunnt wird & nicht wenn es in anderes pythonfile importiert wird
 if __name__ == '__main__':
     img1 = np.asarray(imread('../SVM_Segmentation/Synthetic_images/synthetic_masks/mask4.png'))
     img2 = np.asarray(imread('../SVM_Segmentation/Synthetic_images/synthetic_masks/mask5.png'))
