@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-from matplotlib.image import imread
 
 from SVM_Segmentation.dicescore import dice_score
 
