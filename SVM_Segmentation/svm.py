@@ -105,6 +105,7 @@ def stochastic_gradient_descent(features, labels, number_of_features, learning_r
     :param learning_rate: A default value to define the learning rate, meaning the step size while performing the minimization of the gradient, of the SVM. (in percent)
     :return: The vector of the feature weights.
     """
+    array_of_weights_list = []
     maximum_epochs = 5000
     power = 0
     unbounded_upper_value = float("inf")
@@ -116,47 +117,88 @@ def stochastic_gradient_descent(features, labels, number_of_features, learning_r
         #x = x.transpose()
         #y = pd.DataFrame.to_numpy(y)
         #y = y.transpose()
-        i = 0
-        for j in range(0, y.shape[1] - 1):
+        for j in range(0, y.shape[1]):
             y_col = y[:, j]
             if number_of_features != 0:
-                for i in range(0, x.shape[1] - 1):
+                for i in range(0, x.shape[1]):
                     end = i + number_of_features
                     x_col = x[:, [i, end]]
                     i += number_of_features
+
+                    distances_to_hyperplane = []
+                    intercept = np.zeros((x_col.shape[0], 1), dtype=x.dtype)
+                    intercept += 1
+                    intercept = intercept[:, 0]
+                    x_with_intercept = np.vstack((x_col, intercept))
+                    x_with_intercept = x_with_intercept.transpose()
+                    x_with_intercept_list = []
+                    array_of_weights = np.zeros(x_with_intercept.shape[1])
+                    for index in range(0, x_with_intercept.shape[0]):
+                        # distance is always a value, also for multiple features
+                        distance_to_hyperplane = distance_of_point_to_hyperplane(array_of_weights,
+                                                                                 x_with_intercept[index],
+                                                                                 y_col[index])
+                        # creating a list with all of the distances, for each pixel
+                        distances_to_hyperplane.append(distance_to_hyperplane)
+                        # we calculate the gradient for one picture/column
+                    gradient = lagrange(array_of_weights, x_with_intercept[index], y_col[index], distances_to_hyperplane)
+                    array_of_weights = array_of_weights - (learning_rate * gradient)
+                    if epoch == pow(2, power) or epoch == maximum_epochs - 1:
+                        # calculate the loss
+                        # array_of_weights = np.asarray(array_of_weights)
+                        loss = loss_function(array_of_weights, x_with_intercept, y_col)
+                        print(f'{epoch}. epoch: current loss is {loss}')
+                        # stoppage criterion to stop at convergence
+                        deviance = abs(unbounded_upper_value - loss)
+                        # if cost no longer changes, stop gradient decend
+                        if stoppage_criterion * unbounded_upper_value > deviance:
+                            array_of_weights_list.append(array_of_weights)
+                            x_with_intercept_list.append(x_with_intercept)
+                            return array_of_weights_list, x_with_intercept_list
+                        unbounded_upper_value = loss
+                        power += 1
+                    array_of_weights_list.append(array_of_weights)
+                    x_with_intercept_list.append(x_with_intercept)
+                return array_of_weights_list, x_with_intercept_list
+
             else:
-                end2 = x.shape[1] - 1
-                for i in range(0, end2):
+                for i in range(0, x.shape[1]):
                     x_col = x[:, i]
-            distances_to_hyperplane = []
-            intercept = np.zeros((x_col.shape[0], 1), dtype=x.dtype)
-            intercept += 1
-            intercept = intercept[:, 0]
-            x_with_intercept = np.vstack((x_col, intercept))
-            x_with_intercept = x_with_intercept.transpose()
-            array_of_weights = np.zeros(x_with_intercept.shape[1])
-            for index in range(0, x_with_intercept.shape[0]):
-                # distance is always a value, also for multiple features
-                distance_to_hyperplane = distance_of_point_to_hyperplane(array_of_weights, x_with_intercept[index],
-                                                                         y_col[index])
-                # creating a list with all of the distances, for each pixel
-                distances_to_hyperplane.append(distance_to_hyperplane)
-                # we calculate the gradient for one picture/column
-                gradient = lagrange(array_of_weights, x_with_intercept[index], y_col[index], distances_to_hyperplane)
-                array_of_weights = array_of_weights - (learning_rate * gradient)
-            if epoch == pow(2, power) or epoch == maximum_epochs - 1:
-                # calculate the loss
-                # array_of_weights = np.asarray(array_of_weights)
-                loss = loss_function(array_of_weights, x_with_intercept, y_col)
-                print("{}. epoch: current loss is {}.".format(epoch, loss))
-                # stoppage criterion to stop at convergence
-                deviance = abs(unbounded_upper_value - loss)
-                # if cost no longer changes, stop gradient decend
-                if stoppage_criterion * unbounded_upper_value > deviance:
-                    return array_of_weights
-                unbounded_upper_value = loss
-                power += 1
-    return array_of_weights
+
+                    distances_to_hyperplane = []
+                    intercept = np.zeros((x_col.shape[0], 1), dtype=x.dtype)
+                    intercept += 1
+                    intercept = intercept[:, 0]
+                    x_with_intercept = np.vstack((x_col, intercept))
+                    x_with_intercept = x_with_intercept.transpose()
+                    x_with_intercept_list = []
+                    array_of_weights = np.zeros(x_with_intercept.shape[1])
+                    for index in range(0, x_with_intercept.shape[0]):
+                        # distance is always a value, also for multiple features
+                        distance_to_hyperplane = distance_of_point_to_hyperplane(array_of_weights, x_with_intercept[index],
+                                                                                 y_col[index])
+                        # creating a list with all of the distances, for each pixel
+                        distances_to_hyperplane.append(distance_to_hyperplane)
+                        # we calculate the gradient for one row
+                        gradient = lagrange(array_of_weights, x_with_intercept[index], y_col[index], distances_to_hyperplane)
+                        array_of_weights = array_of_weights - (learning_rate * gradient)
+                    if epoch == pow(2, power) or epoch == maximum_epochs - 1:
+                        # calculate the loss
+                        # array_of_weights = np.asarray(array_of_weights)
+                        loss = loss_function(array_of_weights, x_with_intercept, y_col)
+                        print(f'{epoch}. epoch: current loss is {loss}')
+                        # stoppage criterion to stop at convergence
+                        deviance = abs(unbounded_upper_value - loss)
+                        # if cost no longer changes, stop gradient decend
+                        if stoppage_criterion * unbounded_upper_value > deviance:
+                            array_of_weights_list.append(array_of_weights)
+                            x_with_intercept_list.append(x_with_intercept)
+                            return array_of_weights_list, x_with_intercept_list
+                        unbounded_upper_value = loss
+                        power += 1
+                    array_of_weights_list.append(array_of_weights)
+                    x_with_intercept_list.append(x_with_intercept)
+                return array_of_weights_list, x_with_intercept_list
 
 
 def main(img_dataframe, gt_dataframe, number_of_features):
@@ -182,48 +224,85 @@ def main(img_dataframe, gt_dataframe, number_of_features):
     n_splits = 2
     kfold = KFold(n_splits=n_splits, shuffle=True, random_state=None)
 
+    y_train_prediction_list = []
+    y_test_prediction_list = []
+
     # define test and training data
     for i in range(n_splits):
         split_data = next(kfold.split(img_normalized_df.transpose()), None)
         gt_train = gt_labels_df.iloc[:, split_data[0]]
-        gt_test = gt_labels_df.iloc[:, split_data[1]]
+        # gt_test = gt_labels_df.iloc[:, split_data[1]]
 
-    y_train_prediction_list = []
-    y_test_prediction_list = []
-    if number_of_features != 0:
-        for j in range(0, len(split_data)):
-            for i in range(0, split_data[j].size):
-                split_train = split_data[j]
-                split_train_value = split_train[i]
-                img_train = img_normalized_df.iloc[:, split_train_value: split_train_value+number_of_features]
-                img_test = img_normalized_df.iloc[:, split_data[j]]
-    else:
-        for i in range(n_splits):
+        if number_of_features != 0:
+            for j in range(0, len(split_data)):
+                for i in range(0, split_data[j].size):
+                    split_train = split_data[j]
+                    split_train_value = split_train[i]
+                    img_train = img_normalized_df.iloc[:, split_train_value: split_train_value + number_of_features]
+                    img_test = img_normalized_df.iloc[:, split_data[j]]
+        else:
             img_train = img_normalized_df.iloc[:, split_data[0]]
             img_test = img_normalized_df.iloc[:, split_data[1]]
 
-    img_train = img_train.values
-    gt_train = gt_train.values
+        img_train = img_train.values
+        gt_train = gt_train.values
 
-    # train the model
-    W = stochastic_gradient_descent(img_train, gt_train, number_of_features)
-    print("The weights vector is: {}".format(W))
+        # train the model
+        Data = stochastic_gradient_descent(img_train, gt_train, number_of_features)
 
-    # use model to predict y for the training data
-    y_train_prediction = np.array([])
-    for i in range(img_train.shape[0]):
-        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
-        y_pred = np.sign(np.dot(img_train.to_numpy()[i], W))
-        y_train_prediction = np.append(y_train_prediction, y_pred)
-        y_train_prediction_list.append(y_train_prediction)
+        W = Data[0]
+        print("The weights vector is: {}".format(W))
+        img_train_new = Data[1]
+        img_test = img_test.values
 
-    # test model
-    y_test_prediction = np.array([])
-    for i in range(img_test.shape[0]):
-        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
-        y_pred = np.sign(np.dot(img_test.to_numpy()[i], W))
-        y_test_prediction = np.append(y_test_prediction, y_pred)
-        y_test_prediction_list.append(y_test_prediction)
+        for element in range(0, len(W)):
+            img_train_new = img_train_new[element]
+            W = W[element]
+            # use model to predict y for the training data
+            y_train_prediction = np.array([])
+            for i in range(img_train.shape[0]):
+                # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+                y_pred = np.sign(np.dot(img_train_new[i], W))
+                y_train_prediction = np.append(y_train_prediction, y_pred)
+                y_train_prediction_list.append(y_train_prediction)
+
+            if number_of_features != 0:
+                for i in range(0, img_test.shape[1]):
+                    end = i + number_of_features
+                    img_test_new = img_test[:, [i, end]]
+                    i += number_of_features
+
+                    intercept = np.zeros((img_test.shape[0], 1), dtype=img_test.dtype)
+                    intercept += 1
+                    intercept = intercept[:, 0]
+                    img_test_with_intercept = np.vstack((img_test, intercept))
+                    img_test_with_intercept = img_test_with_intercept.transpose()
+
+                    # test model
+                    y_test_prediction = np.array([])
+                    for i in range(img_test_with_intercept.shape[0]):
+                        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+                        y_pred = np.sign(np.dot(img_test_with_intercept[i], W))
+                        y_test_prediction = np.append(y_test_prediction, y_pred)
+                        y_test_prediction_list.append(y_test_prediction)
+
+            else:
+                for i in range(0, img_test.shape[1]):
+                    img_test_col = img_test[:, i]
+
+                    intercept = np.zeros((img_test_col.shape[0], 1), dtype=img_test_col.dtype)
+                    intercept += 1
+                    intercept = intercept[:, 0]
+                    img_test_with_intercept = np.vstack((img_test_col, intercept))
+                    img_test_with_intercept = img_test_with_intercept.transpose()
+
+                    # test model
+                    y_test_prediction = np.array([])
+                    for i in range(img_test_col.shape[0]):
+                        # sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+                        y_pred = np.sign(np.dot(img_test_col[i], W))
+                        y_test_prediction = np.append(y_test_prediction, y_pred)
+                        y_test_prediction_list.append(y_test_prediction)
 
     return y_test_prediction_list, y_train_prediction_list
 
@@ -233,10 +312,13 @@ if __name__ == '__main__':
     imagenames = rm.read_imagename('../Data/N2DH-GOWT1/img')
     flattened = rm.image_flatten(imageread)
     img_df = rm.dataframe(flattened, imagenames)
+    img_df = img_df.iloc[0:20, :]
 
     imageread_gt = pt.tiles('../Data/N2DH-GOWT1/gt/tif', 50)
     imagenames_gt = rm.read_imagename('../Data/N2DH-GOWT1/gt/tif')
     flattened_gt = rm.image_flatten(imageread_gt)
     gt_df = rm.dataframe(flattened_gt, imagenames_gt)
+    gt_df = gt_df.iloc[0:20, :]
 
     print(main(img_df, gt_df, 0))
+
