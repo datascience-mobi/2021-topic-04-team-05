@@ -14,9 +14,9 @@ for image in image_dataframe:
     #fit_transform(X[, y]) mean to fit to data und transform it, X ist ein Array oder Sparse/Scattered Matrix of shape (n_samples, n_features)
     pca = skdecomp.PCA(variance) #Linear Dimensionality Reduction mithilfe Singular Value Decomposition (SVD) aus den Dateien um es in niedrigerer Dimensional Space zu konvertieren.
     #Bevor SVD appliziert wird, ist Die Eingabedatei schon zentriert aber nicht skaliert für jedes Features.
-    pca.fit(image)
-    components = pca.transform(image)
-    projected = pca.inverse_transform(components)
+    pca.fit(image) #fit the model with the image array
+    components = pca.transform(image) #applying dimensionality reduction to image array
+    projected = pca.inverse_transform(components) #transform data back into its original space
     if projected is not None:
         pca_list.append(projected)
 return pca_list
