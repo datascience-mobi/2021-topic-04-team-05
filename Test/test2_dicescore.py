@@ -2,21 +2,15 @@ import unittest
 import numpy as np
 from matplotlib.image import imread
 
-from SVM_Segmentation import dicescore
-
-img = np.asarray([[0,1,1,0], [0,1,0,1],[1,0,0,0],[1,1,1,0]])
-print(img)
-
-gt = np.asarray([[0,1,0,0], [0,1,0,1],[1,0,0,1],[1,1,0,0]])
-print(gt)
-
+from SVM_Segmentation.dicescore import dice_score
 
 class TestDiceScore(unittest.TestCase):
     def setUp(self) -> None:
-        self.img = np.asarray([[0,1,1,0], [0,1,0,1],[1,0,0,0],[1,1,1,0]])
-        self.gt = np.asarray([[0,1,0,0], [0,1,0,1],[1,0,0,1],[1,1,0,0]])
+        self.prediction = np.asarray([[0,1,1,0], [0,0,0,1],[1,0,0,0],[1,1,1,0]])
+        self.groundtruth = np.asarray([[0,1,0,0], [0,1,0,1],[1,0,0,1],[1,1,0,0]])
 
     def test_dice_score(self):
-        result = dicescore.dice_score(self.img, self.gt)
-        #self.assertEqual(, result)  # checks if a (1.0) == b (result) (dice score should be 1 for image with itself)
+        result = dice_score(self.prediction, self.groundtruth)
+        result_by_hand = (2*12/(2*12+2+2)) #2*TP/2*TP+FP+FN
+        self.assertEqual(result_by_hand, result)  # checks if a (1.0) == b (result)
 
