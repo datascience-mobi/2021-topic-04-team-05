@@ -21,10 +21,11 @@ def read_image(path_of_imagefolder):
             image_list.append(image)
     return image_list
 
+
 def read_imagename(path_of_imagefolder):
     """
     This function creates a list of the filenames in a directory.
-    :param path_of_image: path of the folder with the files the filenames are wanted from
+    :param: path_of_image path of the folder with the files the filenames are wanted from
     :return: a list of the filenames
     """
     name_list = []
@@ -35,14 +36,15 @@ def read_imagename(path_of_imagefolder):
             name_list.append(filename)
     return name_list
 
+
 def image_flatten(image_list):
     """
     This function flattens all arrays of a list.
     :param image_list: A list of images as arrays.
     :return: A list of flattened arrays.
     """
-    #if type(image_list) != 'list':
-        #raise TypeError("Input has to be of type 'list'.")
+    # if type(image_list) != 'list':
+    # raise TypeError("Input has to be of type 'list'.")
     imagelist_flattened = []
     for element in image_list:
         if element is not None:
@@ -50,6 +52,7 @@ def image_flatten(image_list):
             reshaped = flattened.reshape(1, -1)
             imagelist_flattened.append(reshaped)
     return imagelist_flattened
+
 
 def dataframe(image_list, name_list):
     """
@@ -73,6 +76,7 @@ def dataframe(image_list, name_list):
     dataframe_images = dataframe_images.transpose()
     return dataframe_images
 
+
 def fuse_dataframes(dataframe1, name1, dataframe2, name2, dataframe3, name3):
     """
     Fusing 3 dataframes, with similiar content, by inserting the first row of dataframe2 and after that of dataframe 3,
@@ -86,23 +90,25 @@ def fuse_dataframes(dataframe1, name1, dataframe2, name2, dataframe3, name3):
     """
     if dataframe1.shape != dataframe2.shape != dataframe3.shape:
         raise ValueError("Dataframes have to be the same shape.")
-    #if type(dataframe1) and type(dataframe2) and type(dataframe3) != type(pd.DataFrame):
-        #raise TypeError("Input has to be of type 'pandas.core.frame.DataFrame'.")
+    # if type(dataframe1) and type(dataframe2) and type(dataframe3) != type(pd.DataFrame):
+    # raise TypeError("Input has to be of type 'pandas.core.frame.DataFrame'.")
     fused_dataframe = pd.DataFrame()
     row = 0
     dataframe1 = dataframe1.rename(index=lambda s: s + str(name1))
     dataframe2 = dataframe2.rename(index=lambda s: s + str(name2))
     dataframe3 = dataframe3.rename(index=lambda s: s + str(name3))
-    for row in range(0,len(dataframe1)):
+    for row in range(0, len(dataframe1)):
         for dataframe in [dataframe1, dataframe2, dataframe3]:
             fused_dataframe = fused_dataframe.append(dataframe.iloc[row, :])
         row += 1
     return fused_dataframe
 
+
 if __name__ == '__main__':
-    #Test
+    # Test
     dataframe1 = pd.DataFrame([['A', 'B', 'C', 'D'], ['E', 'F', 'G', 'H'], ['I', 'J', 'K', 'L'], ['M', 'N', 'O', 'P']])
-    dataframe2 = pd.DataFrame([['1', '2', '3', '4'], ['5', '6', '7', '8'], ['9', '10', '11', '12'], ['13', '14', '15', '16']])
+    dataframe2 = pd.DataFrame(
+        [['1', '2', '3', '4'], ['5', '6', '7', '8'], ['9', '10', '11', '12'], ['13', '14', '15', '16']])
     dataframe3 = pd.DataFrame([['a', 'b', 'c', 'd'], ['e', 'f', 'g', 'h'], ['i', 'j', 'k', 'l'], ['m', 'n', 'o', 'p']])
 
     dataframe1_names = ['A', 'B', 'C', 'D']
@@ -113,39 +119,35 @@ if __name__ == '__main__':
     d2 = dataframe2.set_axis(dataframe2_names, axis=0)
     d3 = dataframe3.set_axis(dataframe3_names, axis=0)
 
+    # print(fuse_dataframes(d1, 'd1', d2, 'd2', d3, 'd3'))
 
-    #print(fuse_dataframes(d1, 'd1', d2, 'd2', d3, 'd3'))
-
-    #Tests
+    # Tests
 
     imageread1 = read_image('../Data/N2DH-GOWT1/img')
-    #print(imageread1)
+    # print(imageread1)
     imagenames1 = read_imagename('../Data/N2DH-GOWT1/img')
-    #print(imagenames1)
+    # print(imagenames1)
     imageflattened1 = image_flatten(imageread1)
-    #print(imageflattened1)
+    # print(imageflattened1)
     data1 = dataframe(imageflattened1, imagenames1)
-    #print(data1)
+    # print(data1)
 
     imageread2 = read_image('../Data/N2DL-HeLa/img')
-    #print(imageread2)
+    # print(imageread2)
     imagenames2 = read_imagename('../Data/N2DL-HeLa/img')
-    #print(imagenames2)
+    # print(imagenames2)
     imageflattened2 = image_flatten(imageread2)
-    #print(imageflattened2)
+    # print(imageflattened2)
     data2 = dataframe(imageflattened2, imagenames2)
-    #print(data2)
+    # print(data2)
 
     imageread3 = read_image('../Data/NIH3T3/img')
-    #print(imageread3)
+    # print(imageread3)
     imagenames3 = read_imagename('../Data/NIH3T3/img')
-    #print(imagenames3)
+    # print(imagenames3)
     imageflattened3 = image_flatten(imageread3)
-    #print(imageflattened3)
+    # print(imageflattened3)
     data3 = dataframe(imageflattened3, imagenames3)
-    #print(data3)
+    # print(data3)
 
-    #print(fuse_dataframes(data1, 'd1', data1, 'd2', data1, 'd3'))
-
-
-
+    # print(fuse_dataframes(data1, 'd1', data1, 'd2', data1, 'd3'))
