@@ -1,70 +1,18 @@
 import numpy as np
-import pandas as pd
-import math
-import statsmodels.api as sm
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split as tts
-from sklearn.metrics import accuracy_score, recall_score, precision_score
-from sklearn.utils import shuffle
-from skimage.transform import resize
+from glob import glob
+from tqdm import tqdm
 from skimage import io
-import sklearn.decomposition as skdecomp
-from sklearn.preprocessing import StandardScaler
-from matplotlib import pyplot as plt
-from skimage.feature import multiscale_basic_features, canny
-from skimage.filters import threshold_otsu
-import cv2
+from skimage.transform import resize
+import matplotlib.pyplot as plt
+plt.rcParams["figure.figsize"] = (10,5)
+import os
+from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split as tts
+from sklearn.metrics import accuracy_score, f1_score
+workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
+IMGSIZE = 200
 
 
-# >>PIXEL CONVERSION<< #
-
-def oneD_array_to_twoD_array(oneDarray):
-    twoDarray = np.stack(oneDarray, axis=0)
-    a = int(math.sqrt(len(twoDarray)))
-    twoDarray = twoDarray.reshape(a, a)
-    return twoDarray
-
-def pca(image, variance):
-    image = StandardScaler().fit_transform(image)
-    pca = skdecomp.PCA(variance)
-    pca.fit(image)
-    components = pca.transform(image)
-    projected = pca.inverse_transform(components)
-    if projected is not None:
-        return projected
-
-def remove_correlated_features(X):
-    corr_threshold = 0.9
-    corr = X.corr()
-    drop_columns = np.full(corr.shape[0], False, dtype=bool)
-    for i in range(corr.shape[0]):
-        for j in range(i + 1, corr.shape[0]):
-            if corr.iloc[i, j] >= corr_threshold:
-                drop_columns[j] = True
-    columns_dropped = X.columns[drop_columns]
-    X.drop(columns_dropped, axis=1, inplace=True)
-    return columns_dropped
-
-def remove_less_significant_features(X, Y):
-    sl = 0.05
-    regression_ols = None
-    columns_dropped = np.array([])
-    for itr in range(0, len(X.columns)):
-        regression_ols = sm.OLS(Y, X).fit()
-        max_col = regression_ols.pvalues.idxmax()
-        max_val = regression_ols.pvalues.max()
-        if max_val > sl:
-            X.drop(max_col, axis='columns', inplace=True)
-            columns_dropped = np.append(columns_dropped, [max_col])
-        else:
-            break
-    regression_ols.summary()
-    return columns_dropped
-
-##############################
-
-
-# >> MODEL TRAINING << #
 def compute_cost(W, X, Y):
     # calculate hinge loss
     N = X.shape[0]
@@ -76,9 +24,6 @@ def compute_cost(W, X, Y):
     cost = 1 / 2 * np.dot(W, W) + hinge_loss
     return cost
 
-
-# I haven't tested it but this same function should work for
-# vanilla and mini-batch gradient descent as well
 def calculate_cost_gradient(W, X_batch, Y_batch):
     # if only one example is passed (eg. in case of SGD)
     if type(Y_batch) == np.float64:
@@ -91,7 +36,6 @@ def calculate_cost_gradient(W, X_batch, Y_batch):
     for ind, d in enumerate(distance):
         if max(0, d) == 0:
             di = W
-
         else:
             di = W - (regularization_strength * Y_batch[ind] * X_batch[ind])
         dw += di
@@ -99,13 +43,14 @@ def calculate_cost_gradient(W, X_batch, Y_batch):
     dw = dw/len(Y_batch)  # average
     return dw
 
-
 def sgd(features, outputs):
     max_epochs = 5000
     weights = np.zeros(features.shape[1])
+    weights = np.random.random(features.shape[1])
     nth = 0
     prev_cost = float("inf")
-    cost_threshold = 0.01  # in percent
+    cost_threshold = 0.005  # Lower -> Longer training and better results
+    history_cost = []
     # stochastic gradient descent
     for epoch in range(1, max_epochs):
         # shuffle to prevent repeating update cycles
@@ -114,97 +59,73 @@ def sgd(features, outputs):
             ascent = calculate_cost_gradient(weights, x, Y[ind])
             weights = weights - (learning_rate * ascent)
 
+        cost = compute_cost(weights, features, outputs)
+        history_cost.append(cost)
         # convergence check on 2^nth epoch
         if epoch == 2 ** nth or epoch == max_epochs - 1:
-            cost = compute_cost(weights, features, outputs)
+            #cost = compute_cost(weights, features, outputs)
             print("Epoch is: {} and Cost is: {}".format(epoch, cost))
             # stoppage criterion
             if abs(prev_cost - cost) < cost_threshold * prev_cost:
-                return weights
+                return weights, history_cost
             prev_cost = cost
             nth += 1
-    return weights
 
-########################
+    return weights, history_cost
 
-# set hyper-parameters and call init
+
+def processImage(image_path, imgSize):
+    img = io.imread(image_path)
+    img = resize(img, (imgSize, imgSize))
+    img = img.reshape(-1, 1)
+    bias_term = np.ones(img.shape[0]).reshape(-1, 1)
+    return np.hstack([img, bias_term])
+
+def processMask(image_path, imgSize):
+    img = io.imread(image_path)
+    img = resize(img, (imgSize, imgSize))
+    img[img > 0] = 1
+    img[img < 1] = -1
+    img = img.flatten()
+    return img
+
+def predict(imageIndex):
+    data = processImage(imgs[imageIndex], IMGSIZE)
+    prediction = [np.sign(np.dot(data[pixelN], W)) for pixelN in range(data.shape[0])]
+    groundTruth = processMask(masks[imageIndex], IMGSIZE)
+    return prediction, groundTruth
+
+def pred2Image(prediction):
+    prediction = np.array(prediction)
+    return prediction.reshape((IMGSIZE, IMGSIZE))
+
+
+imgs = glob(workdir + "/Data/N2DH-GOWT1/img/*.tif")
+masks = glob(workdir + "/Data/N2DH-GOWT1/gt/tif/*.tif")
+print(f"{len(imgs)} images detected and {len(masks)} masks detected")
+
+NImagesTraining = 4
+X_train = np.vstack([processImage(imgPath, IMGSIZE) for imgPath in imgs[:NImagesTraining]])
+y_train = np.concatenate([processMask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]])
+X_test = [processImage(imgPath, IMGSIZE) for imgPath in imgs[NImagesTraining:]]
+y_test = [processMask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]]
+
 regularization_strength = 10000
-learning_rate = 0.000001
+learning_rate = 0.0000001
+W, hist = sgd(X_train, y_train)
 
 
-if __name__ == '__main__':
-    # read in images
-    imgread = io.imread('../Data/test/img/t01.tif')
-    imgresize = resize(imgread, (50, 50))
-    imgflat = imgresize.flatten()
+fig = plt.plot(hist)
+_ = plt.ylabel("Cost function")
+_ = plt.xlabel("Epoch")
+_ = plt.title(f"Final Weights {W}")
 
-    #canny
-    imgcanny = canny(imgresize, sigma=.5)
-    imgcannyflat = imgcanny.flatten()
-    imgcannyflat = np.where(imgcannyflat == 'True', 1, imgcannyflat)
-
-    #otsu
-    thr = threshold_otsu(imgresize)
-    imgotsu = (imgresize > thr).astype(float)
-    imgotsuflat = imgotsu.flatten()
-
-
-    imgnormal = np.vstack((imgflat, imgcannyflat, imgotsuflat))
-    X_df = pd.DataFrame(imgnormal.transpose())
-
-    # read in ground truth images
-    gtread = io.imread('../Data/test/gt/man_seg01.jpg')
-
-    # thresholding ground truth images to get black-and-white-only images
-    gtresize = resize(gtread, (50, 50))
-    gtthreshold = (cv2.threshold(gtresize, 0, 1, cv2.THRESH_BINARY))[1]
-    gtflat = gtthreshold.flatten()
-
-    # Turning gt values into 1 and -1 labels
-    y_labels = np.where(gtflat == 0, -1, gtflat)
-    Y = pd.DataFrame(data=y_labels)
-
-    # filter features
-    remove_correlated_features(X_df)
-    remove_less_significant_features(X_df, Y)
-
-    # normalize data for better convergence and to prevent overflow
-    X_normalized = MinMaxScaler().fit_transform(X_df.values)
-    X = pd.DataFrame(X_normalized)
-
-    # insert 1 in every row for intercept b
-    X.insert(loc=len(X.columns), column='intercept', value=1)
-
-    # split data into train and test set
-    print("splitting dataset into train and test sets...")
-    X_train, X_test, y_train, y_test = tts(X, Y, test_size=0.2, random_state=42)
-
-    # train the model
-    print("training started...")
-    W = sgd(X_train.to_numpy(), y_train.to_numpy())
-    print("training finished.")
-    print("weights are: {}".format(W))
-
-    # testing the model
-    print("testing the model...")
-    y_train_predicted = np.array([])
-    for i in range(X_train.shape[0]):
-        yp = np.sign(np.dot(X_train.to_numpy()[i], W))
-        y_train_predicted = np.append(y_train_predicted, yp)
-
-    y_test_predicted = np.array([])
-    for i in range(X_test.shape[0]):
-        yp = np.sign(np.dot(X_test.to_numpy()[i], W))
-        y_test_predicted = np.append(y_test_predicted, yp)
-
-    print("accuracy on test dataset: {}".format(accuracy_score(y_test, y_test_predicted)))
-    print("recall on train dataset: {}".format(recall_score(y_train, y_train_predicted)))
-    print("precision on test dataset: {}".format(recall_score(y_test, y_test_predicted)))
-
-    y_svm = np.array([])
-    y_svm_train = np.append(y_svm, y_train_predicted)
-    y_svm_test = np.append(y_svm_train, y_test_predicted)
-    #y_svm_test = np.where(y_svm_test == -1, 0, y_svm_test)
-    segmented_image = oneD_array_to_twoD_array(y_svm_test)
-    plt.imshow(segmented_image)
-    plt.show()
+Ntest = len(imgs) - NImagesTraining
+fig, ax = plt.subplots(ncols=Ntest, dpi=110)
+fig.tight_layout(w_pad=-2)
+for i in range(Ntest):
+    ii = i+NImagesTraining
+    pred, gt = predict(ii)
+    ax[i].imshow(pred2Image(pred), cmap='cool')
+    ax[i].axis('Off')
+    ax[i].set_title(f"Test img: {ii+1} F1:{round(f1_score(gt, pred), 2)}")
