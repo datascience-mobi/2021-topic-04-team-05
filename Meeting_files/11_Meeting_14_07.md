@@ -19,9 +19,9 @@ our weg, sondern dataset
 
 1x abkürzung einführen --> nur noch abkürzung benutzen
 
-bei data: differneces an bild zeigen
+bei data: differences an bild zeigen
 
-mathetmatical background: kein stern für malzeichen; was variablen heißen erklären
+mathematical background: kein stern für malzeichen; was variablen heißen erklären
 
 PCA korrigieren, keine integralprojektion nochmal über text drüberlesen
 
