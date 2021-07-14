@@ -105,7 +105,7 @@ def fuse_dataframes(dataframe1, name1, dataframe2, name2, dataframe3, name3):
 
 
 if __name__ == '__main__':
-    # Test
+    # test
     dataframe1 = pd.DataFrame([['A', 'B', 'C', 'D'], ['E', 'F', 'G', 'H'], ['I', 'J', 'K', 'L'], ['M', 'N', 'O', 'P']])
     dataframe2 = pd.DataFrame(
         [['1', '2', '3', '4'], ['5', '6', '7', '8'], ['9', '10', '11', '12'], ['13', '14', '15', '16']])
