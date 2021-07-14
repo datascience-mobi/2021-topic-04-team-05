@@ -24,8 +24,8 @@ def tiles(image_path, number):
     list_of_arrays = []
     for index, image in enumerate(images):
         list = []
-        M = image.shape[0]//number
-        N = image.shape[1]//number
+        M = image.shape[0] // number
+        N = image.shape[1] // number
         for x in range(0, image.shape[0], M):
             for y in range(0, image.shape[1], N):
                 list.append([image[x:x + M, y:y + N]])
@@ -34,9 +34,9 @@ def tiles(image_path, number):
             mean = np.mean(list[i])
             list_mean.append(mean)
         array_mean = np.asarray(list_mean)
-        #convert 1D array to 2D array
-        twod_array_mean = pc.oneD_array_to_twoD_array(array_mean)
-        list_of_arrays.append(twod_array_mean)
+        # convert 1D array to 2D array
+        two_d_array_mean = pc.one_d_array_to_two_d_array(array_mean)
+        list_of_arrays.append(two_d_array_mean)
     return list_of_arrays
 
 
