@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from sklearn.metrics import f1_score
 
-from SVM_Segmentation.dicescore import dice_score
+from SVM_Segmentation.evaluation.dicescore import dice_score
 
 
 class TestDiceScore(unittest.TestCase):

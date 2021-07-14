@@ -4,9 +4,8 @@ from sklearn.preprocessing import MinMaxScaler as MMS
 from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 import cv2
-import readimages as rm
-import preparation_PCA
-from SVM_Segmentation import preparation_tiles as pt
+import read_images as rm
+from SVM_Segmentation.preprocessing import tiles as pt
 
 
 # functions need for the loss function
@@ -32,7 +31,6 @@ def loss_function(w, x, y, soft_margin_parameter: float = 1e5):
     :param x: A dataframe with the features of the samples.
     :param w: The vector of the feature weights.
     :param y: A dataframe with the labels of the samples.
-    :param C: A default value to define the regularization strength.
     :return: A value representing the loss.
     """
     # calculate hinge loss

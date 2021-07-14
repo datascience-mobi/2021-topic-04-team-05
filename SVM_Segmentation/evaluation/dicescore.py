@@ -12,7 +12,8 @@ def dice_score(pred, gt):
     This function calculates the similarity between two arrays.
     :param pred: an array of predicted labels
     :param gt: the ground truth of this array
-    :return: a value between 0 and 1, describing the similarity between those arrays. 1 is the dice score of similar arrays.
+    :return: a value between 0 and 1, describing the similarity between those arrays. 1 is the dice score of
+    similar arrays.
     """
     dice = np.sum(pred[gt == pred]) * 2.0 / (np.sum(gt) + np.sum(pred))
     print(dice)

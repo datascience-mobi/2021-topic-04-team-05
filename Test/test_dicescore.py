@@ -1,9 +1,8 @@
 import unittest
 import numpy as np
 from matplotlib.image import imread
-from matplotlib.pyplot import imshow
 
-from SVM_Segmentation import dicescore
+from SVM_Segmentation.evaluation import dicescore
 
 
 class TestDiceScore(unittest.TestCase):

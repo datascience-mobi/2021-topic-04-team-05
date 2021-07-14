@@ -73,4 +73,4 @@ if __name__ == '__main__':
     # pca_list_images = pca_self(image_read1, 100, 0.9)
     # print(pca_list_images)
 
-    print(pca_different_images('../Data/N2DH-GOWT1/img', 0.95).shape)
+    print(pca_different_images('../../Data/N2DH-GOWT1/img', 0.95).shape)
