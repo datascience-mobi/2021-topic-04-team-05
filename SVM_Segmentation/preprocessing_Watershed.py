@@ -8,8 +8,8 @@ def watershed(path_to_folder):
     """
        This is a gradient-ascend-based super pixel algorithm function - a "rough" segmentation. It also can be use for
        comparison with the SVM.
-       :param: path to folder to extract each image
-       :return: segmented images with watershed
+       :param: Path to folder to extract each image
+       :return: With watershed segmented images
        """
     images = []
     for filename in os.listdir(path_to_folder):  # read each images
@@ -44,9 +44,9 @@ def watershed(path_to_folder):
 
 if __name__ == '__main__':
 
-    path = ("/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DL-HeLa/img")
-    max = os.listdir(path)
-    for i in range(1, len(max)):
+    path = "/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DL-HeLa/img"
+    max_number = os.listdir(path)
+    for i in range(1, len(max_number)):
         segmented_images = watershed(path)
         plt.imshow(segmented_images[i])
         plt.show()
