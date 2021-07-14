@@ -9,7 +9,7 @@ def read_image(path_of_imagefolder):
     """
     This function reads images from a given path and puts them into a list of arrays.
     :param path_of_imagefolder: path of the images
-    :return: list of np.ndarrays
+    :return: list of np.arrays
     """
     image_list = []
     if not os.path.exists(path_of_imagefolder):
