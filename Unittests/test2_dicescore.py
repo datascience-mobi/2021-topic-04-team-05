@@ -18,12 +18,8 @@ class TestDiceScore(unittest.TestCase):
 
 # Comparing our dice with the python-integrated dice
 
+prediction = np.asarray([[0, 1, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0], [1, 1, 1, 0]])
+ground_truth = np.asarray([[0, 1, 0, 0], [0, 1, 0, 1], [1, 0, 0, 1], [1, 1, 0, 0]])
 
-pred = np.asarray([[0, 1, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0], [1, 1, 1, 0]])
-gt = np.asarray([[0, 1, 0, 0], [0, 1, 0, 1], [1, 0, 0, 1], [1, 1, 0, 0]])
-
-print(pred)
-print(gt)
-
-print(result=dice_score(pred, gt))
-print(f1_score(gt, pred, average='micro'))
+print(dice_score(prediction, ground_truth))
+print(f1_score(ground_truth, prediction, average='micro'))
