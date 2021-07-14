@@ -25,4 +25,3 @@ def one_d_array_to_two_d_array(array):
     a = int(math.sqrt(len(two_d_array)))
     two_d_array = two_d_array.reshape(a, a)
     return two_d_array
-

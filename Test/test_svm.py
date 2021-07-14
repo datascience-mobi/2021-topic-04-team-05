@@ -1,18 +1,4 @@
 import numpy as np
-import pandas as pd
-import statsmodels.api as sm
-from matplotlib.image import imread
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split as tts, KFold
-from sklearn.metrics import accuracy_score, recall_score, precision_score
-from sklearn.utils import shuffle
-import cv2
-from SVM_Segmentation import readimages as rm
-from SVM_Segmentation import preparation_PCA
-import imagecodecs
-
-
-from SVM_Segmentation import testing_the_svm
 
 #put SVM into testing_the_svm depending on what we use for testing (pictures: all SVM; test_dataframe X & y: part of SVM)
 

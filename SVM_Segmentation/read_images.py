@@ -1,7 +1,7 @@
 import os
 from skimage import io
 import numpy as np
-from numpy import asarray, ndarray
+from numpy import ndarray
 import pandas as pd
 
 
@@ -64,7 +64,6 @@ def dataframe(image_list, name_list):
     if len(image_list) != len(name_list):
         raise ValueError("Lists have to be of the same length.")
     dataframe_images = pd.DataFrame()
-    i = 0
     for i in range(0, len(image_list)):
         array = image_list[i]
         if array.shape[0] != 1:
@@ -82,18 +81,17 @@ def fuse_dataframes(dataframe1, name1, dataframe2, name2, dataframe3, name3):
     Fusing 3 dataframes, with similiar content, by inserting the first row of dataframe2 and after that of dataframe 3,
     after the first row of dataframe 1. The name of the dataframe is added to the according rownames to distinguish
     between the different samples.
-
     :param dataframe1: dataframe 1, with pixels as features and rows as samples.
     :param dataframe2: dataframe 2, with pixels as features and rows as samples.
     :param dataframe3: dataframe 3, with pixels as features and rows as samples.
+    :param name1: names of images of dataframe 1
+    :param name2: names of images of dataframe 2
+    :param name3: names of images of dataframe 3
     :return: dataframe composed of all 3 input-dataframes
     """
     if dataframe1.shape != dataframe2.shape != dataframe3.shape:
         raise ValueError("Dataframes have to be the same shape.")
-    # if type(dataframe1) and type(dataframe2) and type(dataframe3) != type(pd.DataFrame):
-    # raise TypeError("Input has to be of type 'pandas.core.frame.DataFrame'.")
     fused_dataframe = pd.DataFrame()
-    row = 0
     dataframe1 = dataframe1.rename(index=lambda s: s + str(name1))
     dataframe2 = dataframe2.rename(index=lambda s: s + str(name2))
     dataframe3 = dataframe3.rename(index=lambda s: s + str(name3))

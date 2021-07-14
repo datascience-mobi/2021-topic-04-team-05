@@ -5,7 +5,7 @@ import pandas as pd
 import math
 from skimage import io
 from matplotlib import pyplot as plt
-from SVM_Segmentation import readimages as rm
+from SVM_Segmentation import read_images as rm
 from SVM_Segmentation import pixel_conversion as pc
 
 
@@ -40,4 +40,4 @@ def tiles(image_path, number):
     return list_of_arrays
 
 
-tiles('../Data/N2DH-GOWT1/gt/tif', 50)
+tiles('../../Data/N2DH-GOWT1/gt/tif', 50)
