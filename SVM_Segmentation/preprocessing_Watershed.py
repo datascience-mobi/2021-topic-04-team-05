@@ -3,20 +3,21 @@ import cv2
 import os
 import numpy as np
 
+
 def watershed(path_to_folder):
     """
        This is a gradient-ascend-based super pixel algorithm function - a "rough" segmentation. It also can be use for
        comparison with the SVM.
-       :param path to folder to extract each image:
-       :return:
+       :param: path to folder to extract each image
+       :return: segmented images with watershed
        """
     images = []
-    for filename in os.listdir(path_to_folder): #read each images
-        original_image = cv2.imread(os.path.join(path_to_folder,filename))
+    for filename in os.listdir(path_to_folder):  # read each images
+        original_image = cv2.imread(os.path.join(path_to_folder, filename))
         # Segmentation through threshold
-        grayconverted = cv2.cvtColor(original_image, cv2.COLOR_RGB2GRAY)
-        ret, thresh = cv2.threshold(grayconverted, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        # Further noise removal from thresholded image, the kernel matrix in this case (4,4) -> 4x4
+        gray_converted = cv2.cvtColor(original_image, cv2.COLOR_RGB2GRAY)
+        ret, thresh = cv2.threshold(gray_converted, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        # Further noise removal from threshold image, the kernel matrix in this case (4,4) -> 4x4
         kernel = np.ones((3, 3), np.uint8)
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=3)
         # clear background area by matrix dilation
@@ -40,20 +41,12 @@ def watershed(path_to_folder):
             images.append(original_image)
     return images
 
+
 if __name__ == '__main__':
 
     path = ("/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DL-HeLa/img")
     max = os.listdir(path)
-    for i in range (1, len(max)):
+    for i in range(1, len(max)):
         segmented_images = watershed(path)
         plt.imshow(segmented_images[i])
         plt.show()
-
-
-
-
-
-
-
-
-
