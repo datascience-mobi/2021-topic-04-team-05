@@ -5,33 +5,33 @@ from numpy import asarray, ndarray
 import pandas as pd
 
 
-def read_image(path_of_imagefolder):
+def read_image(path_of_image_folder):
     """
     This function reads images from a given path and puts them into a list of arrays.
-    :param path_of_imagefolder: path of the images
+    :param path_of_image_folder: path of the images
     :return: list of np.arrays
     """
     image_list = []
-    if not os.path.exists(path_of_imagefolder):
+    if not os.path.exists(path_of_image_folder):
         raise FileNotFoundError
-    for filename in os.listdir(path_of_imagefolder):
-        img = io.imread(os.path.join(path_of_imagefolder, filename))
+    for filename in os.listdir(path_of_image_folder):
+        img = io.imread(os.path.join(path_of_image_folder, filename))
         image = np.asarray(img)
         if img is not None:
             image_list.append(image)
     return image_list
 
 
-def read_imagename(path_of_imagefolder):
+def read_imagename(path_of_image_folder):
     """
     This function creates a list of the filenames in a directory.
     :param: path_of_image path of the folder with the files the filenames are wanted from
     :return: a list of the filenames
     """
     name_list = []
-    if not os.path.exists(path_of_imagefolder):
+    if not os.path.exists(path_of_image_folder):
         raise FileNotFoundError
-    for filename in os.listdir(path_of_imagefolder):
+    for filename in os.listdir(path_of_image_folder):
         if filename is not None:
             name_list.append(filename)
     return name_list
@@ -45,18 +45,18 @@ def image_flatten(image_list):
     """
     # if type(image_list) != 'list':
     # raise TypeError("Input has to be of type 'list'.")
-    imagelist_flattened = []
+    image_list_flattened = []
     for element in image_list:
         if element is not None:
             flattened = ndarray.flatten(element)
             reshaped = flattened.reshape(1, -1)
-            imagelist_flattened.append(reshaped)
-    return imagelist_flattened
+            image_list_flattened.append(reshaped)
+    return image_list_flattened
 
 
 def dataframe(image_list, name_list):
     """
-    This function creates a dataframe from a list of flattened arrays (as rows) and their names as rownames.
+    This function creates a dataframe from a list of flattened arrays (as rows) and their names as row names.
     :param image_list: A list of flattened arrays.
     :param name_list: A list of names, in the same order as the arrays in the image_list.
     :return:
