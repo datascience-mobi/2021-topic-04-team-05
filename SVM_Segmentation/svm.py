@@ -17,7 +17,6 @@ from SVM_Segmentation import array_to_img as ai
 #workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
 IMGSIZE = 50
 
-
 def compute_cost(W, X, Y):
     # calculate hinge loss
     N = X.shape[0] #number of pixels = number of data points
@@ -177,4 +176,3 @@ for i in range(Ntest):
     ax.axis('On')
     ax.set_title(f"Test img: {ii+1} Dice:{round(ds.dice_score(gt, pred), 2)}")
     plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-{regularization_strength}.png")
-
