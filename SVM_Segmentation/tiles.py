@@ -16,20 +16,21 @@ import array_to_img as ai
 
 
 def tiles(image, number):
-    list = [] #creates an empty list, which will be filled during the iterations with the tiles
+    array = [] #creates an empty list, which will be filled during the iterations with the tiles
     M = image.shape[0]//number #M=total number of lines, divided through the number = # of tiles
     N = image.shape[1]//number #N=total number of columns, divided through the number = # of tiles
     for x in range(0, image.shape[0], M): #iterations, starting in the first pixel until the last line,
         # and the amount of steps is the M which was already calculated
         for y in range(0, image.shape[1], N): #iterations, starting in the first pixel until the last column,
         # and the amount of steps is the N which was already calculated
-            list.append([image[x:x + M, y:y + N]]) #the already created, empty list, is appended with the tile which
+            array.append([image[x:x + M, y:y + N]]) #the already created, empty list, is appended with the tile which
         # is "cut" during each iteration
     list_mean = []
-    for i in range(0, len(list)):
-        mean = np.mean(list[i])
+    for i in range(0, len(array)):
+        mean = np.mean(array[i])
         list_mean.append(mean)
-    return list_mean
+    array_mean = np.asarray(list_mean)
+    return array_mean
 
 if __name__ == '__main__':
     def oneD_array_to_twoD_array(oneDarray):
@@ -40,7 +41,6 @@ if __name__ == '__main__':
 
     gtread = io.imread('../Data/test/gt/man_seg01.jpg')
     gttiles = tiles(gtread, 50)
-    gtiles_array = np.asarray(gttiles)
-    gttwod = oneD_array_to_twoD_array(gtiles_array)
+    gttwod = oneD_array_to_twoD_array(gttiles)
     plt.imshow(gttwod)
     plt.show()
