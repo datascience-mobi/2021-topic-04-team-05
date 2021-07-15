@@ -8,11 +8,10 @@
 - 
 
 ## Questions
-- Beim pre-processing: sollen wir auch high-pass filters verwenden, die die edges enhancen? Weil wir letztendlich das auch als Ziel haben, aber würden diese andere Filter eine andere “Methode” sein, die die Bilder verfälscht?
-- Dice Score: differentiation + loss of function
-- Bild Daten -> ground truth, Abkürzungen, Färbung
-- Wie viel Mathe vom SVM nötig?
-
+- At Pre-Processing: should we also use High-Pass Filter that enhance the edges? (It's also our goal, but would it be another filter that distorts the images?)
+- Dice Score: about Differentiation and Loss of Function
+- Our Dataset -> Ground Truth, Abbreviations, Coloration
+- How much math is necessary in SVM?
 
 ## Plans for next week
 - Finish up the presentation (with the feedback)

@@ -4,39 +4,36 @@
 ---
 
 ## Last week's progress
-- Report angefangen
-- Dice Score fast fertiggestellt
-- Plan bezüglich Synthetic Images aufgestellt und erste Synthetic images erzeugt
+- We already started with the report, had plans about the synthetic images, and generated the first synthetic images
+- Dice Score is ready
 
 ## Questions
-- Warum können manche Packages nicht installiert werden?
-A: conda install -c conda-forge opencv
-- Wie Repo organisieren?
-A: Jeder erstellt eigene Branch mit Python file und am Ende machen wir code review und eine der Branches wird mit main brainch gemergt
+- Why couldn't some packages be installed?
+  A: conda install -c conda-forge opencv
+- How can we organize our repository?
+  A: Every one of us own a branch with Python file and at the end we review our codes. One 'best'  branch would be merged with the master.
 
-## Additional Notes
-
-### Repo Struktur
-Dice score Dateien mergen!
-Repostruktur wie Beispielrepo
-Funktion in Repo für Dice score → importieren in Report
+### Repository structure
+Merge the dice score data
+Repository structure like the example
+Import the function in repository for the dice score → Report
 
 ### Report: 
-in jupyter notebook!
--#%% md (für markdown chunk)
--#%% (für python chunk)
+In Jupyter Notebook!
+-#%% md (for markdown chunk)
+-#%% (for python chunk)
 import 
 working_on.dice_score.code.dice_score as dice score
 für code: ``` nicht ‘’ (richtiges neben del taste)
 für code der wie python gehighlited wird: ```python
-Prinzip: Codedokumente erstellen & dann in Report importieren (nicht copy paste!)
+Principle: generate code documents and then import in Report (no copy paste!)
 
 ### Git:
-markdown & python
-feature branch, develop branch, pull request nachdem der feature fertig gecoded ist + code review, 
-man könnte nachher eine branch erstellen mit dem commit, den man zurückstellen will (oder copy paste:))
+Markdown & Python
+Feature branch, develop branch, pull request according the status of the features + code review
+We could generate one branch with the commit that can be reset?
 
 ## Plans for next week
-- Dice Score final fertigstellen
-- Report-Teil zu Dice Score (und Synthetic images) schreiben
-- Support Vector Machine Implementation beginnen
+- Finish the final dice score cod
+- Write part of the report for dice score and synthetic images
+- Start the Support Vector Machine Implementation 

@@ -4,16 +4,16 @@
 ---
 
 ## Last week's progress
-- SVM
-- reading images into dataframes, normalization, thresholding
-- finalizing code (PCA) & adding comments
+- SVM Code
+- Reading images into dataframes, normalization, thresholding
+- Finalizing code (PCA) & adding comments
 
 ## Questions
-- unit tests
-  --> für dicescore: kleiner array, händisch ausrechnen und schauen ob das richtige rauskommt
-  --> für SVM mit SVC vergleichen
-- preprocessing & preparation nur auf training set oder auch auf test set?
-  --> auf beides anwenden, da das uns einen Vorteil gibt und SVM beeinflusst
+- About unit tests
+  --> for dice score: smaller array, calculate per hand and observe whether the values match
+  --> compare the SVM with SVC
+- Preprocessing & preparation are just for the training set or also for the test set?
+  --> for both, because that gives us advantages and influence the SVM
 
 ## Plans for next week
 - analysis & report

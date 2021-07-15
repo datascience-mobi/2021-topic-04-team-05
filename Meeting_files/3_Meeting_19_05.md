@@ -5,20 +5,21 @@
 
 ## Last week's progress
 - Project Proposal
-- Dice Score recherchiert und erste Schritte implementiert
-- Synthetic images recherchiert und erste Schritte implementiert
+- More research about the dice score and implement the first step
+- Research about synthetic images and implement the first step
 
 ## Questions
-- Ground truth mit Grauwerten? → Anpassen mit Threshold damit nur weiß & schwarz?
-  A: jeder Zellkern hat eigenen Grauwert -> so können Nuclei voneinander unterschieden werden
-- was soll output unserer SVM sein? schwarz/weiß oder ränder
-- Welchen Mehrwert haben synthetic images an DIESEM Schritt? (eigentlich ja benutzt um Dataset zu vergrößern); wie können wir am geschicktesten unseren Dice score damit überprüfen (ggf. Paper raussuchen)?
-  A: für dice score reicht einen numpy array zu erzeugen
-- Domain transfer/randomization -> sollen wir ein Programm wie Blender oder Unity verwenden oder eher einfach Lichtverhälltnisse durch Gradienten etc verändern?
-  A: nicht die Programme, sondern eher mit Gradienten etc. arbeiten, also mit eigenem Code
-- Git-Probleme Ria
-- inwiefern muss unser Code neu sein?...wurde ja alle schon tausend mal gemacht
+- Ground Truth with grayscale? Should it be adapted with Threshold Function so that the images'd be black and white?
+  A: Each nucleus has its own gray value so that it can be differentiated from the background and other nuclei
+- What should our SVM output look like? black and white or just with edges
+- Which advantages do synthetic images have in THIS step? How can we use these synthetic images to further train our dice score with
+  the most elegant way? (maybe research papers)
+  A: It's enough for the dice score to generate numpy array
+- Domain transfer/randomization -> should we use a program like Blender or Unity, or should be just adjust the light propotion with gradient?
+  A: not the programm, but with gradient and own code
+- Git-Problems from Ria
+- To what extent should the code be new? So many similar SVM codes were already made and implemented
 
 ## Plans for next week
-- switch topics
-- implement Dice Score and Synthetic images code finally
+- Switch topics
+- Implement Dice Score and Synthetic images code finally

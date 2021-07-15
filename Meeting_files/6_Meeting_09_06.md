@@ -4,15 +4,14 @@
 ---
 
 ## Last week's progress
-- preparing data for SVM
-- read about 2 methods: PCA and block-method
-- edited Dice score & Synthetic images in report
+- Prepare the data for SVM
+- Read about 2 methods: PCA and block-method
+- Edited dice score & synthetic images in report
 
 ## Questions
 - Unit test 
 
 
-
 ## Plans for next week
-- finishing PCA and block-method
+- Finish the PCA and block-method
 - Report about SVM

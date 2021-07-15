@@ -9,12 +9,11 @@
 - report on SVM (general info & math)
 
 ## Questions
-- *workflow SVM besprechen*
-- Grautöne bei Ground Truths -> wie müssen wir sie in unsere SVM/Dice Score miteinbeziehen? Sollen 
-  wir die segmentierte Zellen  nicht nur weiß, sondern auch mit verschiedenen Farben? Weil sonst 
-  bringt uns auch nicht weiter, dass sie für das Dice Score erhalten bleiben
-- Bisheriges Code vorstellen -> Verbesserungsvorschläge?
-- mathematischer Hintergrund von PCA in report?
+- *discuss about SVM workflow  *
+- Grayscale at ground truth: How could we implement in our SVM/Dice Score? Should we generate the segmented cells
+not just white, but also with different colors? Because keeping it doesn't really help us anymore for the dice score
+- Present our code -> Recommendation for improvement?
+- Mathematical Background for PCA in report?
 
 ## Plans for next week
 - start SVM

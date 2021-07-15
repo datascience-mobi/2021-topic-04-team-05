@@ -9,7 +9,8 @@
 - finished report about SVM
 
 ## Questions
-- normalisieren der Intensitätswerte für SVM sinnvoll?
+- Is it useful to normalize the instensity values for SVM?
+
 
 ## Plans for next week
-- SVM code
+- Continue the SVM code

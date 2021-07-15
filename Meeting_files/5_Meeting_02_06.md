@@ -9,13 +9,13 @@
 - SVM implementation begonnen
 
 ## Questions
-1. wie wurden gt images erstellt?
-As a ground truth image, researchers mostly use the segmentation result of humans. We will use the ground truth images provided with our data sets, which we suspect to be acquired by this method. 
-2. Git: gut so?; was ist _init_.py (wozu)
+1. How were the ground truth images generated?
+   A:As a ground truth image, researchers mostly use the segmentation result of humans. We will use the ground truth images provided with our data sets, which we suspect to be acquired by this method. 
+2. Git: already OK? and what about_init_.py (for what)
 #init.py (leer) converts dicescore.py to module
 #modules can be imported
 
-3. wie importiere ich den Code von dicescore.py in unserern report?
+3. How to import the code from dicescore.py in our report? 
 ````
 import sys
 sys.path.append(C:\Users\glori\PycharmProjects\2021-topic-04-team-05\Finalmodules)
@@ -29,6 +29,6 @@ from Finalmodules import dicescore.py
 
 
 ## Plans for next week
-- SVM fortsetzen 
-- Report zu SVM
-- Problem von Synthetic images lösen
+- Continue with SVM
+- Report fir SVM
+- Solve problems with synthetic images 
