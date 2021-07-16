@@ -13,4 +13,4 @@
 
 
 ## Plans for next week
-- Continue the SVM code
+- Continuing the SVM code

@@ -1,34 +1,31 @@
 # Meeting Notes
 **14.07.2021**
-
 ---
-
 ## Last week's progress
-- Debugging SVM
-- finish Report
+- Debugging the SVM
+- Finishing Report
 
 ## Questions
-- conda environment export
-  submodul für preprocessing & für preparation
-  alles klein schreiben außer klassennamen
+- About Conda environment export
+  Submodul for preprocessing & preparation
+  All should be written small (no capslock) except class number
   
-- report: statt cancer grading, zellen zählen
-  quellen introduction!
+- Count the cells instead of cancer grading, references introduction
+- Not 'Our Dataset' but just 'Dataset'
   
-our weg, sondern dataset
+- Just write 1 abbreviation, the rest should be written with that
 
-1x abkürzung einführen --> nur noch abkürzung benutzen
+- Show difference on images in our data
 
-bei data: differences an bild zeigen
+- Mathematical background: no star for multiplication! 
+  
+- Correct the PCA in report, no intergral projection and read the text again
 
-mathematical background: kein stern für malzeichen; was variablen heißen erklären
+- Presentation: adapt the with minmaxscaler the range of images values
 
-PCA korrigieren, keine integralprojektion nochmal über text drüberlesen
-
-präsi: wertebereich der bilder anpassen mit minmaxscaler
-
-- passt unser repo so? (alles in SVM_Segmentation)
+- Is our repository already OK? (everything in SVM_Segmentation)
 
 ## Plans for next week
 - Analysis
+  
 - finalize Report with our Results esp. the comparisons (pre-processing methods & preparation methods)
