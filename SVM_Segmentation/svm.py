@@ -142,9 +142,9 @@ def process_image(image_path, img_size):
 
 def no_features_image(image_path, img_size):
     img = io.imread(image_path)
-    img = resize(img, (img_size, img_size))
-    #img = tiles.tiles(img, img_size)
-    #img = pc.one_d_array_to_two_d_array(img)
+    #img = resize(img, (img_size, img_size))
+    img = tiles.tiles(img, img_size)
+    img = pc.one_d_array_to_two_d_array(img)
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
     return np.hstack([img, bias_term])
