@@ -15,7 +15,7 @@ def watershed(image):
     # Segmentation through threshold
     gray_converted = cv2.cvtColor(original_image, cv2.COLOR_RGB2GRAY)
     ret, thresh = cv2.threshold(gray_converted, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    # Further noise removal from threshold image, the kernel matrix in this case (4,4) -> 4x4
+    # Further noise removal from threshold image, the kernel matrix in this case (3,3) -> 3x3
     kernel = np.ones((3, 3), np.uint8)
     opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=3)
     # clear background area by matrix dilation
