@@ -90,9 +90,9 @@ def sgd(features, outputs):
 
 def processImage(image_path, imgSize):
     img = io.imread(image_path)
-    #img = resize(img, (imgSize, imgSize))
-    img = tiles.tiles(img, imgSize)
-    img = ai.oneD_array_to_twoD_array(img)
+    img = resize(img, (imgSize, imgSize))
+    #img = tiles.tiles(img, imgSize)
+    #img = ai.oneD_array_to_twoD_array(img)
     img_canny = canny(img)
     img_canny = img_canny.reshape(-1, 1)
     img = img.reshape(-1, 1)
@@ -101,9 +101,9 @@ def processImage(image_path, imgSize):
 
 def processMask(image_path, imgSize):
     img = io.imread(image_path)
-    img = tiles.tiles(img, imgSize)
-    img = ai.oneD_array_to_twoD_array(img)
-    #img = resize(img, (imgSize, imgSize))
+    #img = tiles.tiles(img, imgSize)
+    #img = ai.oneD_array_to_twoD_array(img)
+    img = resize(img, (imgSize, imgSize))
     img[img > 0] = 1
     img[img < 1] = -1
     img = img.flatten()
@@ -117,7 +117,7 @@ def predict(imageIndex, W):
 
 def predictScore(data, gt, W):
     pred = [np.sign(np.dot(data[pixelN], W)) for pixelN in range(data.shape[0])]
-    return ds.dice_score(pred, gt)
+    return dice_score(pred, gt)
 
 def pred2Image(prediction):
     prediction = np.array(prediction)
@@ -132,10 +132,10 @@ print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 NImagesTraining = 4
 X_train = np.vstack([processImage(imgPath, IMGSIZE) for imgPath in imgs[:NImagesTraining]])
 y_train = np.concatenate([processMask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]])
-X_test = [processImage(imgPath, IMGSIZE) for imgPath in imgs[NImagesTraining:]]
-y_test = [processMask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]]
+X_test = np.vstack([processImage(imgPath, IMGSIZE) for imgPath in imgs[NImagesTraining:]])
+y_test = np.concatenate([processMask(imgPath, IMGSIZE) for imgPath in masks[NImagesTraining:]])
 
-skf = StratifiedKFold(n_splits=5)
+skf = StratifiedKFold(n_splits=2)
 
 regularization_strength = 10000
 learning_rate = 0.00001
@@ -167,12 +167,20 @@ img_names = []
 for filename in sorted(os.listdir('../Data/N2DH-GOWT1/img')):
         img_names.append(filename)
 
-Ntest = len(imgs) - NImagesTraining
+#Ntest = len(imgs) - NImagesTraining
 fig, ax = plt.subplots(dpi=90)
-for i in range(Ntest):
-    ii = i+NImagesTraining
-    pred, gt = predict(ii, w_mean_model)
-    ax.imshow(pred2Image(pred), cmap='gray')
-    ax.axis('On')
-    ax.set_title(f"Test img: {ii+1} Dice:{round(ds.dice_score(gt, pred), 2)}")
-    plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-{regularization_strength}.png")
+for i in range(np.int(X_test.shape[0]/IMGSIZE)):
+    if i == 1:
+        img = X_test[i:IMGSIZE*i+i]
+        pred, gt = predict(i, w_mean_model)
+        ax.imshow(pred2Image(pred), cmap='gray')
+        ax.axis('On')
+        ax.set_title(f"Test img: {i + 1} Dice:{round(dice_score(gt, pred), 2)}")
+        plt.savefig(f"{output_dir}/{img_names[i]}_pred_lr-{learning_rate}-reg-{regularization_strength}.png")
+    if i > 1:
+        img = X_test[IMGSIZE*(i-1)+i:IMGSIZE*i+i]
+        pred, gt = predict(i, w_mean_model)
+        ax.imshow(pred2Image(pred), cmap='gray')
+        ax.axis('On')
+        ax.set_title(f"Test img: {i+1} Dice:{round(dice_score(gt, pred), 2)}")
+        plt.savefig(f"{output_dir}/{img_names[i]}_pred_lr-{learning_rate}-reg-{regularization_strength}.png")
