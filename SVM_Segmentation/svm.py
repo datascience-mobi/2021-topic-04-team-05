@@ -124,7 +124,7 @@ def sgd(features, labels, soft_margin_factor, learning_rate):
     return weights, history_cost
 
 
-def process_image(image_path, img_size):
+def feautures_image(image_path, img_size):
     img = io.imread(image_path)
 
     img_otsu = ot.complete_segmentation(img)
@@ -144,11 +144,11 @@ def process_image(image_path, img_size):
     return np.hstack([img, img_gauss, img_otsu, img_watershed, bias_term])
 
 
-def no_features_image(image_path, img_size):
+def process_image(image_path, img_size):
     img = io.imread(image_path)
-    #img = resize(img, (img_size, img_size))
-    img = tiles.tiles(img, img_size)
-    img = pc.one_d_array_to_two_d_array(img)
+    img = resize(img, (img_size, img_size))
+    #img = tiles.tiles(img, img_size)
+    #img = pc.one_d_array_to_two_d_array(img)
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
     return np.hstack([img, bias_term])
@@ -186,8 +186,8 @@ def pred2image(prediction):
 
 
 def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
-    imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
-    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.png"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.png"))
     print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
     NImagesTraining = n_train
@@ -235,4 +235,4 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
 
 
 if __name__ == '__main__':
-    svm("N2DH-GOWT1", 3, 10000, 0.00001, 3, 250)
+    svm("NIH3T3", 9, 10000, 0.00001, 3, 250)

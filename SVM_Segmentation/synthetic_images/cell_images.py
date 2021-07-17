@@ -276,7 +276,7 @@ if __name__ == '__main__':
     # N2DL-HeLa
 
     image_path = '../../Data/N2DL-HeLa/img/t13.tif'
-    gt_path = '../../Data/N2DL-HeLa/gt/man_seg13.tif'
+    gt_path = '../../Data/N2DL-HeLa/gt/tif/man_seg13.tif'
     background_coord_list = [0, 800, 170, 190]
     object1_coord_list = [160, 450, 40, 40]
     object2_coord_list = [330, 772, 40, 35]
@@ -292,7 +292,7 @@ if __name__ == '__main__':
     # NIH3T3
 
     image_path = '../../Data/NIH3T3/img/dna-0.png'
-    gt_path = '../../Data/NIH3T3/gt/0.png'
+    gt_path = '../../Data/NIH3T3/gt/tif/0.png'
     background_coord_list = [550, 1200, 100, 100]
     object1_coord_list = [105, 235, 100, 100]
     object2_coord_list = [420, 1150, 130, 120]
