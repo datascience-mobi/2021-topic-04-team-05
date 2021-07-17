@@ -164,16 +164,17 @@ def pred2image(prediction):
     learning_rate = 0.00001
     size = 50
 
-def svm(dataset, soft_margin_factor, learning_rate, splits, size):
+def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, gauss: bool=True,
+        watershed: bool=True):
     imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
     masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
     print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
-    NImagesTraining = 4
+    NImagesTraining = n_train
     X_train = np.vstack([process_image(imgPath, size) for imgPath in imgs[:NImagesTraining]])
     y_train = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
     X_test = [process_image(imgPath, size) for imgPath in imgs[NImagesTraining:]]
-    y_test = [process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]]
+    y_test = [process_mask(imgPath, size) for imgPath in masks[NImagesTraining:]]
 
     skf = StratifiedKFold(n_splits=splits)
 
