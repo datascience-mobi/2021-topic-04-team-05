@@ -4,6 +4,7 @@ import skimage.feature
 from skimage import io
 from skimage.transform import resize
 import matplotlib.pyplot as plt
+
 plt.rcParams["figure.figsize"] = (10, 5)
 import os
 from sklearn.utils import shuffle
@@ -14,8 +15,10 @@ from SVM_Segmentation.preprocessing import tiles
 from SVM_Segmentation.evaluation import dicescore as ds
 from sklearn.metrics import f1_score as dice_score
 from SVM_Segmentation import pixel_conversion as pc
-#workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
+
+# workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
 IMGSIZE = 50
+
 
 def compute_cost(weights, features, labels):
     """"
@@ -41,6 +44,7 @@ def compute_cost(weights, features, labels):
     cost = 1 / 2 * np.dot(weights, weights) + hinge_loss
     return cost
 
+
 def calculate_cost_gradient(weights, features_pixel, label_pixel):
     """
 
@@ -58,19 +62,20 @@ def calculate_cost_gradient(weights, features_pixel, label_pixel):
     # Calculate distance to hyperplane, to classify the pixel.
     distance_to_hyperplane = 1 - (label_pixel * np.dot(features_pixel, weights))
 
-    # Create an empty weight vector, to fill with the corrected weights.
-    derivative_w = np.zeros(len(weights))
+    # Create an empty gradient vector, to fill with the gradient of the current pixel.
+    gradient_cost = np.zeros(len(weights))
 
-    for ind, d in enumerate(distance_to_hyperplane):
+    for index_pixel, distance_pixel in enumerate(distance_to_hyperplane):
         # For correctly classified pixels, the current weight vector is maintained
-        if max(0, d) == 0:
-            di = weights
+        if max(0, distance_pixel) == 0:
+            gradient_pixel = weights
         # For incorrectly classified pixels, the weight vector is corrected.
         else:
-            di = weights - (soft_margin_factor * label_pixel[ind] * features_pixel[ind])
-        derivative_w += di
+            gradient_pixel = weights - (soft_margin_factor * label_pixel[index_pixel] * features_pixel[index_pixel])
+        gradient_cost += gradient_pixel
 
-    return derivative_w
+    return gradient_cost
+
 
 def sgd(features, labels):
     """
@@ -115,10 +120,10 @@ def sgd(features, labels):
     return weights, history_cost
 
 
-def processImage(image_path, imgSize):
+def process_image(image_path, img_size):
     img = io.imread(image_path)
-    #img = resize(img, (imgSize, imgSize))
-    img = tiles.tiles(img, imgSize)
+    # img = resize(img, (img_size, img_size))
+    img = tiles.tiles(img, img_size)
     img = pc.one_d_array_to_two_d_array(img)
     img_canny = canny(img)
     img_canny = img_canny.reshape(-1, 1)
@@ -126,27 +131,31 @@ def processImage(image_path, imgSize):
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
     return np.hstack([img, img_canny, bias_term])
 
-def processMask(image_path, imgSize):
+
+def process_mask(image_path, img_size):
     img = io.imread(image_path)
-    img = tiles.tiles(img, imgSize)
+    img = tiles.tiles(img, img_size)
     img = pc.one_d_array_to_two_d_array(img)
-    #img = resize(img, (imgSize, imgSize))
+    # img = resize(img, (imgSize, img_size))
     img[img > 0] = 1
     img[img < 1] = -1
     img = img.flatten()
     return img
 
-def predict(imageIndex, W):
-    data = processImage(imgs[imageIndex], IMGSIZE)
-    prediction = [np.sign(np.dot(data[pixelN], W)) for pixelN in range(data.shape[0])]
-    groundTruth = processMask(masks[imageIndex], IMGSIZE)
-    return prediction, groundTruth
 
-def predictScore(data, gt, W):
+def predict(image_index, weights):
+    processed_img = process_image(imgs[image_index], IMGSIZE)
+    prediction = [np.sign(np.dot(processed_img[pixelN], weights)) for pixelN in range(processed_img.shape[0])]
+    ground_truth = process_mask(masks[image_index], IMGSIZE)
+    return prediction, ground_truth
+
+
+def predict_score(data, gt, W):
     pred = [np.sign(np.dot(data[pixelN], W)) for pixelN in range(data.shape[0])]
-    return ds.dice_score(pred, gt)
+    return dice_score(pred, gt)
 
-def pred2Image(prediction):
+
+def pred2image(prediction):
     prediction = np.array(prediction)
     predsize = int(np.sqrt(len(prediction)))
     return prediction.reshape((predsize, predsize))
@@ -157,26 +166,27 @@ masks = sorted(glob("../Data/N2DH-GOWT1/gt/tif/*.tif"))
 print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
 NImagesTraining = 4
-X_train = np.vstack([processImage(imgPath, IMGSIZE) for imgPath in imgs[:NImagesTraining]])
-y_train = np.concatenate([processMask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]])
-X_test = [processImage(imgPath, IMGSIZE) for imgPath in imgs[NImagesTraining:]]
-y_test = [processMask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]]
-
-skf = StratifiedKFold(n_splits=5)
+X_train = np.vstack([process_image(imgPath, IMGSIZE) for imgPath in imgs[:NImagesTraining]])
+y_train = np.concatenate([process_mask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]])
+X_test = [process_image(imgPath, IMGSIZE) for imgPath in imgs[NImagesTraining:]]
+y_test = [process_mask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]]
 
 soft_margin_factor = 10000
 learning_rate = 0.00001
 
+
+skf = StratifiedKFold(n_splits=5)
+
 model = {}
-for splitnumber, (train_index, test_index) in enumerate(skf.split(X_train, y_train)):
+for split_number, (train_index, test_index) in enumerate(skf.split(X_train, y_train)):
     X_train_split, X_test_split = X_train[train_index], X_train[test_index]
     y_train_split, y_test_split = y_train[train_index], y_train[test_index]
     w, hist = sgd(X_train_split, y_train_split)
-    dice = predictScore(X_test_split, y_test_split, w)
-    model[splitnumber] = {"train_index": train_index, "test_index": test_index, "w": w, "hist": hist, "dice": dice,
+    dice = predict_score(X_test_split, y_test_split, w)
+    model[split_number] = {"train_index": train_index, "test_index": test_index, "w": w, "hist": hist, "dice": dice,
                           "image_size": IMGSIZE}
-    print(model[splitnumber]["w"])
-    print(model[splitnumber]["dice"])
+    print(model[split_number]["w"])
+    print(model[split_number]["dice"])
 
 dice_mean_model = np.mean([model[i]["dice"] for i in model.keys()])
 w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
@@ -192,14 +202,14 @@ plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}.png")
 
 img_names = []
 for filename in sorted(os.listdir('../Data/N2DH-GOWT1/img')):
-        img_names.append(filename)
+    img_names.append(filename)
 
 Ntest = len(imgs) - NImagesTraining
 fig, ax = plt.subplots(dpi=90)
 for i in range(Ntest):
-    ii = i+NImagesTraining
+    ii = i + NImagesTraining
     pred, gt = predict(ii, w_mean_model)
-    ax.imshow(pred2Image(pred), cmap='gray')
+    ax.imshow(pred2image(pred), cmap='gray')
     ax.axis('On')
-    ax.set_title(f"Test img: {ii+1} Dice:{round(ds.dice_score(gt, pred), 2)}")
+    ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
     plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-{soft_margin_factor}.png")
