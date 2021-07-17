@@ -11,7 +11,7 @@ def watershed(image):
        :param: Path to folder to extract each image
        :return: With watershed segmented images
        """
-    original_image = image
+    original_image = cv2.imread(image)
     # Segmentation through threshold
     gray_converted = cv2.cvtColor(original_image, cv2.COLOR_RGB2GRAY)
     ret, thresh = cv2.threshold(gray_converted, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)

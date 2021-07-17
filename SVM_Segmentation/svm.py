@@ -1,10 +1,10 @@
 import os
 import numpy as np
-import cv2
 from glob import glob
 import matplotlib.pyplot as plt
 import skimage.feature
 from skimage import io
+from skimage.filters import gaussian
 from skimage.transform import resize
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split as tts
@@ -126,18 +126,22 @@ def sgd(features, labels, soft_margin_factor, learning_rate):
 
 def process_image(image_path, img_size):
     img = io.imread(image_path)
-    img = resize(img, (img_size, img_size))
-    #img = tiles.tiles(img, img_size)
-    #img = pc.one_d_array_to_two_d_array(img)
-    img_gauss = cv2.GaussianBlur(img, (5, 5), 0)
+
+    img_otsu = ot.complete_segmentation(img)
+    img_otsu = resize(img_otsu, (img_size, img_size))
+    img_otsu = img_otsu.reshape(-1, 1)
+
+    img_watershed = ws.watershed(image_path)
+    img_watershed = resize(img_watershed, (img_size, img_size))
+    img_watershed = img_watershed.reshape(-1, 1)
+
+    img_gauss = gaussian(img, sigma=2)
+    img_gauss = resize(img_gauss, (img_size, img_size))
     img_gauss = img_gauss.reshape(-1, 1)
-    #img_watershed = ws.watershed(img)
-    #img_watershed = img_watershed.reshape(-1, 1)
-    #img_otsu = ot.otsu(img)
-    #img_otsu = img_otsu.reshape(-1, 1)
+
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
-    return np.hstack([img, img_gauss, bias_term])
+    return np.hstack([img, img_gauss, img_otsu, img_watershed, bias_term])
 
 
 def no_features_image(image_path, img_size):
@@ -180,10 +184,6 @@ def pred2image(prediction):
     predsize = int(np.sqrt(len(prediction)))
     return prediction.reshape((predsize, predsize))
 
-
-    soft_margin_factor = 10000
-    learning_rate = 0.00001
-    size = 50
 
 def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
     imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
