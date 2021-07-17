@@ -35,8 +35,8 @@ gray = color.rgb2gray(original_image)
 dimensions = gray.shape
 
 
-cv2.imshow('Watershed', gray)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+#cv2.imshow('Watershed', gray)
+#cv2.waitKey(0)
+#cv2.destroyAllWindows()
 
 print(dimensions)
