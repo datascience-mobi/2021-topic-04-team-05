@@ -9,8 +9,8 @@
 - report on SVM (general info & math)
 
 ## Questions
-- *discuss about SVM workflow  *
-- Grayscale at ground truth: How could we implement in our SVM/Dice Score? Should we generate the segmented cells
+- *discuss SVM workflow*
+- Grayscale of ground truth: How could we implement in our SVM/Dice Score? Should we generate the segmented cells
 not just white, but also with different colors? Because keeping it doesn't really help us anymore for the dice score
 - Present our code -> Recommendation for improvement?
 - Mathematical Background for PCA in report?
