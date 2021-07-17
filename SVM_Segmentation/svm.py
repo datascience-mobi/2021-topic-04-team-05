@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import cv2
 from glob import glob
 import matplotlib.pyplot as plt
 import skimage.feature
@@ -11,19 +12,22 @@ from skimage.feature import multiscale_basic_features, canny
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import f1_score as dice_score
 from SVM_Segmentation.preprocessing import tiles
+from SVM_Segmentation.preprocessing import watershed as ws
+from SVM_Segmentation.preprocessing import cooperation_team03_otsu as ot
 from SVM_Segmentation.evaluation import dicescore as ds
 from SVM_Segmentation import pixel_conversion as pc
 
 # workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
 plt.rcParams["figure.figsize"] = (10, 5)
 
-def compute_cost(weights, features, labels):
+def compute_cost(weights, features, labels, soft_margin_factor):
     """"
     This function calculates the cost for a given feature, label and the weights vector.
     First, the hinge loss is calculated, a loss function that determines the importance of
     misclassified pixels. The smaller the soft margin factor (smf) is, the smaller the hinge loss is, which means the
     SVM margin will be softer.
     The cost function depends on the weights vector and the hinge loss.
+    :param soft_margin_factor:
     :param weights: Weights vector
     :param features: Feature vector, has different columns for the different features for each pixel. Every pixel is
     a row.
@@ -41,10 +45,11 @@ def compute_cost(weights, features, labels):
     return cost
 
 
-def calculate_cost_gradient(weights, features_pixel, label_pixel):
+def calculate_cost_gradient(weights, features_pixel, label_pixel, soft_margin_factor):
     """
     This funciton calculates the gradient of the cost function, so it makes its derivative, in order to know in which
     direction the gradient descent has to go to find the minimum of the cost function.
+    :param soft_margin_factor:
     :param weights: weights vector.
     :param features_pixel: because we chose SGD, only one pixel will be passed to this function. This means,
     only one row with different columns depending on the amount of features.
@@ -75,7 +80,7 @@ def calculate_cost_gradient(weights, features_pixel, label_pixel):
     return gradient_cost
 
 
-def sgd(features, labels):
+def sgd(features, labels, soft_margin_factor, learning_rate):
     """
     This function calculates the stochastic gradient descent to minimize our cost function.
     :param features: all pixels as rows, with n columns, which stand for n features.
@@ -97,11 +102,11 @@ def sgd(features, labels):
         # shuffle to prevent repeating update cycles
         features_shuffled, labels_shuffled = shuffle(features, labels)
         for pixel_index, pixel_value in enumerate(features_shuffled):
-            gradient = calculate_cost_gradient(weights, pixel_value, labels_shuffled[pixel_index])
+            gradient = calculate_cost_gradient(weights, pixel_value, labels_shuffled[pixel_index], soft_margin_factor)
             weights = weights - (learning_rate * gradient)
 
         # Calculate cost to evaluate the advance.
-        cost = compute_cost(weights, features, labels)
+        cost = compute_cost(weights, features, labels, soft_margin_factor)
         history_cost.append(cost)
         if epoch % 20 == 0 or epoch == max_epochs - 1:
             print("Epoch is: {} and Cost is: {}".format(epoch, cost))
@@ -121,28 +126,44 @@ def sgd(features, labels):
 
 def process_image(image_path, img_size):
     img = io.imread(image_path)
-    # img = resize(img, (img_size, img_size))
-    img = tiles.tiles(img, img_size)
-    img = pc.one_d_array_to_two_d_array(img)
-    img_canny = canny(img)
-    img_canny = img_canny.reshape(-1, 1)
+    img = resize(img, (img_size, img_size))
+    #img = tiles.tiles(img, img_size)
+    #img = pc.one_d_array_to_two_d_array(img)
+    img_gauss = cv2.GaussianBlur(img, (5, 5), 0)
+    img_gauss = img_gauss.reshape(-1, 1)
+    #img_watershed = ws.watershed(img)
+    #img_watershed = img_watershed.reshape(-1, 1)
+    #img_otsu = ot.otsu(img)
+    #img_otsu = img_otsu.reshape(-1, 1)
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
-    return np.hstack([img, img_canny, bias_term])
+    return np.hstack([img, img_gauss, bias_term])
+
+
+def no_features_image(image_path, img_size):
+    img = io.imread(image_path)
+    img = resize(img, (img_size, img_size))
+    #img = tiles.tiles(img, img_size)
+    #img = pc.one_d_array_to_two_d_array(img)
+    img = img.reshape(-1, 1)
+    bias_term = np.ones(img.shape[0]).reshape(-1, 1)
+    return np.hstack([img, bias_term])
 
 
 def process_mask(image_path, img_size):
     img = io.imread(image_path)
-    img = tiles.tiles(img, img_size)
-    img = pc.one_d_array_to_two_d_array(img)
-    # img = resize(img, (img_size, img_size))
+    #img = tiles.tiles(img, img_size)
+    #img = pc.one_d_array_to_two_d_array(img)
+    img = resize(img, (img_size, img_size))
     img[img > 0] = 1
     img[img < 1] = -1
     img = img.flatten()
     return img
 
 
-def predict(image_index, weights):
+def predict(dataset, image_index, weights, size):
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
     processed_img = process_image(imgs[image_index], size)
     prediction = [np.sign(np.dot(processed_img[pixelN], weights)) for pixelN in range(processed_img.shape[0])]
     ground_truth = process_mask(masks[image_index], size)
@@ -164,8 +185,7 @@ def pred2image(prediction):
     learning_rate = 0.00001
     size = 50
 
-def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, gauss: bool=True,
-        watershed: bool=True):
+def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
     imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
     masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
     print(f"{len(imgs)} images detected and {len(masks)} masks detected")
@@ -173,8 +193,6 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, gauss
     NImagesTraining = n_train
     X_train = np.vstack([process_image(imgPath, size) for imgPath in imgs[:NImagesTraining]])
     y_train = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
-    X_test = [process_image(imgPath, size) for imgPath in imgs[NImagesTraining:]]
-    y_test = [process_mask(imgPath, size) for imgPath in masks[NImagesTraining:]]
 
     skf = StratifiedKFold(n_splits=splits)
 
@@ -182,7 +200,7 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, gauss
     for split_number, (train_index, test_index) in enumerate(skf.split(X_train, y_train)):
         X_train_split, X_test_split = X_train[train_index], X_train[test_index]
         y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-        w, hist = sgd(X_train_split, y_train_split)
+        w, hist = sgd(X_train_split, y_train_split, soft_margin_factor, learning_rate)
         dice = predict_score(X_test_split, y_test_split, w)
         model[split_number] = {"train_index": train_index, "test_index": test_index, "w": w, "hist": hist, "dice": dice,
                               "image_size": size}
@@ -192,7 +210,7 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, gauss
     dice_mean_model = np.mean([model[i]["dice"] for i in model.keys()])
     w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
 
-    output_dir = '../Data/N2DH-GOWT1/pred'
+    output_dir = f'../Data/{dataset}/pred'
 
     for i in range(len(model.keys())):
         fig = plt.plot(model[i]['hist'], label=f"Split {i}")
@@ -202,15 +220,19 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, gauss
     plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}.png")
 
     img_names = []
-    for filename in sorted(os.listdir('../Data/N2DH-GOWT1/img')):
+    for filename in sorted(os.listdir(f'../Data/{dataset}/img')):
         img_names.append(filename)
 
     Ntest = len(imgs) - NImagesTraining
     fig, ax = plt.subplots(dpi=90)
     for i in range(Ntest):
-        ii = i + NImagesTraining
-        pred, gt = predict(ii, w_mean_model)
+        ii = NImagesTraining + i
+        pred, gt = predict(dataset, ii, w_mean_model, size)
         ax.imshow(pred2image(pred), cmap='gray')
         ax.axis('On')
         ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
         plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-{soft_margin_factor}.png")
+
+
+if __name__ == '__main__':
+    svm("N2DH-GOWT1", 3, 10000, 0.00001, 3, 250)
