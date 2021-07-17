@@ -35,7 +35,7 @@ def syntheticmask():
 
         return mask
 
-output_dir = '../../Data/synthetic_images/synthetic_masks'
+output_dir = '../../Data/synthetic_masks'
 for i in range(10):
     mask = syntheticmask()
     mask.save(f'{output_dir}/mask{i}.png', 'PNG')

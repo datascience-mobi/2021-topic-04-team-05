@@ -20,6 +20,6 @@ def dice_score(pred, gt):
 
 
 if __name__ == '__main__':
-    img1 = np.asarray(imread('../SVM_Segmentation/synthetic_images/synthetic_masks/mask4.png'))
-    img2 = np.asarray(imread('../SVM_Segmentation/synthetic_images/synthetic_masks/mask5.png'))
+    img1 = np.asarray(imread('../SVM_Segmentation/synthetic_cell_images/synthetic_masks/mask4.png'))
+    img2 = np.asarray(imread('../SVM_Segmentation/synthetic_cell_images/synthetic_masks/mask5.png'))
     dice_score(img1, img2)
