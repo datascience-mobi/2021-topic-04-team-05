@@ -13,11 +13,11 @@ from sklearn.model_selection import StratifiedKFold
 from SVM_Segmentation.preprocessing import tiles
 from SVM_Segmentation.evaluation import dicescore as ds
 from sklearn.metrics import f1_score as dice_score
-from SVM_Segmentation import pixel_conversion as ai
+from SVM_Segmentation import pixel_conversion as pc
 #workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
 IMGSIZE = 50
 
-def compute_cost(W, X, Y):
+def compute_cost(weights, features, labels):
     """"
     This function calculates the cost for the given feature vector X, the label vector Y and the weights vector
     W. First, the hinge loss is calculated, which is a loss function that determines the importance/amount of
@@ -26,85 +26,91 @@ def compute_cost(W, X, Y):
     the SVM margin will be, as the hinge loss will be smaller and the cost will be less. The cost function calculated
     for the vectors is what will be optimized, and depends on the weights vector (we are looking for weights that are
     as small as possible) and the hinge loss (it should also be reduced)
-    :param W: Weights vector
-    :param X: Feature vector, has different columns for the different features for each pixel. Every pixel is another row.
-    :param Y: Labels vector, is either 1 or -1 for each pixel (each row).
+    :param weights: Weights vector
+    :param features: Feature vector, has different columns for the different features for each pixel. Every pixel is another row.
+    :param labels: Labels vector, is either 1 or -1 for each pixel (each row).
     :return:
     """
     # calculate hinge loss
-    number_pixels = X.shape[0]
-    distances_to_hyperplane = 1 - Y * (np.dot(X, W))
+    number_pixels = features.shape[0]
+    distances_to_hyperplane = 1 - labels * (np.dot(features, weights))
     distances_to_hyperplane = np.maximum(0, distances_to_hyperplane)
     hinge_loss = soft_margin_factor * (np.sum(distances_to_hyperplane) / number_pixels)
+
     # calculate cost
-    cost = 1 / 2 * np.dot(W, W) + hinge_loss
+    cost = 1 / 2 * np.dot(weights, weights) + hinge_loss
     return cost
 
-def calculate_cost_gradient(W, X_pixel, Y_pixel):
+def calculate_cost_gradient(weights, features_pixel, label_pixel):
     """
 
-    :param W:
-    :param X_pixel:
-    :param Y_pixel:
+    :param weights:
+    :param features_pixel:
+    :param label_pixel:
     :return:
     """
     # In our case, we will use Stochastic Gradient Descent, so only one pixel will be passed.
-    # Because of this, Y (its label) is only one number.
-    if type(Y_pixel) == np.float64:
-        Y_pixel = np.array([Y_pixel])
-        X_pixel = np.array([X_pixel])
+    # Because of this, its label is only one number.
+    if type(label_pixel) == np.float64:
+        label_pixel = np.array([label_pixel])
+        features_pixel = np.array([features_pixel])
 
     # Calculate distance to hyperplane, to classify the pixel.
-    distance_to_hyperplane = 1 - (Y_pixel * np.dot(X_pixel, W))
+    distance_to_hyperplane = 1 - (label_pixel * np.dot(features_pixel, weights))
 
     # Create an empty weight vector, to fill with the corrected weights.
-    derivative_w = np.zeros(len(W))
+    derivative_w = np.zeros(len(weights))
 
     for ind, d in enumerate(distance_to_hyperplane):
-        # For correctly classified pixels, the current weight is maintained
+        # For correctly classified pixels, the current weight vector is maintained
         if max(0, d) == 0:
-            di = W
-        # For incorrectly classified pixels, the weight is corrected.
+            di = weights
+        # For incorrectly classified pixels, the weight vector is corrected.
         else:
-            di = W - (soft_margin_factor * Y_pixel[ind] * X_pixel[ind]) #cuando pixel clasificado mal,
-            # multiplicas c por la derivada de distance (y*np.dot(x,w)), para ver cuánto quieres ir en la dirección
-            # de la derivada para corregir la clasificación
+            di = weights - (soft_margin_factor * label_pixel[ind] * features_pixel[ind])
         derivative_w += di
 
     return derivative_w
 
-def sgd(features, outputs):
+def sgd(features, labels):
+    """
+
+    :param features:
+    :param labels:
+    :return:
+    """
+    # Maximum number of cycles to try to find the minimum of the cost function.
     max_epochs = 100
+    # Create an empty weight vector that is the same size as the number of columns (features) of a single pixel.
     weights = np.zeros(features.shape[1])
+    # Define the first cost for our function and an empty history cost list.
     prev_cost = float("inf")
-    #cost_threshold = 0.01  # Lower -> Longer training and better results
     history_cost = []
-    # stochastic gradient descent
     patience = 0
+
+    # Stochastic gradient descent
     for epoch in range(0, max_epochs):
         # shuffle to prevent repeating update cycles
-        X, Y = shuffle(features, outputs)
-        for ind, x in enumerate(X):
-            ascent = calculate_cost_gradient(weights, x, Y[ind])
-            weights = weights - (learning_rate * ascent) #minimizar weights por el valor de learning rate en
-            # dirección contraria al gradiente, para encontrar el minimo
+        features_shuffled, labels_shuffled = shuffle(features, labels)
+        for pixel_index, pixel_value in enumerate(features_shuffled):
+            gradient = calculate_cost_gradient(weights, pixel_value, labels_shuffled[pixel_index])
+            weights = weights - (learning_rate * gradient)
 
-        cost = compute_cost(weights, features, outputs) #calcula el coste para comparar la epoca anterior con la
-        # actual y ver si esta avanzando
+        # Calculate cost to evaluate the advance.
+        cost = compute_cost(weights, features, labels)
         history_cost.append(cost)
         if epoch % 20 == 0 or epoch == max_epochs - 1:
-            #cost = compute_cost(weights, features, outputs)
             print("Epoch is: {} and Cost is: {}".format(epoch, cost))
-            # stoppage criterion
-            if (prev_cost < cost):
-                #best_cost = min(history_cost)
-                if patience == 10:
-                    return weights, history_cost
-                else:
-                    patience += 1
+
+        # Stoppage criterion
+        if prev_cost < cost:
+            if patience == 10:
+                return weights, history_cost
             else:
-                patience = 0
-            prev_cost = cost
+                patience += 1
+        else:
+            patience = 0
+        prev_cost = cost
 
     return weights, history_cost
 
@@ -113,7 +119,7 @@ def processImage(image_path, imgSize):
     img = io.imread(image_path)
     #img = resize(img, (imgSize, imgSize))
     img = tiles.tiles(img, imgSize)
-    img = ai.oneD_array_to_twoD_array(img)
+    img = pc.one_d_array_to_two_d_array(img)
     img_canny = canny(img)
     img_canny = img_canny.reshape(-1, 1)
     img = img.reshape(-1, 1)
@@ -123,7 +129,7 @@ def processImage(image_path, imgSize):
 def processMask(image_path, imgSize):
     img = io.imread(image_path)
     img = tiles.tiles(img, imgSize)
-    img = ai.oneD_array_to_twoD_array(img)
+    img = pc.one_d_array_to_two_d_array(img)
     #img = resize(img, (imgSize, imgSize))
     img[img > 0] = 1
     img[img < 1] = -1
