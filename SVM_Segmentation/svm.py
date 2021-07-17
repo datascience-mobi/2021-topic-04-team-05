@@ -1,38 +1,34 @@
+import os
 import numpy as np
 from glob import glob
+import matplotlib.pyplot as plt
 import skimage.feature
 from skimage import io
 from skimage.transform import resize
-import matplotlib.pyplot as plt
-
-plt.rcParams["figure.figsize"] = (10, 5)
-import os
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split as tts
 from skimage.feature import multiscale_basic_features, canny
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import f1_score as dice_score
 from SVM_Segmentation.preprocessing import tiles
 from SVM_Segmentation.evaluation import dicescore as ds
-from sklearn.metrics import f1_score as dice_score
 from SVM_Segmentation import pixel_conversion as pc
 
 # workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
-IMGSIZE = 50
-
+plt.rcParams["figure.figsize"] = (10, 5)
 
 def compute_cost(weights, features, labels):
     """"
-    This function calculates the cost for the given feature vector X, the label vector Y and the weights vector
-    W. First, the hinge loss is calculated, which is a loss function that determines the importance/amount of
-    misclassified pixels with the given weight vector. Depending on how big the soft margin factor (smf) is,
-    the hinge loss is bigger or smaller for the same amount of misclassified pixels. The smaller the smf, the softer
-    the SVM margin will be, as the hinge loss will be smaller and the cost will be less. The cost function calculated
-    for the vectors is what will be optimized, and depends on the weights vector (we are looking for weights that are
-    as small as possible) and the hinge loss (it should also be reduced)
+    This function calculates the cost for a given feature, label and the weights vector.
+    First, the hinge loss is calculated, a loss function that determines the importance of
+    misclassified pixels. The smaller the soft margin factor (smf) is, the smaller the hinge loss is, which means the
+    SVM margin will be softer.
+    The cost function depends on the weights vector and the hinge loss.
     :param weights: Weights vector
-    :param features: Feature vector, has different columns for the different features for each pixel. Every pixel is another row.
+    :param features: Feature vector, has different columns for the different features for each pixel. Every pixel is
+    a row.
     :param labels: Labels vector, is either 1 or -1 for each pixel (each row).
-    :return:
+    :return: The cost of the current weights vector at classifying the pixels.
     """
     # calculate hinge loss
     number_pixels = features.shape[0]
@@ -47,11 +43,13 @@ def compute_cost(weights, features, labels):
 
 def calculate_cost_gradient(weights, features_pixel, label_pixel):
     """
-
-    :param weights:
-    :param features_pixel:
-    :param label_pixel:
-    :return:
+    This funciton calculates the gradient of the cost function, so it makes its derivative, in order to know in which
+    direction the gradient descent has to go to find the minimum of the cost function.
+    :param weights: weights vector.
+    :param features_pixel: because we chose SGD, only one pixel will be passed to this function. This means,
+    only one row with different columns depending on the amount of features.
+    :param label_pixel: label of the current pixel, either +1 or -1.
+    :return: gradient of the cost function with that weight vector.
     """
     # In our case, we will use Stochastic Gradient Descent, so only one pixel will be passed.
     # Because of this, its label is only one number.
@@ -79,10 +77,11 @@ def calculate_cost_gradient(weights, features_pixel, label_pixel):
 
 def sgd(features, labels):
     """
-
-    :param features:
-    :param labels:
-    :return:
+    This function calculates the stochastic gradient descent to minimize our cost function.
+    :param features: all pixels as rows, with n columns, which stand for n features.
+    :param labels: all pixels as rows, only one column per pixel, either +1 or -1.
+    :return: the weight vector found at the minimum of the cost function, and the history of how the costs have
+    evolved during the calculations.
     """
     # Maximum number of cycles to try to find the minimum of the cost function.
     max_epochs = 100
@@ -136,7 +135,7 @@ def process_mask(image_path, img_size):
     img = io.imread(image_path)
     img = tiles.tiles(img, img_size)
     img = pc.one_d_array_to_two_d_array(img)
-    # img = resize(img, (imgSize, img_size))
+    # img = resize(img, (img_size, img_size))
     img[img > 0] = 1
     img[img < 1] = -1
     img = img.flatten()
@@ -144,14 +143,14 @@ def process_mask(image_path, img_size):
 
 
 def predict(image_index, weights):
-    processed_img = process_image(imgs[image_index], IMGSIZE)
+    processed_img = process_image(imgs[image_index], size)
     prediction = [np.sign(np.dot(processed_img[pixelN], weights)) for pixelN in range(processed_img.shape[0])]
-    ground_truth = process_mask(masks[image_index], IMGSIZE)
+    ground_truth = process_mask(masks[image_index], size)
     return prediction, ground_truth
 
 
-def predict_score(data, gt, W):
-    pred = [np.sign(np.dot(data[pixelN], W)) for pixelN in range(data.shape[0])]
+def predict_score(img, gt, weights):
+    pred = [np.sign(np.dot(img[pixelN], weights)) for pixelN in range(img.shape[0])]
     return dice_score(pred, gt)
 
 
@@ -161,55 +160,56 @@ def pred2image(prediction):
     return prediction.reshape((predsize, predsize))
 
 
-imgs = sorted(glob("../Data/N2DH-GOWT1/img/*.tif"))
-masks = sorted(glob("../Data/N2DH-GOWT1/gt/tif/*.tif"))
-print(f"{len(imgs)} images detected and {len(masks)} masks detected")
+    soft_margin_factor = 10000
+    learning_rate = 0.00001
+    size = 50
 
-NImagesTraining = 4
-X_train = np.vstack([process_image(imgPath, IMGSIZE) for imgPath in imgs[:NImagesTraining]])
-y_train = np.concatenate([process_mask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]])
-X_test = [process_image(imgPath, IMGSIZE) for imgPath in imgs[NImagesTraining:]]
-y_test = [process_mask(imgPath, IMGSIZE) for imgPath in masks[:NImagesTraining]]
+def svm(dataset, soft_margin_factor, learning_rate, splits, size):
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
+    print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
-soft_margin_factor = 10000
-learning_rate = 0.00001
+    NImagesTraining = 4
+    X_train = np.vstack([process_image(imgPath, size) for imgPath in imgs[:NImagesTraining]])
+    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
+    X_test = [process_image(imgPath, size) for imgPath in imgs[NImagesTraining:]]
+    y_test = [process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]]
 
+    skf = StratifiedKFold(n_splits=splits)
 
-skf = StratifiedKFold(n_splits=5)
+    model = {}
+    for split_number, (train_index, test_index) in enumerate(skf.split(X_train, y_train)):
+        X_train_split, X_test_split = X_train[train_index], X_train[test_index]
+        y_train_split, y_test_split = y_train[train_index], y_train[test_index]
+        w, hist = sgd(X_train_split, y_train_split)
+        dice = predict_score(X_test_split, y_test_split, w)
+        model[split_number] = {"train_index": train_index, "test_index": test_index, "w": w, "hist": hist, "dice": dice,
+                              "image_size": size}
+        print(model[split_number]["w"])
+        print(model[split_number]["dice"])
 
-model = {}
-for split_number, (train_index, test_index) in enumerate(skf.split(X_train, y_train)):
-    X_train_split, X_test_split = X_train[train_index], X_train[test_index]
-    y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-    w, hist = sgd(X_train_split, y_train_split)
-    dice = predict_score(X_test_split, y_test_split, w)
-    model[split_number] = {"train_index": train_index, "test_index": test_index, "w": w, "hist": hist, "dice": dice,
-                          "image_size": IMGSIZE}
-    print(model[split_number]["w"])
-    print(model[split_number]["dice"])
+    dice_mean_model = np.mean([model[i]["dice"] for i in model.keys()])
+    w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
 
-dice_mean_model = np.mean([model[i]["dice"] for i in model.keys()])
-w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
+    output_dir = '../Data/N2DH-GOWT1/pred'
 
-output_dir = '../Data/N2DH-GOWT1/pred'
+    for i in range(len(model.keys())):
+        fig = plt.plot(model[i]['hist'], label=f"Split {i}")
+        _ = plt.ylabel("Cost function")
+        _ = plt.xlabel("Epoch")
+    plt.legend()
+    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}.png")
 
-for i in range(len(model.keys())):
-    fig = plt.plot(model[i]['hist'], label=f"Split {i}")
-    _ = plt.ylabel("Cost function")
-    _ = plt.xlabel("Epoch")
-plt.legend()
-plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}.png")
+    img_names = []
+    for filename in sorted(os.listdir('../Data/N2DH-GOWT1/img')):
+        img_names.append(filename)
 
-img_names = []
-for filename in sorted(os.listdir('../Data/N2DH-GOWT1/img')):
-    img_names.append(filename)
-
-Ntest = len(imgs) - NImagesTraining
-fig, ax = plt.subplots(dpi=90)
-for i in range(Ntest):
-    ii = i + NImagesTraining
-    pred, gt = predict(ii, w_mean_model)
-    ax.imshow(pred2image(pred), cmap='gray')
-    ax.axis('On')
-    ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
-    plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-{soft_margin_factor}.png")
+    Ntest = len(imgs) - NImagesTraining
+    fig, ax = plt.subplots(dpi=90)
+    for i in range(Ntest):
+        ii = i + NImagesTraining
+        pred, gt = predict(ii, w_mean_model)
+        ax.imshow(pred2image(pred), cmap='gray')
+        ax.axis('On')
+        ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
+        plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-{soft_margin_factor}.png")
