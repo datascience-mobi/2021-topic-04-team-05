@@ -1,7 +1,6 @@
-import matplotlib.pyplot as plt
 import cv2
-import os
 import numpy as np
+from skimage import color
 
 
 def watershed(image):
@@ -34,8 +33,9 @@ def watershed(image):
     markers[unknown == 255] = 0
     markers = cv2.watershed(original_image, markers)
     original_image[markers == -1] = [255, 0, 0]
+    gray = color.rgb2gray(original_image)
 
-    return original_image
+    return gray
 
 
 if __name__ == '__main__':
