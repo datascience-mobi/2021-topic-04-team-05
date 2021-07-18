@@ -124,10 +124,10 @@ def sgd(features, labels, soft_margin_factor, learning_rate):
     return weights, history_cost
 
 
-def noprocess_image(image_path, img_size):
+def process_image(image_path, img_size):
     img = io.imread(image_path)
 
-    img_otsu = ot.complete_segmentation(img)
+    img_otsu = ot.complete_segmentation(img, intensity_lvls=2**16)
     img_otsu = resize(img_otsu, (img_size, img_size))
     img_otsu = img_otsu.reshape(-1, 1)
 
@@ -145,7 +145,7 @@ def noprocess_image(image_path, img_size):
     return np.hstack([img, img_gauss, img_otsu, img_watershed, bias_term])
 
 
-def process_image(image_path, img_size):
+def noprocess_image(image_path, img_size):
     img = io.imread(image_path)
     img = resize(img, (img_size, img_size))
     #img = tiles.tiles(img, img_size)
