@@ -124,7 +124,7 @@ def sgd(features, labels, soft_margin_factor, learning_rate):
     return weights, history_cost
 
 
-def feautures_image(image_path, img_size):
+def noprocess_image(image_path, img_size):
     img = io.imread(image_path)
 
     img_otsu = ot.complete_segmentation(img)
@@ -139,6 +139,7 @@ def feautures_image(image_path, img_size):
     img_gauss = resize(img_gauss, (img_size, img_size))
     img_gauss = img_gauss.reshape(-1, 1)
 
+    img = resize(img, (img_size, img_size))
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
     return np.hstack([img, img_gauss, img_otsu, img_watershed, bias_term])
@@ -156,9 +157,9 @@ def process_image(image_path, img_size):
 
 def process_mask(image_path, img_size):
     img = io.imread(image_path)
+    img = resize(img, (img_size, img_size))
     #img = tiles.tiles(img, img_size)
     #img = pc.one_d_array_to_two_d_array(img)
-    img = resize(img, (img_size, img_size))
     img[img > 0] = 1
     img[img < 1] = -1
     img = img.flatten()
@@ -186,8 +187,8 @@ def pred2image(prediction):
 
 
 def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
-    imgs = sorted(glob(f"../Data/{dataset}/img/*.png"))
-    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.png"))
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
     print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
     NImagesTraining = n_train
@@ -217,7 +218,7 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
         _ = plt.ylabel("Cost function")
         _ = plt.xlabel("Epoch")
     plt.legend()
-    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}.png")
+    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-no-filter.png")
 
     img_names = []
     for filename in sorted(os.listdir(f'../Data/{dataset}/img')):
@@ -231,8 +232,9 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
         ax.imshow(pred2image(pred), cmap='gray')
         ax.axis('On')
         ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
-        plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-{soft_margin_factor}.png")
+        plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-"
+                    f"{soft_margin_factor}-no-filter.png")
 
 
 if __name__ == '__main__':
-    svm("NIH3T3", 9, 10000, 0.00001, 3, 250)
+    svm("N2DL-HeLa", 3, 10000, 0.0000001, 5, 250)
