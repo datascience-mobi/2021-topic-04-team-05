@@ -186,14 +186,18 @@ def pred2image(prediction):
     return prediction.reshape((predsize, predsize))
 
 
-def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
+def svm(dataset, synth_dataset, n_train, soft_margin_factor, learning_rate, splits, size):
     imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
+    synth_imgs = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_img/*.tif"))
     masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
+    synth_masks = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_gt/*.tif"))
     print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
     NImagesTraining = n_train
-    X_train = np.vstack([process_image(imgPath, size) for imgPath in imgs[:NImagesTraining]])
-    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
+    X_train = np.vstack([process_image(imgPath, size) for imgPath in synth_imgs[:NImagesTraining]])
+    X_test = np.vstack([process_image(imgPath, size) for imgPath in imgs[:NImagesTraining]])
+    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in synth_masks[:NImagesTraining]])
+    y_test = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
 
     skf = StratifiedKFold(n_splits=splits)
 
