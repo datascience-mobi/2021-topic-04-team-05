@@ -3,26 +3,16 @@ import cv2
 import os
 
 
-def gauss_filter(path_to_folder):
+def gauss_filter(path):
     """
       This function filters images with a lot of noises
       :param: Path to folder
       :return: Images with Gauss Filter
       """
-    images = []
-    for filename in os.listdir(path_to_folder):  # read each image from a folder
-        original_image = cv2.imread(os.path.join(path_to_folder, filename))  # apply the gauss filter
-        filtered = cv2.GaussianBlur(original_image, (5, 5), 0)
-        if original_image is not None:
-            images.append(filtered)
-    return images
+    original_image = cv2.imread(os.path.join(path))  # apply the gauss filter
+    filtered_image = cv2.GaussianBlur(original_image, (5, 5), 0)
+    return filtered_image
 
-
-if __name__ == '__main__':
-
-    path = "/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DL-HeLa/gt"
-    max_number = os.listdir(path)
-    for i in range(1, len(max_number)):
-        segmented_images = gauss_filter(path)
-        plt.imshow(segmented_images[i])
-        plt.show()
+img_gauss = gauss_filter("../../Data/N2DH-GOWT1/img/t52.tif")
+plt.imshow(img_gauss)
+plt.show()
