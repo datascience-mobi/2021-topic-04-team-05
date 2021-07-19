@@ -11,6 +11,9 @@ from sklearn.metrics import f1_score as dice_score
 from SVM_Segmentation.preprocessing import watershed as ws
 from SVM_Segmentation.preprocessing import cooperation_team03_otsu as ot
 from SVM_Segmentation.preprocessing import pca
+from SVM_Segmentation.preprocessing import tiles
+from SVM_Segmentation import pixel_conversion as pc
+
 
 # workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
 plt.rcParams["figure.figsize"] = (10, 5)
@@ -120,7 +123,8 @@ def sgd(features, labels, soft_margin_factor, learning_rate, max_epochs):
     return weights, history_cost
 
 
-def process_image(image_path, img_size, Otsu: bool = False, Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
+def process_image(image_path, img_size, Otsu: bool = False, Watershed: bool = False, Gauss: bool = False,
+                   PCA: bool = False):
     """
     Process images: normalize pixel intesity values, apply filters, and put images in the right format for our svm.
     :param image_path:
@@ -171,8 +175,8 @@ def process_image(image_path, img_size, Otsu: bool = False, Watershed: bool = Fa
 def tiles_image(image_path, img_size):
     img = io.imread(image_path)
     img = resize(img, (img_size, img_size))
-    # img = tiles.tiles(img, img_size)
-    # img = pc.one_d_array_to_two_d_array(img)
+    img = tiles.tiles(img, img_size)
+    img = pc.one_d_array_to_two_d_array(img)
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
     return np.hstack([img, bias_term])
@@ -181,8 +185,6 @@ def tiles_image(image_path, img_size):
 def process_mask(image_path, img_size):
     img = io.imread(image_path)
     img = resize(img, (img_size, img_size))
-    # img = tiles.tiles(img, img_size)
-    # img = pc.one_d_array_to_two_d_array(img)
     img[img > 0] = 1
     img[img < 1] = -1
     img = img.flatten()
@@ -232,7 +234,6 @@ def pred2image(prediction):
 def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_epochs, filters_name, Otsu: bool = False,
         Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
     """
-
     Trains and tests our support vector machine using a specific dataset.
     :param dataset: name of the dataset, can be N2DH-GOWT1, N2DL-HeLa or NIH3T3.
     :param n_train: Amount of pictures in that dataset that are used for training (usually 2/3 of the images).
@@ -298,6 +299,7 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_e
 
 
 
+
 def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size, max_epochs, filters_name,
                Otsu: bool = False, Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
     imgs = sorted(glob(f"../Data/{dataset}/img/*.png"))
@@ -351,4 +353,4 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
 
 
 if __name__ == '__main__':
-    svm("N2DH-GOWT1", 4, 10000, 0.0000001, 5, 250, 40, 'pca', PCA=True)
+    synthetic_svm(("N2DH-GOWT1", 4, 10000, 0.0000001, 5, 250, 40, "tiles")
