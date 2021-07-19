@@ -353,5 +353,5 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
 
 
 if __name__ == '__main__':
-    synthetic_svm("N2DH-GOWT1", "N2DH-GOWT1_t01", 10000, 0.0000001, 5, 250, 40, "Otsu", Otsu=True, Watershed=False,
-    Gauss= False, PCA=False)
+    synthetic_svm("N2DL-HeLa", "N2DL-HeLa_t13", 10000, 0.0000001, 3, 250, 40, "All", Otsu=True, Watershed=True,
+    Gauss= True, PCA=True)
