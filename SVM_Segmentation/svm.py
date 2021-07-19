@@ -162,6 +162,7 @@ def process_image(image_path, img_size, Otsu: bool = False, Watershed: bool = Fa
     img = resize(img, (img_size, img_size))
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
+    stacked_dataframe = np.hstack([img, bias_term])
     if len(filter_list) == 1:
         stacked_dataframe = np.hstack([img, filter_list[0], bias_term])
     if len(filter_list) == 2:
@@ -353,5 +354,5 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
 
 
 if __name__ == '__main__':
-    synthetic_svm("N2DL-HeLa", "N2DL-HeLa_t13", 10000, 0.0000001, 3, 250, 40, "Watershed", Otsu=False, Watershed=True,
-    Gauss= False, PCA=False)
+    synthetic_svm("N2DL-HeLa", "N2DL-HeLa_t13", 10000, 0.0000001, 3, 250, 40, "PCA", Otsu=False, Watershed=False,
+    Gauss= False, PCA=True)
