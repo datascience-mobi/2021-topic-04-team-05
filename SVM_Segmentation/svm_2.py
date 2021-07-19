@@ -85,6 +85,7 @@ def sgd(features, labels, soft_margin_factor, learning_rate):
     This function calculates the stochastic gradient descent to minimize our cost function.
     :param features: all pixels as rows, with n columns, which stand for n features.
     :param labels: all pixels as rows, only one column per pixel, either +1 or -1.
+
     :return: the weight vector found at the minimum of the cost function, and the history of how the costs have
     evolved during the calculations.
     """
@@ -125,6 +126,12 @@ def sgd(features, labels, soft_margin_factor, learning_rate):
 
 
 def process_image(image_path, img_size):
+    """
+    Process images: normalize pixel intesity values, apply filters, and put images in the right format for our svm.
+    :param image_path:
+    :param img_size:
+    :return:
+    """
     img = io.imread(image_path)
 
     img_otsu = ot.complete_segmentation(img, intensity_lvls=2**16)
@@ -145,11 +152,11 @@ def process_image(image_path, img_size):
     return np.hstack([img, img_gauss, img_otsu, img_watershed, bias_term])
 
 
-def noprocess_image(image_path, img_size):
+def tiles_image(image_path, img_size):
     img = io.imread(image_path)
     img = resize(img, (img_size, img_size))
-    #img = tiles.tiles(img, img_size)
-    #img = pc.one_d_array_to_two_d_array(img)
+    img = tiles.tiles(img, img_size)
+    img = pc.one_d_array_to_two_d_array(img)
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
     return np.hstack([img, bias_term])
@@ -167,6 +174,14 @@ def process_mask(image_path, img_size):
 
 
 def predict(dataset, image_index, weights, size):
+    """
+    Calculates the prediction of the image with the svm-determined weights vector.
+    :param dataset:
+    :param image_index:
+    :param weights:
+    :param size:
+    :return:
+    """
     imgs = sorted(glob(f"../Data/{dataset}/img/*.png"))
     masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.png"))
     processed_img = process_image(imgs[image_index], size)
@@ -176,29 +191,46 @@ def predict(dataset, image_index, weights, size):
 
 
 def predict_score(img, gt, weights):
+    """
+    Calculates dice score of our prediciton vs. the ground truth.
+    :param img:
+    :param gt:
+    :param weights:
+    :return:
+    """
     pred = [np.sign(np.dot(img[pixelN], weights)) for pixelN in range(img.shape[0])]
     return dice_score(pred, gt)
 
 
 def pred2image(prediction):
+    """
+    Creates an image from prediction array.
+    :param prediction:
+    :return:
+    """
     prediction = np.array(prediction)
     predsize = int(np.sqrt(len(prediction)))
     return prediction.reshape((predsize, predsize))
 
 
-def svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size):
+def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
+    """
+    Trains and tests our support vector machine using a specific dataset.
+    :param dataset: name of the dataset, can be N2DH-GOWT1, N2DL-HeLa or NIH3T3.
+    :param n_train: Amount of pictures in that dataset that are used for training (usually 2/3 of the images).
+    :param soft_margin_factor: How strong or soft our margin is.
+    :param learning_rate: how big the steps are in the direction contrary to the gradient.
+    :param splits: Amount of splits in the cross validation.
+    :param size: Resizing of the images, what amount of pixels they should have.
+    :return:
+    """
     imgs = sorted(glob(f"../Data/{dataset}/img/*.png"))
-    synth_imgs = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_img/*.tif"))
     masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.png"))
-    synth_masks = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_gt/*.tif"))
-    print(f"{len(synth_imgs)} synthetic images and {len(synth_masks)} synthetic masks detected for training")
-    print(f"{len(imgs)} images and {len(masks)} masks detected for testing")
+    print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
-    #NImagesTraining = n_train
-    X_train = np.vstack([process_image(imgPath, size) for imgPath in synth_imgs])
-    X_test = np.vstack([process_image(imgPath, size) for imgPath in imgs])
-    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in synth_masks])
-    y_test = np.concatenate([process_mask(imgPath, size) for imgPath in masks])
+    NImagesTraining = n_train
+    X_train = np.vstack([process_image(imgPath, size) for imgPath in imgs[:NImagesTraining]])
+    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
 
     skf = StratifiedKFold(n_splits=splits)
 
@@ -213,7 +245,57 @@ def svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size)
         print(model[split_number]["w"])
         print(model[split_number]["dice"])
 
-    dice_mean_model = np.mean([model[i]["dice"] for i in model.keys()])
+    w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
+
+    output_dir = f'../Data/{dataset}/pred'
+
+    for i in range(len(model.keys())):
+        fig = plt.plot(model[i]['hist'], label=f"Split {i}")
+        _ = plt.ylabel("Cost function")
+        _ = plt.xlabel("Epoch")
+    plt.legend()
+    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-filter-watershed.png")
+
+    img_names = []
+    for filename in sorted(os.listdir(f'../Data/{dataset}/img')):
+        img_names.append(filename)
+
+    Ntest = len(imgs) - NImagesTraining
+    fig, ax = plt.subplots(dpi=90)
+    for i in range(Ntest):
+        ii = NImagesTraining + i
+        pred, gt = predict(dataset, ii, w_mean_model, size)
+        ax.imshow(pred2image(pred), cmap='gray')
+        ax.axis('On')
+        ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
+        plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-"
+                    f"{soft_margin_factor}-filter-watershed.png")
+
+
+def svm_synthetic(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size):
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.png"))
+    synth_imgs = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_img/*.tif"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.png"))
+    synth_masks = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_gt/*.tif"))
+    print(f"{len(synth_imgs)} synthetic images and {len(synth_masks)} synthetic masks detected for training")
+    print(f"{len(imgs)} images and {len(masks)} masks detected for testing")
+
+    X_train = np.vstack([process_image(imgPath, size) for imgPath in synth_imgs])
+    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in synth_masks])
+
+    skf = StratifiedKFold(n_splits=splits)
+
+    model = {}
+    for split_number, (train_index, test_index) in enumerate(skf.split(X_train, y_train)):
+        X_train_split, X_test_split = X_train[train_index], X_train[test_index]
+        y_train_split, y_test_split = y_train[train_index], y_train[test_index]
+        w, hist = sgd(X_train_split, y_train_split, soft_margin_factor, learning_rate)
+        dice = predict_score(X_test_split, y_test_split, w)
+        model[split_number] = {"train_index": train_index, "test_index": test_index, "w": w, "hist": hist, "dice": dice,
+                              "image_size": size}
+        print(model[split_number]["w"])
+        print(model[split_number]["dice"])
+
     w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
 
     output_dir = f'../Data/{dataset}/pred'
@@ -239,6 +321,5 @@ def svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size)
         plt.savefig(f"{output_dir}/{img_names[i]}_pred_lr-{learning_rate}-reg-"
                     f"{soft_margin_factor}-all-filters-synth-imgs.png")
 
-
 if __name__ == '__main__':
-    svm("NIH3T3", "NIH3T3_dna-0", 10000, 0.0000001, 5, 250)
+    svm("NIH3T3", 12, 10000, 0.0000001, 5, 250)
