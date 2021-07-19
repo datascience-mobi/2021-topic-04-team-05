@@ -1,5 +1,4 @@
 import os
-import json
 import numpy as np
 from glob import glob
 import matplotlib.pyplot as plt
@@ -12,13 +11,8 @@ from sklearn.metrics import f1_score as dice_score
 from SVM_Segmentation.preprocessing import watershed as ws
 from SVM_Segmentation.preprocessing import cooperation_team03_otsu as ot
 from SVM_Segmentation.preprocessing import pca
-from SVM_Segmentation.preprocessing import tiles
-from SVM_Segmentation import pixel_conversion as pc
 
-
-# workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
 plt.rcParams["figure.figsize"] = (10, 5)
-
 
 def compute_cost(weights, features, labels, soft_margin_factor):
     """"
