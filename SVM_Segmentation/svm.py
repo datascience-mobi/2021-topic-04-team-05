@@ -1,5 +1,4 @@
 import os
-import json
 import numpy as np
 from glob import glob
 import matplotlib.pyplot as plt
@@ -12,13 +11,8 @@ from sklearn.metrics import f1_score as dice_score
 from SVM_Segmentation.preprocessing import watershed as ws
 from SVM_Segmentation.preprocessing import cooperation_team03_otsu as ot
 from SVM_Segmentation.preprocessing import pca
-from SVM_Segmentation.preprocessing import tiles
-from SVM_Segmentation import pixel_conversion as pc
 
-
-# workdir = os.path.normpath("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/")
 plt.rcParams["figure.figsize"] = (10, 5)
-
 
 def compute_cost(weights, features, labels, soft_margin_factor):
     """"
@@ -44,25 +38,23 @@ def compute_cost(weights, features, labels, soft_margin_factor):
     return cost
 
 
-def calculate_cost_gradient(weights, features_pixel, label_pixel, soft_margin_factor):
+def calculate_cost_gradient(weights, features, labels, soft_margin_factor):
     """
-    This function calculates the gradient of the cost function, so it makes its derivative, in order to know in which
+    This function calculates the gradient of the cost function. It computes its derivative, in order to know in which
     direction the gradient descent has to go to find the minimum of the cost function.
-    :param soft_margin_factor:
+    :param soft_margin_factor: determines the importance of misclassified pixels.
     :param weights: weights vector.
-    :param features_pixel: because we chose SGD, only one pixel will be passed to this function. This means,
-    only one row with different columns depending on the amount of features.
-    :param label_pixel: label of the current pixel, either +1 or -1.
+    :param features: a vector with all our pixels as rows.
+    :param labels: label of the pixels, either +1 or -1.
     :return: gradient of the cost function with that weight vector.
     """
-    # In our case, we will use Stochastic Gradient Descent, so only one pixel will be passed.
-    # Because of this, its label is only one number.
-    if type(label_pixel) == np.float64:
-        label_pixel = np.array([label_pixel])
-        features_pixel = np.array([features_pixel])
+    # In order to iterate correctly, we turn our vectors into arrays.
+    labels = np.array([labels])
+    features = np.array([features])
 
-    # Calculate distance to hyperplane, to classify the pixel.
-    distance_to_hyperplane = 1 - (label_pixel * np.dot(features_pixel, weights))
+    # Calculate distance to hyperplane, to classify the pixels. This dot product can be changed depending on the
+    # chosen kernel.
+    distance_to_hyperplane = 1 - (labels * np.dot(features, weights))
 
     # Create an empty gradient vector, to fill with the gradient of the current pixel.
     gradient_cost = np.zeros(len(weights))
@@ -71,9 +63,9 @@ def calculate_cost_gradient(weights, features_pixel, label_pixel, soft_margin_fa
         # For correctly classified pixels, the current weight vector is maintained
         if max(0, distance_pixel) == 0:
             gradient_pixel = weights
-        # For incorrectly classified pixels, the weight vector is corrected.
+        # For incorrectly classified pixels, the weight vector is corrected in the direction contrary to the gradient.
         else:
-            gradient_pixel = weights - (soft_margin_factor * label_pixel[index_pixel] * features_pixel[index_pixel])
+            gradient_pixel = weights - (soft_margin_factor * labels[index_pixel] * features[index_pixel])
         gradient_cost += gradient_pixel
 
     return gradient_cost
@@ -127,10 +119,15 @@ def sgd(features, labels, soft_margin_factor, learning_rate, max_epochs):
 def process_image(image_path, img_size, Otsu: bool = False, Watershed: bool = False, Gauss: bool = False,
                    PCA: bool = False):
     """
-    Process images: normalize pixel intesity values, apply filters, and put images in the right format for our svm.
-    :param image_path:
-    :param img_size:
-    :return:
+    Processes our image so that the dimensions are all the same, its intensities are normalized and different
+    features are added.
+    :param image_path: path to image.
+    :param img_size: parameter for resizing.
+    :param Otsu: activation of otsu filter.
+    :param Watershed: activates watershed segmentation.
+    :param Gauss: activates gauss filter
+    :param PCA: activates PCA.
+    :return: image with all normalized pixels as one column.
     """
     img = io.imread(image_path)
 
@@ -162,7 +159,8 @@ def process_image(image_path, img_size, Otsu: bool = False, Watershed: bool = Fa
     img = resize(img, (img_size, img_size))
     img = img.reshape(-1, 1)
     bias_term = np.ones(img.shape[0]).reshape(-1, 1)
-    stacked_dataframe = np.hstack([img, bias_term])
+    if len(filter_list) == 0:
+        stacked_dataframe = np.hstack([img, bias_term])
     if len(filter_list) == 1:
         stacked_dataframe = np.hstack([img, filter_list[0], bias_term])
     if len(filter_list) == 2:
@@ -174,17 +172,13 @@ def process_image(image_path, img_size, Otsu: bool = False, Watershed: bool = Fa
     return stacked_dataframe
 
 
-def tiles_image(image_path, img_size):
-    img = io.imread(image_path)
-    img = resize(img, (img_size, img_size))
-    img = tiles.tiles(img, img_size)
-    img = pc.one_d_array_to_two_d_array(img)
-    img = img.reshape(-1, 1)
-    bias_term = np.ones(img.shape[0]).reshape(-1, 1)
-    return np.hstack([img, bias_term])
-
-
 def process_mask(image_path, img_size):
+    """
+    Processes the mask so that it has the same dimensions as the original image and is normalized.
+    :param image_path: mask path.
+    :param img_size: resizing.
+    :return: normalized and resized mask.
+    """
     img = io.imread(image_path)
     img = resize(img, (img_size, img_size))
     img[img > 0] = 1
@@ -193,17 +187,18 @@ def process_mask(image_path, img_size):
     return img
 
 
-def predict(dataset, image_index, weights, size, Otsu: bool = False, Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
+def predict(dataset, image_index, weights, size, datatype, Otsu: bool = False, Watershed: bool = False, Gauss: bool = False,
+            PCA: bool = False):
     """
     Calculates the prediction of the image with the svm-determined weights vector.
-    :param dataset:
-    :param image_index:
-    :param weights:
-    :param size:
+    :param dataset: chooses dataset.
+    :param image_index: chooses image within dataset.
+    :param weights: weights vector.
+    :param size: parameter for resizing.
     :return:
     """
-    imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
-    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.{datatype}"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.{datatype}"))
     processed_img = process_image(imgs[image_index], size, Otsu, Watershed, Gauss, PCA)
     prediction = [np.sign(np.dot(processed_img[pixelN], weights)) for pixelN in range(processed_img.shape[0])]
     ground_truth = process_mask(masks[image_index], size)
@@ -213,10 +208,10 @@ def predict(dataset, image_index, weights, size, Otsu: bool = False, Watershed: 
 def predict_score(img, gt, weights):
     """
    Calculates dice score of our prediciton vs. the ground truth.
-   :param img:
-   :param gt:
-   :param weights:
-   :return:
+   :param img: image that we want to segment.
+   :param gt: ground truth corresponding to segmented image.
+   :param weights: weights vector that should classify pixels.
+   :return: dice score from the prediction compared to the ground truth.
    """
     pred = [np.sign(np.dot(img[pixelN], weights)) for pixelN in range(img.shape[0])]
     return dice_score(pred, gt)
@@ -225,15 +220,15 @@ def predict_score(img, gt, weights):
 def pred2image(prediction):
     """
     Creates an image from prediction array.
-    :param prediction:
-    :return:
+    :param prediction: uses the prediction array created from our segmentation.
+    :return: segmented image.
     """
     prediction = np.array(prediction)
     predsize = int(np.sqrt(len(prediction)))
     return prediction.reshape((predsize, predsize))
 
 
-def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_epochs, filters_name, Otsu: bool = False,
+def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_epochs, filters_name, datatype, Otsu: bool = False,
         Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
     """
     Trains and tests our support vector machine using a specific dataset.
@@ -243,24 +238,26 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_e
     :param learning_rate: how big the steps are in the direction contrary to the gradient.
     :param splits: Amount of splits in the cross validation.
     :param size: Resizing of the images, what amount of pixels they should have.
-    :param max_epochs:
-    :param filters_name:
-    :param Otsu:
-    :param Watershed:
-    :param Gauss:
-    :param PCA:
-    :return:
+    :param max_epochs: maximum amount of epochs for our stochastic gradient descent.
+    :param filters_name: in order to save images with the correct filter name.
+    :param Otsu: activates otsu filter.
+    :param Watershed: activates watershed segmentation.
+    :param Gauss: activates gauss filter
+    :param PCA: activates PCA.
+    :return: segmented images are saved into "pred" folder in the corresponding dataset.
     """
-    imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
-    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
+    # Reading in our images
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.{datatype}"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.{datatype}"))
     print(f"{len(imgs)} images detected and {len(masks)} masks detected")
 
+    # Defining our train set
     NImagesTraining = n_train
     X_train = np.vstack([process_image(imgPath, size, Otsu, Watershed, Gauss, PCA) for imgPath in imgs[:NImagesTraining]])
     y_train = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
 
+    # Cross validation
     skf = StratifiedKFold(n_splits=splits)
-
     model = {}
     for split_number, (train_index, test_index) in enumerate(skf.split(X_train, y_train)):
         X_train_split, X_test_split = X_train[train_index], X_train[test_index]
@@ -271,28 +268,26 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_e
                                "image_size": size}
         print(model[split_number]["w"])
         print(model[split_number]["dice"])
-
-    dice_mean_model = np.mean([model[i]["dice"] for i in model.keys()])
     w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
 
+    # Plotting the cost history
     output_dir = f'../Data/{dataset}/pred'
-
     for i in range(len(model.keys())):
         fig = plt.plot(model[i]['hist'], label=f"Split {i}")
         _ = plt.ylabel("Cost function")
         _ = plt.xlabel("Epoch")
     plt.legend()
-    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-no-filter.png")
+    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-{filters_name}.png")
 
+    # Plotting the segmented images from the test set
     img_names = []
     for filename in sorted(os.listdir(f'../Data/{dataset}/img')):
         img_names.append(filename)
-
     Ntest = len(imgs) - NImagesTraining
     fig, ax = plt.subplots(dpi=90)
     for i in range(Ntest):
         ii = NImagesTraining + i
-        pred, gt = predict(dataset, ii, w_mean_model, size, Otsu, Watershed, Gauss, PCA)
+        pred, gt = predict(dataset, ii, w_mean_model, size, datatype, Otsu, Watershed, Gauss, PCA)
         ax.imshow(pred2image(pred), cmap='gray')
         ax.axis('On')
         ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
@@ -301,18 +296,39 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_e
 
 
 
-def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size, max_epochs, filters_name,
-               Otsu: bool = False, Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
-    imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
+def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size, max_epochs, filters_name, datatype,
+                  Otsu: bool = False, Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
+    """
+    Segments images using synthetic images as training set and the rest of the images from the dataset that weren't
+    used for the synthetic image generation as a test set.
+    :param dataset: name of the dataset, can be N2DH-GOWT1, N2DL-HeLa or NIH3T3.
+    :param synth_dataset: name of the synthetic dataset, can be N2DH-GOWT1_t01, N2DL-HeLa_t13 or NIH3T3_dna-0.
+    :param soft_margin_factor: How strong or soft our margin is.
+    :param learning_rate: how big the steps are in the direction contrary to the gradient.
+    :param splits: Amount of splits in the cross validation.
+    :param size: Resizing of the images, what amount of pixels they should have.
+    :param max_epochs: maximum amount of epochs for our stochastic gradient descent.
+    :param filters_name: in order to save images with the correct filter name.
+    :param datatype: png or tif.
+    :param Otsu: activates otsu filter.
+    :param Watershed: activates watershed segmentation.
+    :param Gauss: activates gauss filter
+    :param PCA: activates PCA.
+    :return: segmented images are saved into "pred" folder in the corresponding dataset.
+    """
+    # Reading in our images
+    imgs = sorted(glob(f"../Data/{dataset}/img/*.{datatype}"))
     synth_imgs = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_img/*.tif"))
-    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.tif"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/{datatype}/*.{datatype}"))
     synth_masks = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_gt/*.tif"))
     print(f"{len(synth_imgs)} synthetic images and {len(synth_masks)} synthetic masks detected for training")
     print(f"{len(imgs)} images and {len(masks)} masks detected for testing")
 
+    # Defining our train set
     X_train = np.vstack([process_image(imgPath, size, Otsu, Watershed, Gauss, PCA) for imgPath in synth_imgs])
     y_train = np.concatenate([process_mask(imgPath, size) for imgPath in synth_masks])
 
+    # Cross validation
     skf = StratifiedKFold(n_splits=splits)
 
     model = {}
@@ -326,9 +342,9 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
         print(model[split_number]["w"])
         print(model[split_number]["dice"])
 
-    dice_mean_model = np.mean([model[i]["dice"] for i in model.keys()])
     w_mean_model = np.mean([model[i]["w"] for i in model.keys()], axis=0)
 
+    # Plotting the cost history
     output_dir = f'../Data/{dataset}/pred'
 
     for i in range(len(model.keys())):
@@ -336,8 +352,9 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
         _ = plt.ylabel("Cost function")
         _ = plt.xlabel("Epoch")
     plt.legend()
-    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-no-filter.png")
+    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-{filters_name}.png")
 
+    # Plotting the segmented images from the test set
     img_names = []
     for filename in sorted(os.listdir(f'../Data/{dataset}/img')):
         img_names.append(filename)
@@ -354,5 +371,7 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
 
 
 if __name__ == '__main__':
-    synthetic_svm("N2DL-HeLa", "N2DL-HeLa_t13", 10000, 0.0000001, 3, 250, 40, "PCA", Otsu=False, Watershed=False,
-    Gauss= False, PCA=True)
+    # Segments the first dataset using a regularization strength of 10000, Learning rate of 1e07, 5 splits for cross
+    # validation, 40 epochs as maximum and all filters.
+    synthetic_svm("N2DH-GOWT1", "N2DH-GOWT1_t01", 10000, 0.0000001, 5, 250, 40, "None", "tif", Otsu=True,
+                  Watershed=True, Gauss= True, PCA=True)

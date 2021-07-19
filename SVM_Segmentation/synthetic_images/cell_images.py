@@ -71,7 +71,7 @@ def selection(image: numpy.ndarray, gt: numpy.ndarray, directory_img_background,
         height = dataframe.iloc[2, source.index(str(directory_))]
         width = dataframe.iloc[3, source.index(str(directory_))]
         object = image[y_coordinate:y_coordinate + height, x_coordinate:x_coordinate + width].copy()
-        path = f'{directory_}/{new_filename}.tif'
+        path = f'{directory_}/{new_filename}.png'
         cv2.imwrite(path, object)
     # gt objects
     y_coordinate = dataframe.iloc[0, 1]
@@ -79,7 +79,7 @@ def selection(image: numpy.ndarray, gt: numpy.ndarray, directory_img_background,
     height = dataframe.iloc[2, 1]
     width = dataframe.iloc[3, 1]
     object = gt[y_coordinate:y_coordinate + height, x_coordinate:x_coordinate + width].copy()
-    path = f'{directory_gt}/{new_filename}.tif'
+    path = f'{directory_gt}/{new_filename}.png'
     cv2.imwrite(path, object)
 
 
@@ -97,7 +97,7 @@ def resize_image(image_path, new_filename, height, width):
     background_grey = color.rgb2gray(background)
     resized = cv2.resize(background_grey, (height, width))
     directory = str(image_path).rsplit('/', 1)[0]
-    path = f'{directory}/{new_filename}.tif'
+    path = f'{directory}/{new_filename}.png'
     cv2.imwrite(path, resized)
 
 
@@ -159,10 +159,10 @@ def generate_synthetic_images(background_path, object_path, gt_object_path, new_
             # randomly choose a type of object
             object_version = np.random.randint(1, 3 + 1)
 
-            object1 = io.imread(f'{object_path}/{object_version}.tif')
+            object1 = io.imread(f'{object_path}/{object_version}.png')
             object1 = color.rgb2gray(object1)
 
-            gt_object1 = io.imread(f'{gt_object_path}/{object_version}.tif')
+            gt_object1 = io.imread(f'{gt_object_path}/{object_version}.png')
             gt_object1 = color.rgb2gray(gt_object1)
 
             # random rotation of the object
@@ -193,10 +193,10 @@ def generate_synthetic_images(background_path, object_path, gt_object_path, new_
 
             gt_background1 = np.maximum(gt_background1, gt_background2)
 
-        path = f'{new_image_path}/{i}.tif'
+        path = f'{new_image_path}/{i}.png'
         cv2.imwrite(path, background1)
 
-        path = f'{new_image_path_gt}/{i}.tif'
+        path = f'{new_image_path_gt}/{i}.png'
         cv2.imwrite(path, gt_background1)
 
 
@@ -239,7 +239,7 @@ def main(image_path, gt_path, name, background_coord_list, object1_coord_list, o
     selection(image, gt, directory_img_background, directory_img_object, directory_gf, 3, background_coord_list,
               object3_coord_list)
 
-    background_path = f'../../Data/synthetic_cell_images/{name}/background/1.tif'
+    background_path = f'../../Data/synthetic_cell_images/{name}/background/1.png'
     object_path = f'../../Data/synthetic_cell_images/{name}/cell'
     gt_object_path = f'../../Data/synthetic_cell_images/{name}/cell_gt'
     new_image_path = f'../../Data/synthetic_cell_images/{name}/generated_images_img'
@@ -259,8 +259,8 @@ if __name__ == '__main__':
 
     # N2DH-GOWT1
 
-    image_path = '..\\..\\Data\\N2DH-GOWT1\\img\\t01.tif'
-    gt_path = '..\\..\\Data\\N2DH-GOWT1\\gt\\tif\\man_seg01.tif'
+    image_path = '../../Data/N2DH-GOWT1/syntheticimg/img/t01.tif'
+    gt_path = '../../Data/N2DH-GOWT1/syntheticimg/gt/man_seg01.tif'
     background_coord_list = [0, 0, 200, 200]
     object1_coord_list = [750, 760, 100, 100]
     object2_coord_list = [590, 380, 80, 80]
@@ -275,8 +275,8 @@ if __name__ == '__main__':
 
     # N2DL-HeLa
 
-    image_path = '../../Data/N2DL-HeLa/img/t13.tif'
-    gt_path = '../../Data/N2DL-HeLa/gt/tif/man_seg13.tif'
+    image_path = '../../Data/N2DL-HeLa/syntheticimg/img/t13.tif'
+    gt_path = '../../Data/N2DL-HeLa/syntheticimg/gt/man_seg13.tif'
     background_coord_list = [0, 800, 170, 190]
     object1_coord_list = [160, 450, 40, 40]
     object2_coord_list = [330, 772, 40, 35]
@@ -291,8 +291,8 @@ if __name__ == '__main__':
 
     # NIH3T3
 
-    image_path = '../../Data/NIH3T3/img/dna-0.png'
-    gt_path = '../../Data/NIH3T3/gt/tif/0.png'
+    image_path = '../../Data/NIH3T3/syntheticimg/img/dna-0.png'
+    gt_path = '../../Data/NIH3T3/syntheticimg/gt/0.png'
     background_coord_list = [550, 1200, 100, 100]
     object1_coord_list = [105, 235, 100, 100]
     object2_coord_list = [420, 1150, 130, 120]
@@ -307,12 +307,12 @@ if __name__ == '__main__':
 
     # showing one generated image of each set and its according ground truth
 
-    image = io.imread('../../Data/synthetic_cell_images/NIH3T3_dna-0/generated_images_gt/1.tif')
-    image_gen = io.imread('../../Data/synthetic_cell_images/NIH3T3_dna-0/generated_images_img/1.tif')
-    image1 = io.imread('../../Data/synthetic_cell_images/N2DL-HeLa_t13/generated_images_gt/1.tif')
-    image_gen1 = io.imread('../../Data/synthetic_cell_images/N2DL-HeLa_t13/generated_images_img/1.tif')
-    image2 = io.imread('../../Data/synthetic_cell_images/N2DH-GOWT1_t01/generated_images_gt/1.tif')
-    image_gen2 = io.imread('../../Data/synthetic_cell_images/N2DH-GOWT1_t01/generated_images_img/1.tif')
+    image = io.imread('../../Data/synthetic_cell_images/NIH3T3_dna-0/generated_images_gt/1.png')
+    image_gen = io.imread('../../Data/synthetic_cell_images/NIH3T3_dna-0/generated_images_img/1.png')
+    image1 = io.imread('../../Data/synthetic_cell_images/N2DL-HeLa_t13/generated_images_gt/1.png')
+    image_gen1 = io.imread('../../Data/synthetic_cell_images/N2DL-HeLa_t13/generated_images_img/1.png')
+    image2 = io.imread('../../Data/synthetic_cell_images/N2DH-GOWT1_t01/generated_images_gt/1.png')
+    image_gen2 = io.imread('../../Data/synthetic_cell_images/N2DH-GOWT1_t01/generated_images_img/1.png')
     plt.imshow(image)
     plt.show()
     plt.imshow(image_gen)

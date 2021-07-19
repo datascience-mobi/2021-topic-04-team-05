@@ -12,12 +12,12 @@ rows = 2
 columns = 3
 
 # reading images
-Image1 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t01.tif')
-Image2 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t21.tif')
-Image3 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t31.tif')
-Image4 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t39.tif')
-Image5 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t39.tif')
-Image6 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t39.tif')
+Image1 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t01.png')
+Image2 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t21.png')
+Image3 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t31.png')
+Image4 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t39.png')
+Image5 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t39.png')
+Image6 = cv2.imread('/Users/juanandre/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t39.png')
 
 # Adds a subplot at the 1st position
 fig.add_subplot(rows, columns, 1)

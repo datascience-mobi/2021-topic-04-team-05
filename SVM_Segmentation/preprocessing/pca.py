@@ -48,7 +48,7 @@ def pca_different_images(image_path, principal_components):
 
 
 if __name__ == '__main__':
-    image_read1 = io.imread('../../Data/N2DH-GOWT1/img/t01.tif')
+    image_read1 = io.imread('../../Data/N2DH-GOWT1/img/t01.png')
     pca1 = convert_pca(image_read1, 0.9)
 
     plt.imshow(pca1)
