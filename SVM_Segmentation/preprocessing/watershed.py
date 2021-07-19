@@ -39,6 +39,6 @@ def watershed(image):
 
 
 if __name__ == '__main__':
-    ws = watershed("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t72.tif")
+    ws = watershed("/Users/laurasanchis/PycharmProjects/2021-topic-04-team-05/Data/N2DH-GOWT1/img/t72.png")
     print(ws)
 
