@@ -373,5 +373,7 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
 if __name__ == '__main__':
     # Segments the first dataset using a regularization strength of 10000, Learning rate of 1e07, 5 splits for cross
     # validation, 40 epochs as maximum and all filters.
-    synthetic_svm("N2DH-GOWT1", "N2DH-GOWT1_t01", 10000, 0.0000001, 5, 250, 40, "None", "tif", Otsu=True,
-                  Watershed=True, Gauss= True, PCA=True)
+    #synthetic_svm("N2DH-GOWT1", "N2DH-GOWT1_t01", 10000, 0.0000001, 5, 250, 40, "None", "tif", Otsu=True,
+                  #Watershed=True, Gauss= True, PCA=True)
+    svm("N2DH-GOWT1", 4, 100, 0.0000001, 5, 250, 40, "All", "tif", Otsu=True,
+                  Watershed=True, Gauss=True, PCA=True)
