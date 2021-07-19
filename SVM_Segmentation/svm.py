@@ -1,4 +1,5 @@
 import os
+import json
 import numpy as np
 from glob import glob
 import matplotlib.pyplot as plt
@@ -299,7 +300,6 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size, max_e
 
 
 
-
 def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size, max_epochs, filters_name,
                Otsu: bool = False, Watershed: bool = False, Gauss: bool = False, PCA: bool = False):
     imgs = sorted(glob(f"../Data/{dataset}/img/*.tif"))
@@ -344,7 +344,7 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
     Ntest = len(imgs)
     fig, ax = plt.subplots(dpi=90)
     for i in range(Ntest):
-        pred, gt = predict(dataset, i, w_mean_model, size)
+        pred, gt = predict(dataset, i, w_mean_model, size, Otsu, Watershed, Gauss, PCA)
         ax.imshow(pred2image(pred), cmap='gray')
         ax.axis('On')
         ax.set_title(f"Test img: {i + 1} Dice:{round(dice_score(gt, pred), 2)}")
@@ -353,4 +353,5 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
 
 
 if __name__ == '__main__':
-    synthetic_svm("N2DL-HeLa", "N2DL-HeLa_t13", 10000, 0.0000001, 5, 250, 40, "All", Otsu=True, Watershed=True, Gauss=True, PCA=True)
+    synthetic_svm("N2DH-GOWT1", "N2DH-GOWT1_t01", 10000, 0.0000001, 5, 250, 40, "All", Otsu=True, Watershed=True,
+    Gauss= True, PCA=True)
