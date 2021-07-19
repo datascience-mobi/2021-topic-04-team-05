@@ -6,7 +6,7 @@ a = numpy.array(
     [[0, 0, 0], [0.59, 0.64, 0.64], [0.7, 0.43, 0.44],
      [0.56, 0.65, 0.65], [0, 0, 0], [0.7, 0.44, 0.44]])
 
-print(a)
+output_dir = f'../../Data/boxblots'
 plt.boxplot(a.transpose())  # transpose nur hier notwendig, damit jede column 1 plot ist
 ticks = [1, 2, 3, 4, 5, 6]
 labels = ['None', 'All', 'Gauss', 'Otsu', 'Watershed', 'PCA']
