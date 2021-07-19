@@ -186,14 +186,19 @@ def pred2image(prediction):
     return prediction.reshape((predsize, predsize))
 
 
-def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
+def svm(dataset, synth_dataset, soft_margin_factor, learning_rate, splits, size):
     imgs = sorted(glob(f"../Data/{dataset}/img/*.png"))
+    synth_imgs = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_img/*.tif"))
     masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.png"))
-    print(f"{len(imgs)} images detected and {len(masks)} masks detected")
+    synth_masks = sorted(glob(f"../Data/synthetic_cell_images/{synth_dataset}/generated_images_gt/*.tif"))
+    print(f"{len(synth_imgs)} synthetic images and {len(synth_masks)} synthetic masks detected for training")
+    print(f"{len(imgs)} images and {len(masks)} masks detected for testing")
 
-    NImagesTraining = n_train
-    X_train = np.vstack([process_image(imgPath, size) for imgPath in imgs[:NImagesTraining]])
-    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in masks[:NImagesTraining]])
+    #NImagesTraining = n_train
+    X_train = np.vstack([process_image(imgPath, size) for imgPath in synth_imgs])
+    X_test = np.vstack([process_image(imgPath, size) for imgPath in imgs])
+    y_train = np.concatenate([process_mask(imgPath, size) for imgPath in synth_masks])
+    y_test = np.concatenate([process_mask(imgPath, size) for imgPath in masks])
 
     skf = StratifiedKFold(n_splits=splits)
 
@@ -218,23 +223,22 @@ def svm(dataset, n_train, soft_margin_factor, learning_rate, splits, size):
         _ = plt.ylabel("Cost function")
         _ = plt.xlabel("Epoch")
     plt.legend()
-    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-all-filter.png")
+    plt.savefig(f"{output_dir}/lr-{learning_rate}-reg-{soft_margin_factor}-all-filters-synth-imgs.png")
 
     img_names = []
     for filename in sorted(os.listdir(f'../Data/{dataset}/img')):
         img_names.append(filename)
 
-    Ntest = len(imgs) - NImagesTraining
+    Ntest = len(imgs)
     fig, ax = plt.subplots(dpi=90)
     for i in range(Ntest):
-        ii = NImagesTraining + i
-        pred, gt = predict(dataset, ii, w_mean_model, size)
+        pred, gt = predict(dataset, i, w_mean_model, size)
         ax.imshow(pred2image(pred), cmap='gray')
         ax.axis('On')
-        ax.set_title(f"Test img: {ii + 1} Dice:{round(dice_score(gt, pred), 2)}")
-        plt.savefig(f"{output_dir}/{img_names[ii]}_pred_lr-{learning_rate}-reg-"
-                    f"{soft_margin_factor}-all-filter.png")
+        ax.set_title(f"Test img: {i + 1} Dice:{round(dice_score(gt, pred), 2)}")
+        plt.savefig(f"{output_dir}/{img_names[i]}_pred_lr-{learning_rate}-reg-"
+                    f"{soft_margin_factor}-all-filters-synth-imgs.png")
 
 
 if __name__ == '__main__':
-    svm("NIH3T3", 12, 10000, 0.0000001, 5, 250)
+    svm("NIH3T3", "NIH3T3_dna-0", 10000, 0.0000001, 5, 250)
