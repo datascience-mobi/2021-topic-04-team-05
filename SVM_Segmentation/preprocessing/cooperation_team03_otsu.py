@@ -59,7 +59,7 @@ def complete_segmentation(img, intensity_lvls=256):
 
 
 if __name__ == '__main__':
-    image = io.imread('../../Data/N2DL-HeLa/img/t52.tif')
+    image = io.imread('../../Data/N2DH-GOWT1/img/t21.tif')
     segmented_image = complete_segmentation(image, intensity_lvls=2**16)
     plt.imshow(segmented_image)
     plt.show()
