@@ -6,4 +6,4 @@ This includes the support-vector-machine itself, the Dice Score to evaluate its 
 The code creating the synthetic images, while enlarging our training-set, is also deposited here.
 Additionally our unit-test can also be found in this repository.
 
-In the directory Final_Modules the final python modules can be found.
+In the directory SVM_Segmentation the final python modules can be found.
