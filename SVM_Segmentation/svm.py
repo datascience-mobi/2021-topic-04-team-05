@@ -198,7 +198,7 @@ def predict(dataset, image_index, weights, size, datatype, Otsu: bool = False, W
     :return:
     """
     imgs = sorted(glob(f"../Data/{dataset}/img/*.{datatype}"))
-    masks = sorted(glob(f"../Data/{dataset}/gt/tif/*.{datatype}"))
+    masks = sorted(glob(f"../Data/{dataset}/gt/{datatype}/*.{datatype}"))
     processed_img = process_image(imgs[image_index], size, Otsu, Watershed, Gauss, PCA)
     prediction = [np.sign(np.dot(processed_img[pixelN], weights)) for pixelN in range(processed_img.shape[0])]
     ground_truth = process_mask(masks[image_index], size)
@@ -362,7 +362,7 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
     Ntest = len(imgs)
     fig, ax = plt.subplots(dpi=90)
     for i in range(Ntest):
-        pred, gt = predict(dataset, i, w_mean_model, size, Otsu, Watershed, Gauss, PCA)
+        pred, gt = predict(dataset, i, w_mean_model, size, datatype, Otsu, Watershed, Gauss, PCA)
         ax.imshow(pred2image(pred), cmap='gray')
         ax.axis('On')
         ax.set_title(f"Test img: {i + 1} Dice:{round(dice_score(gt, pred), 2)}")
@@ -373,7 +373,8 @@ def synthetic_svm(dataset, synth_dataset, soft_margin_factor, learning_rate, spl
 if __name__ == '__main__':
     # Segments the first dataset using a regularization strength of 10000, Learning rate of 1e07, 5 splits for cross
     # validation, 40 epochs as maximum and all filters.
-    #synthetic_svm("N2DH-GOWT1", "N2DH-GOWT1_t01", 10000, 0.0000001, 5, 250, 40, "None", "tif", Otsu=True,
-                  #Watershed=True, Gauss= True, PCA=True)
-    svm("N2DH-GOWT1", 4, 100, 0.0000001, 5, 250, 40, "All", "tif", Otsu=True,
-                  Watershed=True, Gauss=True, PCA=True)
+    synthetic_svm("N2DH-GOWT1", "N2DH-GOWT1_t01", 10000, 0.0000001, 5, 250, 40, "All", "tif", Otsu=True,
+                  Watershed=True, Gauss= True, PCA=True)
+
+
+
